@@ -425,8 +425,7 @@ public class TextureDrawer
     {
         if (buffer == null) { throw new IllegalStateException("Drawing operation not started!"); }
 
-        buffer.end();
-        BufferUploader.end(buffer);
+        BufferUploader.drawWithShader(buffer.end());
 
         buffer = null;
     }

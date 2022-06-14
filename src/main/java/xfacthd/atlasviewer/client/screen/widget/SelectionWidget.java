@@ -31,7 +31,7 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
 
     public SelectionWidget(int x, int y, int width, Component title, Consumer<T> selectCallback)
     {
-        super(x, y, width, ENTRY_HEIGHT, new TextComponent(""));
+        super(x, y, width, ENTRY_HEIGHT, Component.empty());
         this.title = title;
         this.selectCallback = selectCallback;
     }
@@ -83,9 +83,10 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
                 float scale = 4F / (float)entries.size();
                 int scrollY = y + (int)(ENTRY_HEIGHT * scrollOffset * scale) + ENTRY_HEIGHT;
                 int barHeight = (int)(ENTRY_HEIGHT * 4 * scale + 1);
+                int scrollBotY = Math.min(scrollY + barHeight, y + ENTRY_HEIGHT + boxHeight - 2);
 
-                fill(pstack, x + width - 5, scrollY,     x + width - 1, scrollY + barHeight,     0xFF666666);
-                fill(pstack, x + width - 4, scrollY + 1, x + width - 2, scrollY + barHeight - 1, 0xFFAAAAAA);
+                fill(pstack, x + width - 5, scrollY,     x + width - 1, scrollBotY,     0xFF666666);
+                fill(pstack, x + width - 4, scrollY + 1, x + width - 2, scrollBotY - 1, 0xFFAAAAAA);
             }
 
             pstack.popPose();

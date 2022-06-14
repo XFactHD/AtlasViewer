@@ -21,7 +21,7 @@ import java.util.*;
 @SuppressWarnings("deprecation")
 public class AtlasScreen extends Screen
 {
-    private static final Component TITLE = new TranslatableComponent("title.atlasviewer.atlasviewer");
+    private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final int PADDING = 5;
     private static final int SELECT_WIDTH = 300;
     private static final int SELECT_HEIGHT = 20;
@@ -51,7 +51,7 @@ public class AtlasScreen extends Screen
         maxAtlasWidth = width - (PADDING * 6);
         maxAtlasHeight = height - atlasTop - (PADDING * 3);
 
-        SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(width - (PADDING * 3) - SELECT_WIDTH, (PADDING * 3), SELECT_WIDTH, TextComponent.EMPTY, this::selectAtlas);
+        SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(width - (PADDING * 3) - SELECT_WIDTH, (PADDING * 3), SELECT_WIDTH, Component.empty(), this::selectAtlas);
         addRenderableWidget(atlasSelection);
 
         atlases = new HashMap<>();
@@ -276,7 +276,7 @@ public class AtlasScreen extends Screen
 
         public AtlasEntry(ResourceLocation atlas)
         {
-            super(new TextComponent(atlas.toString()));
+            super(Component.literal(atlas.toString()));
             this.atlas = atlas;
         }
     }

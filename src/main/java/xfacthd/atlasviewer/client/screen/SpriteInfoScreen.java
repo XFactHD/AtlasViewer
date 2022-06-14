@@ -11,13 +11,13 @@ import xfacthd.atlasviewer.client.util.ClientUtils;
 
 public class SpriteInfoScreen extends Screen
 {
-    private static final Component TITLE = new TranslatableComponent("title.atlasviewer.spriteinfo");
-    private static final Component LABEL_NAME = new TranslatableComponent("label.atlasviewer.spritename");
-    private static final Component LABEL_WIDTH = new TranslatableComponent("label.atlasviewer.spritewidth");
-    private static final Component LABEL_HEIGHT = new TranslatableComponent("label.atlasviewer.spriteheight");
-    private static final Component LABEL_ANIMATED = new TranslatableComponent("label.atlasviewer.spriteanimated");
-    private static final Component VALUE_TRUE = new TranslatableComponent("value.atlasviewer.true");
-    private static final Component VALUE_FALSE = new TranslatableComponent("value.atlasviewer.false");
+    private static final Component TITLE = Component.translatable("title.atlasviewer.spriteinfo");
+    private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.spritename");
+    private static final Component LABEL_WIDTH = Component.translatable("label.atlasviewer.spritewidth");
+    private static final Component LABEL_HEIGHT = Component.translatable("label.atlasviewer.spriteheight");
+    private static final Component LABEL_ANIMATED = Component.translatable("label.atlasviewer.spriteanimated");
+    private static final Component VALUE_TRUE = Component.translatable("value.atlasviewer.true");
+    private static final Component VALUE_FALSE = Component.translatable("value.atlasviewer.false");
     private static final int WIDTH = 400;
     private static final int HEIGHT = 163;
     private static final int PADDING = 5;
@@ -107,7 +107,7 @@ public class SpriteInfoScreen extends Screen
         int xRight = xLeft + valueX + font.width(name);
         if (cappedName && mouseX >= xLeft + valueX && mouseX <= xRight && mouseY >= yTop + SPRITE_Y && mouseY <= yTop + SPRITE_Y + font.lineHeight)
         {
-            renderTooltip(poseStack, new TextComponent(sprite.getName().toString()), mouseX, mouseY);
+            renderTooltip(poseStack, Component.literal(sprite.getName().toString()), mouseX, mouseY);
         }
     }
 }
