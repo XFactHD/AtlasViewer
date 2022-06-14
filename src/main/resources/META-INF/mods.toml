@@ -1,7 +1,7 @@
 modLoader="javafml"
 loaderVersion="[40,)"
 license="LGPL v2.1"
-issueTrackerURL=""
+issueTrackerURL="https://github.com/XFactHD/AtlasViewer/issues"
 
 [[mods]]
 	modId="atlasviewer"
