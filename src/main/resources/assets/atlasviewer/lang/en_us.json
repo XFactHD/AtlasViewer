@@ -1,0 +1,12 @@
+{
+    "title.atlasviewer.atlasviewer": "Atlas Viewer",
+    "title.atlasviewer.spriteinfo": "Sprite Details",
+    "key.atlasviewer.open_viewer": "Open Atlas Viewer",
+    "key.categories.atlasviewer": "Atlas Viewer",
+    "label.atlasviewer.spritename": "Name:",
+    "label.atlasviewer.spritewidth": "Width:",
+    "label.atlasviewer.spriteheight": "Height:",
+    "label.atlasviewer.spriteanimated": "Animated:",
+    "value.atlasviewer.true": "true",
+    "value.atlasviewer.false": "false"
+}

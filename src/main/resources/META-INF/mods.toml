@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="LGPL v2.1"
+issueTrackerURL=""
+
+[[mods]]
+	modId="atlasviewer"
+	version="${file.jarVersion}"
+	displayName="AtlasViewer"
+	#updateJSONURL=""
+	#displayURL=""
+	logoFile="logo.png"
+	#credits="Thanks for this example mod goes to Java"
+	authors="XFactHD"
+	description='''
+	'''
+
+[[dependencies.atlasviewer]]
+    modId="forge"
+    mandatory=true
+    versionRange="[40,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.atlasviewer]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.18.2,1.19)"
+    ordering="NONE"
+    side="BOTH"
