@@ -3,7 +3,7 @@
     "package": "xfacthd.atlasviewer.client.mixin",
     "compatibilityLevel": "JAVA_17",
     "refmap": "atlasviewer.refmap.json",
-    "client": [ "AccessorAtlasSet", "AccessorParticleEngine", "AccessorPreparations", "AccessorTextureAtlas", "AccessorTextureAtlasSprite", "AccessorTextureAtlasSpriteInfo", "AccessorTextureManager", "MixinTextureAtlas", "MixinTextureAtlasSprite" ],
+    "client": [ "AccessorPreparations", "AccessorTextureAtlas", "AccessorTextureAtlasSprite", "AccessorTextureAtlasSpriteInfo", "AccessorTextureManager", "MixinTextureAtlas", "MixinTextureAtlasSprite" ],
     "injectors": {
         "defaultRequire": 1
     },
