@@ -1,28 +1,40 @@
 package xfacthd.atlasviewer.client.screen;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.mixin.*;
 import xfacthd.atlasviewer.client.screen.widget.SelectionWidget;
 import xfacthd.atlasviewer.client.util.*;
 
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.*;
 
 @SuppressWarnings("deprecation")
 public class AtlasScreen extends Screen
 {
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
+    private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
+    private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_atlas_success");
+    private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_atlas_error");
+    private static final Component HOVER_MSG_CLICK_TO_OPEN = Component.translatable("hover.atlasviewer.path.click");
     private static final int PADDING = 5;
+    private static final int EXPORT_WIDTH = 100;
+    private static final int EXPORT_HEIGHT = 20;
     private static final int SELECT_WIDTH = 300;
     private static final int SELECT_HEIGHT = 20;
     private static final Map<TextureAtlas, Size> ATLAS_SIZES = new WeakHashMap<>();
@@ -50,6 +62,8 @@ public class AtlasScreen extends Screen
         atlasLeft = PADDING * 3;
         maxAtlasWidth = width - (PADDING * 6);
         maxAtlasHeight = height - atlasTop - (PADDING * 3);
+
+        addRenderableWidget(new Button(width - (PADDING * 4) - SELECT_WIDTH - EXPORT_WIDTH, PADDING * 3, EXPORT_WIDTH, EXPORT_HEIGHT, TITLE_EXPORT, this::exportAtlas));
 
         SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(width - (PADDING * 3) - SELECT_WIDTH, (PADDING * 3), SELECT_WIDTH, Component.empty(), this::selectAtlas);
         addRenderableWidget(atlasSelection);
@@ -245,6 +259,26 @@ public class AtlasScreen extends Screen
         offsetY = 0;
     }
 
+    private void exportAtlas(Button btn)
+    {
+        Size size = ATLAS_SIZES.get(currentAtlas);
+        try (NativeImage image = new NativeImage(size.width(), size.height(), false))
+        {
+            int texId = currentAtlas.getId();
+            RenderSystem.bindTexture(texId);
+            image.downloadTexture(0, false);
+            exportNativeImage(image, currentAtlas.location(), "atlas", true, MSG_EXPORT_SUCCESS);
+        }
+        catch (IOException e)
+        {
+            AtlasViewer.LOGGER.error("Encountered an error while exporting selected texture atlas", e);
+            Minecraft.getInstance().pushGuiLayer(MessageScreen.error(List.of(
+                    MSG_EXPORT_ERROR,
+                    Component.literal(e.toString()).withStyle(ChatFormatting.DARK_RED)
+            )));
+        }
+    }
+
     private void clampOffsetX(float offsetX) { this.offsetX = clampOffset(atlasSize.width, maxAtlasWidth, offsetX); }
 
     private void clampOffsetY(float offsetY) { this.offsetY = clampOffset(atlasSize.height, maxAtlasHeight, offsetY); }
@@ -266,6 +300,58 @@ public class AtlasScreen extends Screen
     public static void storeAtlasSize(TextureAtlas atlas, int width, int height)
     {
         ATLAS_SIZES.put(atlas, new Size(width, height));
+    }
+
+    /**
+     * Exports a {@link NativeImage} to a file according to the given {@link ResourceLocation}
+     * @param image The image to export
+     * @param name The original name of the resource to export
+     * @param prefix The type prefix of the image (i.e. "atlas" for a texture atlas or "sprite" for a single sprite)
+     * @param shortenPath If true, only the part of the name after the last slash will be used as part of the file name
+     */
+    public static void exportNativeImage(NativeImage image, ResourceLocation name, String prefix, boolean shortenPath, Component msgSuccess) throws IOException
+    {
+        Path folderPath = FMLPaths.GAMEDIR.get().resolve("atlasviewer");
+        Files.createDirectories(folderPath);
+
+        String texPath = name.getPath();
+        if (shortenPath)
+        {
+            int idx = texPath.lastIndexOf('/');
+            texPath = texPath.substring(idx == -1 ? 0 : (idx + 1));
+        }
+        else
+        {
+            texPath = texPath.replace('/', '-');
+        }
+        String fileName = prefix + "_" + name.getNamespace() + "_" + texPath;
+        if (!fileName.endsWith(".png")) //Texture atlas name already ends with .png
+        {
+            fileName += ".png";
+        }
+
+        Path filePath = folderPath.resolve(fileName);
+        if (Files.notExists(filePath, LinkOption.NOFOLLOW_LINKS))
+        {
+            Files.createFile(filePath);
+        }
+        image.writeToFile(filePath);
+
+        Minecraft.getInstance().pushGuiLayer(MessageScreen.info(List.of(
+                msgSuccess,
+                buildPathComponent(filePath)
+        )));
+    }
+
+    private static Component buildPathComponent(Path path)
+    {
+        path = path.getParent().toAbsolutePath().normalize();
+        return Component.literal(path.toString())
+                .setStyle(Style.EMPTY
+                        .withColor(ChatFormatting.DARK_GRAY)
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, HOVER_MSG_CLICK_TO_OPEN))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, path.toString()))
+                );
     }
 
     private record Size(int width, int height) { }
