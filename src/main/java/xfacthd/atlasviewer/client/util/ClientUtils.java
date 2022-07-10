@@ -1,7 +1,9 @@
 package xfacthd.atlasviewer.client.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.FormattedText;
 
 public class ClientUtils
 {
@@ -53,5 +55,10 @@ public class ClientUtils
         }
 
         TextureDrawer.end();
+    }
+
+    public static int getWrappedHeight(Font font, FormattedText text, int width)
+    {
+        return font.split(text, width).size() * font.lineHeight;
     }
 }
