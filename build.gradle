@@ -90,7 +90,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19-41.0.21'
+    minecraft 'net.minecraftforge:forge:1.19-41.0.64'
 
     //runtimeOnly fg.deobf("curse.maven:jei-238222:3745255")
 
