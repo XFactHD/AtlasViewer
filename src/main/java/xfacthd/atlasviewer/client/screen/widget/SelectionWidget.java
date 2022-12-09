@@ -43,12 +43,12 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
 
         if (selected != null)
         {
-            selected.render(pstack, x, y, width, false, getFGColor(), alpha);
+            selected.render(pstack, getX(), getY(), width, false, getFGColor(), alpha);
         }
         else
         {
             Font font = Minecraft.getInstance().font;
-            drawString(pstack, font, title, x + 6, y + (height - 8) / 2, getFGColor() | Mth.ceil(alpha * 255.0F) << 24);
+            drawString(pstack, font, title, getX() + 6, getY() + (height - 8) / 2, getFGColor() | Mth.ceil(alpha * 255.0F) << 24);
         }
 
         if (extended)
@@ -58,11 +58,11 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
 
             int boxHeight = Math.max(1, ENTRY_HEIGHT * Math.min(entries.size(), 4)) + 2;
 
-            fill(pstack, x,     y + ENTRY_HEIGHT - 1, x + width,     y + ENTRY_HEIGHT + boxHeight - 1, 0xFFFFFFFF);
-            fill(pstack, x + 1, y + ENTRY_HEIGHT,     x + width - 1, y + ENTRY_HEIGHT + boxHeight - 2, 0xFF000000);
+            fill(pstack, getX(),     getY() + ENTRY_HEIGHT - 1, getX() + width,     getY() + ENTRY_HEIGHT + boxHeight - 1, 0xFFFFFFFF);
+            fill(pstack, getX() + 1, getY() + ENTRY_HEIGHT,     getX() + width - 1, getY() + ENTRY_HEIGHT + boxHeight - 2, 0xFF000000);
 
             RenderSystem.setShaderTexture(0, ICONS);
-            blit(pstack, x + width - 17, y + 6, 114, 5, 11, 7);
+            blit(pstack, getX() + width - 17, getY() + 6, 114, 5, 11, 7);
 
             T hoverEntry = getEntryAtPosition(mouseX, mouseY);
 
@@ -71,22 +71,22 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
                 int idx = i + scrollOffset;
                 if (idx < entries.size())
                 {
-                    int entryY = y + ((i + 1) * ENTRY_HEIGHT);
+                    int entryY = getY() + ((i + 1) * ENTRY_HEIGHT);
 
                     T entry = entries.get(idx);
-                    entry.render(pstack, x + 1, entryY, width - 2, entry == hoverEntry, getFGColor(), alpha);
+                    entry.render(pstack, getX() + 1, entryY, width - 2, entry == hoverEntry, getFGColor(), alpha);
                 }
             }
 
             if (entries.size() > 4)
             {
                 float scale = 4F / (float)entries.size();
-                int scrollY = y + (int)(ENTRY_HEIGHT * scrollOffset * scale) + ENTRY_HEIGHT;
+                int scrollY = getY() + (int)(ENTRY_HEIGHT * scrollOffset * scale) + ENTRY_HEIGHT;
                 int barHeight = (int)(ENTRY_HEIGHT * 4 * scale + 1);
-                int scrollBotY = Math.min(scrollY + barHeight, y + ENTRY_HEIGHT + boxHeight - 2);
+                int scrollBotY = Math.min(scrollY + barHeight, getY() + ENTRY_HEIGHT + boxHeight - 2);
 
-                fill(pstack, x + width - 5, scrollY,     x + width - 1, scrollBotY,     0xFF666666);
-                fill(pstack, x + width - 4, scrollY + 1, x + width - 2, scrollBotY - 1, 0xFFAAAAAA);
+                fill(pstack, getX() + width - 5, scrollY,     getX() + width - 1, scrollBotY,     0xFF666666);
+                fill(pstack, getX() + width - 4, scrollY + 1, getX() + width - 2, scrollBotY - 1, 0xFFAAAAAA);
             }
 
             pstack.popPose();
@@ -94,7 +94,7 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
         else
         {
             RenderSystem.setShaderTexture(0, ICONS);
-            blit(pstack, x + width - 17, y + 6, 82, 20, 11, 7);
+            blit(pstack, getX() + width - 17, getY() + 6, 82, 20, 11, 7);
         }
     }
 
@@ -111,16 +111,16 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button)
     {
-        if (active && mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + getHeight())
+        if (active && mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() && mouseY <= getY() + getHeight())
         {
-            int maxX = x + width - (entries.size() > 4 ? 5 : 0);
-            int maxY = y + ENTRY_HEIGHT * Math.min(entries.size() + 1, 5);
-            if (extended && mouseX < maxX && mouseY > (y + ENTRY_HEIGHT) && mouseY < maxY)
+            int maxX = getX() + width - (entries.size() > 4 ? 5 : 0);
+            int maxY = getY() + ENTRY_HEIGHT * Math.min(entries.size() + 1, 5);
+            if (extended && mouseX < maxX && mouseY > (getY() + ENTRY_HEIGHT) && mouseY < maxY)
             {
                 setSelected(getEntryAtPosition(mouseX, mouseY), true);
             }
 
-            if ((mouseY < y + ENTRY_HEIGHT && mouseX < x + width) || mouseX < maxX)
+            if ((mouseY < getY() + ENTRY_HEIGHT && mouseX < getX() + width) || mouseX < maxX)
             {
                 extended = !extended;
                 scrollOffset = 0;
@@ -140,8 +140,8 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta)
     {
-        int maxY = y + ENTRY_HEIGHT * Math.min(entries.size() + 1, 5);
-        if (extended && mouseX >= x && mouseX <= x + width && mouseY > y + ENTRY_HEIGHT && mouseY < maxY)
+        int maxY = getY() + ENTRY_HEIGHT * Math.min(entries.size() + 1, 5);
+        if (extended && mouseX >= getX() && mouseX <= getX() + width && mouseY > getY() + ENTRY_HEIGHT && mouseY < maxY)
         {
             if (delta < 0 && scrollOffset < entries.size() - 4)
             {
@@ -160,17 +160,17 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
     public boolean isMouseOver(double pMouseX, double pMouseY)
     {
         if (!active || !visible) { return false; }
-        return pMouseX >= x && pMouseY >= y && pMouseX < (x + width) && pMouseY < (y + getHeight());
+        return pMouseX >= getX() && pMouseY >= getY() && pMouseX < (getX() + width) && pMouseY < (getY() + getHeight());
     }
 
     private T getEntryAtPosition(double mouseX, double mouseY)
     {
-        if (mouseX < x || mouseX > x + width || mouseY < (y + ENTRY_HEIGHT) || mouseY > (y + (ENTRY_HEIGHT * 5)))
+        if (mouseX < getX() || mouseX > getX() + width || mouseY < (getY() + ENTRY_HEIGHT) || mouseY > (getY() + (ENTRY_HEIGHT * 5)))
         {
             return null;
         }
 
-        double posY = mouseY - (y + ENTRY_HEIGHT);
+        double posY = mouseY - (getY() + ENTRY_HEIGHT);
         int idx = (int) (posY / ENTRY_HEIGHT) + scrollOffset;
 
         return idx < entries.size() ? entries.get(idx) : null;
@@ -192,7 +192,7 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
     public Stream<T> stream() { return entries.stream(); }
 
     @Override
-    public void updateNarration(NarrationElementOutput output) { }
+    protected void updateWidgetNarration(NarrationElementOutput output) { }
 
     public static class SelectionEntry implements GuiEventListener
     {

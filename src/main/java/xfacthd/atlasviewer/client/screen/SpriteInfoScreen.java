@@ -6,15 +6,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import xfacthd.atlasviewer.AtlasViewer;
-import xfacthd.atlasviewer.client.mixin.AccessorTextureAtlasSprite;
-import xfacthd.atlasviewer.client.mixin.AccessorTextureAtlasSpriteInfo;
+import xfacthd.atlasviewer.client.mixin.*;
 import xfacthd.atlasviewer.client.util.ClientUtils;
-import xfacthd.atlasviewer.client.util.ITextureAtlasSpriteInfoGetter;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,7 +43,8 @@ public class SpriteInfoScreen extends Screen
     private static final int EXPORT_HEIGHT = 20;
 
     private final TextureAtlasSprite sprite;
-    private final AnimationMetadataSection animMeta;
+    private final SpriteContents contents;
+    private final SpriteContents.AnimatedTexture animation;
     private int xLeft;
     private int yTop;
     private int labelLen = 0;
@@ -54,9 +53,8 @@ public class SpriteInfoScreen extends Screen
     {
         super(TITLE);
         this.sprite = sprite;
-
-        TextureAtlasSprite.Info info = ((ITextureAtlasSpriteInfoGetter) sprite).getInfo();
-        animMeta = ((AccessorTextureAtlasSpriteInfo) (Object)info).getMetadata();
+        this.contents = sprite.contents();
+        this.animation = ((AccessorSpriteContents) contents).getAnimatedTexture();
     }
 
     @Override
@@ -65,14 +63,11 @@ public class SpriteInfoScreen extends Screen
         xLeft = (width / 2) - (WIDTH / 2);
         yTop = (height / 2) - (HEIGHT / 2);
 
-        addRenderableWidget(new Button(
-                xLeft + WIDTH - PADDING - EXPORT_WIDTH,
-                yTop + HEIGHT - PADDING - EXPORT_HEIGHT,
-                EXPORT_WIDTH,
-                EXPORT_HEIGHT,
-                TITLE_EXPORT,
-                this::exportSprite
-        ));
+        addRenderableWidget(Button.builder(TITLE_EXPORT, this::exportSprite)
+                .pos(xLeft + WIDTH - PADDING - EXPORT_WIDTH, yTop + HEIGHT - PADDING - EXPORT_HEIGHT)
+                .size(EXPORT_WIDTH, EXPORT_HEIGHT)
+                .build()
+        );
 
         for (Component label : LABELS)
         {
@@ -90,7 +85,7 @@ public class SpriteInfoScreen extends Screen
 
         font.draw(poseStack, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0x404040);
 
-        boolean animated = sprite.getAnimationTicker() != null;
+        boolean animated = animation != null;
 
         font.draw(poseStack, LABEL_NAME, xLeft + LABEL_X, yTop + SPRITE_Y, 0x404040);
         font.draw(poseStack, LABEL_WIDTH, xLeft + LABEL_X, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040);
@@ -104,7 +99,7 @@ public class SpriteInfoScreen extends Screen
         }
 
         int valueX = LABEL_X + labelLen + PADDING;
-        String name = sprite.getName().toString();
+        String name = contents.name().toString();
         boolean cappedName = false;
         if (valueX + font.width(name) > (WIDTH - (PADDING * 2)))
         {
@@ -113,19 +108,20 @@ public class SpriteInfoScreen extends Screen
         }
 
         font.draw(poseStack, name, xLeft + valueX, yTop + SPRITE_Y, 0x404040);
-        font.draw(poseStack, sprite.getWidth() + "px", xLeft + valueX, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040);
-        font.draw(poseStack, sprite.getHeight() + "px", xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040);
+        font.draw(poseStack, contents.width() + "px", xLeft + valueX, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040);
+        font.draw(poseStack, contents.height() + "px", xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040);
         font.draw(poseStack, animated ? VALUE_TRUE : VALUE_FALSE, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 3), animated ? 0x00D000 : 0xD00000);
         if (animated)
         {
-            font.draw(poseStack, String.valueOf(sprite.getFrameCount()), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040);
-            boolean interp = animMeta.isInterpolatedFrames();
+            int frames = ((AccessorSpriteContents) contents).callGetFrameCount();
+            font.draw(poseStack, String.valueOf(frames), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040);
+            boolean interp = ((AccessorAnimatedTexture) animation).getInterpolateFrames();
             font.draw(poseStack, interp ? VALUE_TRUE : VALUE_FALSE, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 5), interp ? 0x00D000 : 0xD00000);
-            int ticks = animMeta.getDefaultFrameTime();
+            int ticks = 0; //animMeta.getDefaultFrameTime(); //TODO: find a good way to get this
             font.draw(poseStack, ticks + (ticks == 1 ? " tick" : " ticks"), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040);
         }
 
-        float scale = 128F / Math.max(sprite.getWidth(), sprite.getHeight());
+        float scale = 128F / Math.max(contents.width(), contents.height());
 
         RenderSystem.setShaderTexture(0, new ResourceLocation(AtlasViewer.MOD_ID, "textures/gui/checker.png"));
         ClientUtils.drawNineSliceTexture(
@@ -133,22 +129,22 @@ public class SpriteInfoScreen extends Screen
                 poseStack,
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
-                (int)(sprite.getWidth() * scale),
-                (int)(sprite.getHeight() * scale),
+                (int)(contents.width() * scale),
+                (int)(contents.height() * scale),
                 256,
                 256,
                 0
         );
 
-        RenderSystem.setShaderTexture(0, sprite.atlas().location());
+        RenderSystem.setShaderTexture(0, sprite.atlasLocation());
         RenderSystem.enableBlend();
         blit(
                 poseStack,
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
                 getBlitOffset(),
-                (int)(sprite.getWidth() * scale),
-                (int)(sprite.getHeight() * scale),
+                (int)(contents.width() * scale),
+                (int)(contents.height() * scale),
                 sprite
         );
         RenderSystem.disableBlend();
@@ -158,16 +154,16 @@ public class SpriteInfoScreen extends Screen
         int xRight = xLeft + valueX + font.width(name);
         if (cappedName && mouseX >= xLeft + valueX && mouseX <= xRight && mouseY >= yTop + SPRITE_Y && mouseY <= yTop + SPRITE_Y + font.lineHeight)
         {
-            renderTooltip(poseStack, Component.literal(sprite.getName().toString()), mouseX, mouseY);
+            renderTooltip(poseStack, Component.literal(contents.name().toString()), mouseX, mouseY);
         }
     }
 
     private void exportSprite(Button btn)
     {
-        NativeImage image = ((AccessorTextureAtlasSprite) sprite).getMainImage()[0];
+        NativeImage image = contents.byMipLevel[0];
         try
         {
-            AtlasScreen.exportNativeImage(image, sprite.getName(), "sprite", false, MSG_EXPORT_SUCCESS);
+            AtlasScreen.exportNativeImage(image, contents.name(), "sprite", false, MSG_EXPORT_SUCCESS);
         }
         catch (IOException e)
         {

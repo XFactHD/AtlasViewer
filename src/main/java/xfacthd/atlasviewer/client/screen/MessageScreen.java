@@ -60,7 +60,11 @@ public class MessageScreen extends Screen
         leftPos = (this.width - WIDTH) / 2;
         topPos = (this.height - imageHeight) / 2;
 
-        addRenderableWidget(new Button(leftPos + (WIDTH / 2) - 30, topPos + imageHeight - 30, 60, 20, TITLE_BTN_OK, btn -> onClose()));
+        addRenderableWidget(Button.builder(TITLE_BTN_OK, btn -> onClose())
+                .pos(leftPos + (WIDTH / 2) - 30, topPos + imageHeight - 30)
+                .size(60, 20)
+                .build()
+        );
     }
 
     @Override

@@ -1,5 +1,6 @@
 package xfacthd.atlasviewer.client.mixin;
 
+import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,15 +12,15 @@ import xfacthd.atlasviewer.client.screen.AtlasScreen;
 public class MixinTextureAtlas
 {
     @Inject(
-            method = "reload",
+            method = "upload",
             at = @At("HEAD")
     )
-    private void onReload(TextureAtlas.Preparations preps, CallbackInfo ci)
+    private void onUpload(SpriteLoader.Preparations preps, CallbackInfo ci)
     {
         AtlasScreen.storeAtlasSize(
                 (TextureAtlas)(Object) this,
-                ((AccessorPreparations) preps).getWidth(),
-                ((AccessorPreparations) preps).getHeight()
+                preps.width(),
+                preps.height()
         );
     }
 }

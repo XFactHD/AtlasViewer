@@ -63,7 +63,11 @@ public class AtlasScreen extends Screen
         maxAtlasWidth = width - (PADDING * 6);
         maxAtlasHeight = height - atlasTop - (PADDING * 3);
 
-        addRenderableWidget(new Button(width - (PADDING * 4) - SELECT_WIDTH - EXPORT_WIDTH, PADDING * 3, EXPORT_WIDTH, EXPORT_HEIGHT, TITLE_EXPORT, this::exportAtlas));
+        addRenderableWidget(Button.builder(TITLE_EXPORT, this::exportAtlas)
+                .pos(width - (PADDING * 4) - SELECT_WIDTH - EXPORT_WIDTH, PADDING * 3)
+                .size(EXPORT_WIDTH, EXPORT_HEIGHT)
+                .build()
+        );
 
         SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(width - (PADDING * 3) - SELECT_WIDTH, (PADDING * 3), SELECT_WIDTH, Component.empty(), this::selectAtlas);
         addRenderableWidget(atlasSelection);
@@ -150,10 +154,11 @@ public class AtlasScreen extends Screen
             hoveredSprite = sprite;
             if (sprite != null)
             {
+                SpriteContents contents = sprite.contents();
                 float sx = sprite.getX() * scale + atlasLeft + offsetX;
                 float sy = sprite.getY() * scale + atlasTop + offsetY;
-                float sw = sprite.getWidth() * scale;
-                float sh = sprite.getHeight() * scale;
+                float sw = contents.width() * scale;
+                float sh = contents.height() * scale;
                 TextureDrawer.startColored();
                 TextureDrawer.fillGuiColorBuffer(poseStack, this, sx - 1F, sy - 1F, 1F, sh + 2F, 0xFF0000FF);
                 TextureDrawer.fillGuiColorBuffer(poseStack, this, sx + sw, sy - 1F, 1F, sh + 2F, 0xFF0000FF);
@@ -248,7 +253,8 @@ public class AtlasScreen extends Screen
 
         Rect2i treeRect = new Rect2i(0, 0, atlasSize.width, atlasSize.height);
         int minSize = sprites.stream()
-                .mapToInt(s -> Math.min(s.getWidth(), s.getHeight()))
+                .map(TextureAtlasSprite::contents)
+                .mapToInt(c -> Math.min(c.width(), c.height()))
                 .min()
                 .orElseThrow();
         spriteTree = new QuadTree<>(treeRect, minSize);
@@ -294,7 +300,8 @@ public class AtlasScreen extends Screen
 
     private static Rect2i getSpriteSize(TextureAtlasSprite sprite)
     {
-        return new Rect2i(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+        SpriteContents contents = sprite.contents();
+        return new Rect2i(sprite.getX(), sprite.getY(), contents.width(), contents.height());
     }
 
     public static void storeAtlasSize(TextureAtlas atlas, int width, int height)
