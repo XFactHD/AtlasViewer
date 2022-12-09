@@ -30,6 +30,7 @@ public class SpriteInfoScreen extends Screen
     private static final Component[] LABELS = { LABEL_NAME, LABEL_WIDTH, LABEL_HEIGHT, LABEL_ANIMATED, LABEL_FRAMECOUNT, LABEL_INTERPOLATED };
     private static final Component VALUE_TRUE = Component.translatable("value.atlasviewer.true");
     private static final Component VALUE_FALSE = Component.translatable("value.atlasviewer.false");
+    private static final Component VALUE_FRAMETIME_MIXED = Component.translatable("value.atlasviewer.frametime_mixed");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_sprite");
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_sprite_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_sprite_error");
@@ -45,6 +46,7 @@ public class SpriteInfoScreen extends Screen
     private final TextureAtlasSprite sprite;
     private final SpriteContents contents;
     private final SpriteContents.AnimatedTexture animation;
+    private final int animFrameTime;
     private int xLeft;
     private int yTop;
     private int labelLen = 0;
@@ -55,6 +57,7 @@ public class SpriteInfoScreen extends Screen
         this.sprite = sprite;
         this.contents = sprite.contents();
         this.animation = ((AccessorSpriteContents) contents).getAnimatedTexture();
+        this.animFrameTime = getAnimationFrameTime();
     }
 
     @Override
@@ -117,8 +120,15 @@ public class SpriteInfoScreen extends Screen
             font.draw(poseStack, String.valueOf(frames), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040);
             boolean interp = ((AccessorAnimatedTexture) animation).getInterpolateFrames();
             font.draw(poseStack, interp ? VALUE_TRUE : VALUE_FALSE, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 5), interp ? 0x00D000 : 0xD00000);
-            int ticks = 0; //animMeta.getDefaultFrameTime(); //TODO: find a good way to get this
-            font.draw(poseStack, ticks + (ticks == 1 ? " tick" : " ticks"), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040);
+
+            if (animFrameTime == -1)
+            {
+                font.draw(poseStack, VALUE_FRAMETIME_MIXED, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040);
+            }
+            else
+            {
+                font.draw(poseStack, animFrameTime + (animFrameTime == 1 ? " tick" : " ticks"), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040);
+            }
         }
 
         float scale = 128F / Math.max(contents.width(), contents.height());
@@ -156,6 +166,28 @@ public class SpriteInfoScreen extends Screen
         {
             renderTooltip(poseStack, Component.literal(contents.name().toString()), mouseX, mouseY);
         }
+    }
+
+    private int getAnimationFrameTime()
+    {
+        if (animation == null)
+        {
+            return 0;
+        }
+
+        List<SpriteContents.FrameInfo> frames = ((AccessorAnimatedTexture) animation).getFrames();
+
+        int first = ((AccessorFrameInfo) frames.get(0)).getTime();
+        for (SpriteContents.FrameInfo frame : frames)
+        {
+            if (((AccessorFrameInfo) frame).getTime() != first)
+            {
+                // No point in displaying a frame time when it's different for some frames
+                return -1;
+            }
+        }
+
+        return first;
     }
 
     private void exportSprite(Button btn)

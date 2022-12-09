@@ -12,6 +12,8 @@
     "label.atlasviewer.spriteframetime": "Frame time:",
     "value.atlasviewer.true": "true",
     "value.atlasviewer.false": "false",
+    "value.atlasviewer.frametime_mixed": "Mixed",
+    "btn.atlasviewer.highlight_animated": "Highlight animated sprites",
     "btn.atlasviewer.export_atlas": "Export Atlas",
     "btn.atlasviewer.export_sprite": "Export Sprite",
     "msg.atlasviewer.export_atlas_success": "Atlas successfully exported. Click the link below to open the folder containing the exported image.",
