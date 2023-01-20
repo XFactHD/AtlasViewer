@@ -7,9 +7,9 @@ import net.minecraft.network.chat.FormattedText;
 
 public class ClientUtils
 {
-    public static void drawNineSliceTexture(Screen screen, PoseStack pstack, int elemX, int elemY, int elemW, int elemH, int uW, int uH, int border)
+    public static void drawNineSliceTexture(Screen screen, PoseStack pstack, int elemX, int elemY, int elemW, int elemH, NineSlice ns)
     {
-        drawNineSliceTexture(screen, pstack, elemX, elemY, elemW, elemH, 0, 0, uW, uH, 256, 256, border);
+        drawNineSliceTexture(screen, pstack, elemX, elemY, elemW, elemH, ns.uX(), ns.vY(), ns.uW(), ns.vH(), ns.texW(), ns.texH(), ns.border());
     }
 
     public static void drawNineSliceTexture(

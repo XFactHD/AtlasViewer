@@ -9,7 +9,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.*;
-import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.mixin.*;
@@ -88,8 +87,8 @@ public class SpriteInfoScreen extends Screen
     {
         renderBackground(poseStack);
 
-        RenderSystem.setShaderTexture(0, new ResourceLocation("minecraft", "textures/gui/demo_background.png"));
-        ClientUtils.drawNineSliceTexture(this, poseStack, xLeft, yTop, WIDTH, HEIGHT, 248, 166, 4);
+        RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
+        ClientUtils.drawNineSliceTexture(this, poseStack, xLeft, yTop, WIDTH, HEIGHT, AtlasScreen.BACKGROUND);
 
         font.draw(poseStack, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0x404040);
 
@@ -138,7 +137,7 @@ public class SpriteInfoScreen extends Screen
 
         float scale = 128F / Math.max(contents.width(), contents.height());
 
-        RenderSystem.setShaderTexture(0, new ResourceLocation(AtlasViewer.MOD_ID, "textures/gui/checker.png"));
+        RenderSystem.setShaderTexture(0, AtlasScreen.CHECKER_LOC);
         ClientUtils.drawNineSliceTexture(
                 this,
                 poseStack,
@@ -146,9 +145,7 @@ public class SpriteInfoScreen extends Screen
                 yTop + SPRITE_Y,
                 (int)(contents.width() * scale),
                 (int)(contents.height() * scale),
-                256,
-                256,
-                0
+                AtlasScreen.CHECKER
         );
 
         RenderSystem.setShaderTexture(0, sprite.atlasLocation());
