@@ -10,8 +10,10 @@ import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.mixin.*;
+import xfacthd.atlasviewer.client.screen.widget.CloseButton;
 import xfacthd.atlasviewer.client.util.ClientUtils;
 
 import java.io.IOException;
@@ -42,6 +44,7 @@ public class SpriteInfoScreen extends Screen
     private static final int LINE_HEIGHT = 15;
     private static final int EXPORT_WIDTH = 100;
     private static final int EXPORT_HEIGHT = 20;
+    private static final int CLOSE_SIZE = 12;
 
     private final TextureAtlasSprite sprite;
     private final SpriteContents contents;
@@ -76,6 +79,8 @@ public class SpriteInfoScreen extends Screen
         {
             labelLen = Math.max(labelLen, font.width(label));
         }
+
+        addRenderableWidget(new CloseButton(xLeft + WIDTH - PADDING - CLOSE_SIZE, yTop + PADDING, this));
     }
 
     @Override
@@ -205,5 +210,16 @@ public class SpriteInfoScreen extends Screen
                     Component.literal(e.getMessage())
             )));
         }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_1 && (mouseX < xLeft || mouseY < yTop || mouseX > (xLeft + WIDTH) || mouseY > (yTop + HEIGHT)))
+        {
+            onClose();
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 }

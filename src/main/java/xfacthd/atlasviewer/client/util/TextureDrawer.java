@@ -297,6 +297,47 @@ public class TextureDrawer
     }
 
     /**
+     * Fill the draw buffer for a gui with a section of a texture with arbitrary dimensions
+     * @param pstack The PoseStack of the current context
+     * @param gui The gui to draw into
+     * @param x X position
+     * @param y Y position
+     * @param uX X offset into the texture
+     * @param vY Y offset into the texture
+     * @param uW Width of the texture segment
+     * @param vH Height of the texture segment
+     */
+    public static void fillGuiBufferArb(PoseStack pstack, Screen gui, float x, float y, float uX, float vY, float uW, float vH, float texWidth, float texHeight)
+    {
+        float minU = uX / texWidth;
+        float maxU = minU + (uW / texWidth);
+        float minV = vY / texHeight;
+        float maxV = minV + (vH / texHeight);
+        fillBuffer(pstack, x, y, gui.getBlitOffset(), uW, vH, minU, maxU, minV, maxV);
+    }
+
+    /**
+     * Fill the draw buffer for a gui with a tinted section of a texture with arbitrary dimensions
+     * @param pstack The PoseStack of the current context
+     * @param gui The gui to draw into
+     * @param x X position
+     * @param y Y position
+     * @param uX X offset into the texture
+     * @param vY Y offset into the texture
+     * @param uW Width of the texture segment
+     * @param vH Height of the texture segment
+     * @param color Color to tint the texture in
+     */
+    public static void fillGuiBufferArb(PoseStack pstack, Screen gui, float x, float y, float uX, float vY, float uW, float vH, float texWidth, float texHeight, int color)
+    {
+        float minU = uX / texWidth;
+        float maxU = minU + (uW / texWidth);
+        float minV = vY / texHeight;
+        float maxV = minV + (vH / texHeight);
+        fillBuffer(pstack, x, y, gui.getBlitOffset(), uW, vH, minU, maxU, minV, maxV, color);
+    }
+
+    /**
      * Fill the draw buffer for a gui with a texture with arbitrary dimensions
      * @param pstack The PoseStack of the current context
      * @param gui The gui to draw into
