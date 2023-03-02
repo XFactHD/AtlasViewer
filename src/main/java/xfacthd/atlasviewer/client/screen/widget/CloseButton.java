@@ -9,10 +9,16 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import xfacthd.atlasviewer.client.util.ClientUtils;
+import xfacthd.atlasviewer.client.util.NineSlice;
 
 public class CloseButton extends Button
 {
     private static final Component TITLE = Component.literal("x");
+    private static final NineSlice[] SLICES = new NineSlice[] {
+            new NineSlice(0, 46, 200, 20, 256, 256, 3),
+            new NineSlice(0, 66, 200, 20, 256, 256, 3),
+            new NineSlice(0, 86, 200, 20, 256, 256, 3)
+    };
 
     private final Screen owner;
 
@@ -32,8 +38,8 @@ public class CloseButton extends Button
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
 
-        int vY = 46 + getYImage(isHoveredOrFocused()) * 20;
-        ClientUtils.drawNineSliceTexture(owner, poseStack, x, y, width, height, 0, vY, 200, 20, 256, 256, 3);
+        NineSlice slice = SLICES[getYImage(isHoveredOrFocused())];
+        ClientUtils.drawNineSliceTexture(owner, poseStack, x, y, width, height, slice);
 
         Font font = Minecraft.getInstance().font;
         int fgColor = getFGColor() | 0xFF000000;

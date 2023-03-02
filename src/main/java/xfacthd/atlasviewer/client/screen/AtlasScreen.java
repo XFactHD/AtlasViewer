@@ -27,6 +27,10 @@ import java.util.*;
 @SuppressWarnings("deprecation")
 public class AtlasScreen extends Screen
 {
+    public static final ResourceLocation BACKGROUND_LOC = new ResourceLocation("minecraft", "textures/gui/demo_background.png");
+    public static final ResourceLocation CHECKER_LOC = new ResourceLocation(AtlasViewer.MOD_ID, "textures/gui/checker.png");
+    public static final NineSlice BACKGROUND = new NineSlice(0, 0, 248, 166, 256, 256, 4);
+    public static final NineSlice CHECKER = new NineSlice(0, 0, 256, 256, 256, 256, 0);
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_atlas_success");
@@ -97,17 +101,17 @@ public class AtlasScreen extends Screen
     {
         renderBackground(poseStack);
 
-        RenderSystem.setShaderTexture(0, new ResourceLocation("minecraft", "textures/gui/demo_background.png"));
-        ClientUtils.drawNineSliceTexture(this, poseStack, PADDING, PADDING, width - (PADDING * 2), height - (PADDING * 2), 248, 166, 4);
+        RenderSystem.setShaderTexture(0, BACKGROUND_LOC);
+        ClientUtils.drawNineSliceTexture(this, poseStack, PADDING, PADDING, width - (PADDING * 2), height - (PADDING * 2), BACKGROUND);
 
         font.draw(poseStack, title, PADDING * 3, PADDING * 3, 0x404040);
 
         float scale = (float)(atlasScale * scrollScale);
 
-        RenderSystem.setShaderTexture(0, new ResourceLocation(AtlasViewer.MOD_ID, "textures/gui/checker.png"));
+        RenderSystem.setShaderTexture(0, CHECKER_LOC);
         int bgWidth = (int)Math.min(maxAtlasWidth, atlasSize.width * scale);
         int bgHeight = (int)Math.min(maxAtlasHeight, atlasSize.height * scale);
-        ClientUtils.drawNineSliceTexture(this, poseStack, atlasLeft, atlasTop, bgWidth, bgHeight, 256, 256, 0);
+        ClientUtils.drawNineSliceTexture(this, poseStack, atlasLeft, atlasTop, bgWidth, bgHeight, CHECKER);
 
         RenderSystem.setShaderTexture(0, currentAtlas.location());
 

@@ -6,7 +6,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import xfacthd.atlasviewer.client.util.ClientUtils;
 
@@ -17,9 +16,6 @@ public class MessageScreen extends Screen
     private static final Component INFO_TITLE = Component.translatable("atlasviewer.message.info.title");
     private static final Component ERROR_TITLE = Component.translatable("atlasviewer.message.error.title");
     private static final Component TITLE_BTN_OK = Component.translatable("atlasviewer.message.btn.ok");
-    private static final int BORDER = 4;
-    private static final int BACKGROUND_WIDTH = 248;
-    private static final int BACKGROUND_HEIGHT = 166;
     private static final int WIDTH = 176;
     private static final int BASE_HEIGHT = 64;
     private static final int TEXT_WIDTH = WIDTH - 12;
@@ -68,8 +64,8 @@ public class MessageScreen extends Screen
     {
         renderBackground(pstack);
 
-        RenderSystem.setShaderTexture(0, new ResourceLocation("minecraft", "textures/gui/demo_background.png"));
-        ClientUtils.drawNineSliceTexture(this, pstack, leftPos, topPos, WIDTH, imageHeight, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, BORDER);
+        RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
+        ClientUtils.drawNineSliceTexture(this, pstack, leftPos, topPos, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
         font.draw(pstack, title, leftPos + TITLE_X, topPos + TITLE_Y, 0x404040);
 
         int y = topPos + TITLE_Y + font.lineHeight * 2;
