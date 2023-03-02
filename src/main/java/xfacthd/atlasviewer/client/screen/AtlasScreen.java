@@ -33,12 +33,15 @@ public class AtlasScreen extends Screen
     public static final NineSlice BACKGROUND = new NineSlice(0, 0, 248, 166, 256, 256, 4);
     public static final NineSlice CHECKER = new NineSlice(0, 0, 256, 256, 256, 256, 0);
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
+    private static final Component TITLE_HIGHLIGHT_ANIM = Component.translatable("btn.atlasviewer.highlight_animated");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
     private static final Component TITLE_TOOLS = Component.translatable("btn.atlasviewer.menu");
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_atlas_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_atlas_error");
     private static final Component HOVER_MSG_CLICK_TO_OPEN = Component.translatable("hover.atlasviewer.path.click");
     private static final int PADDING = 5;
+    private static final int HIGHLIGHT_ANIM_WIDTH = 150;
+    private static final int HIGHLIGHT_ANIM_HEIGHT = 20;
     private static final int EXPORT_WIDTH = 100;
     private static final int EXPORT_HEIGHT = 20;
     private static final int SELECT_WIDTH = 300;
@@ -54,11 +57,14 @@ public class AtlasScreen extends Screen
     private Map<ResourceLocation, TextureAtlas> atlases;
     private TextureAtlas currentAtlas;
     private QuadTree<TextureAtlasSprite> spriteTree;
+    private Collection<TextureAtlasSprite> sprites;
     private Size atlasSize;
     private double atlasScale = 1F;
     private double scrollScale = 1F;
     private float offsetX = 0;
     private float offsetY = 0;
+    private boolean highlightAnimated = false;
+    private final List<Rect2i> animatedLocations = new ArrayList<>();
     private TextureAtlasSprite hoveredSprite = null;
 
     public AtlasScreen() { super(TITLE); }
@@ -77,10 +83,11 @@ public class AtlasScreen extends Screen
         Button menuButton = addRenderableWidget(new Button(width - (PADDING * 3) - 40, TOOL_MENU_Y, 40, 20, TITLE_TOOLS, this::toggleMenu));
         menu = new MenuContainer(this, menuButton, true);
         menu.addButton(addRenderableWidget(
+                new Button(0, 0, HIGHLIGHT_ANIM_WIDTH, HIGHLIGHT_ANIM_HEIGHT, TITLE_HIGHLIGHT_ANIM, this::highlightAnimated)
+        ));
+        menu.addButton(addRenderableWidget(
                 new Button(0, 0, EXPORT_WIDTH, EXPORT_HEIGHT, TITLE_EXPORT, this::exportAtlas)
         ));
-
-        addRenderableWidget(new Button(width - (PADDING * 4) - SELECT_WIDTH - EXPORT_WIDTH, PADDING * 3, EXPORT_WIDTH, EXPORT_HEIGHT, TITLE_EXPORT, this::exportAtlas));
 
         SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(width - (PADDING * 4) - selectWidth - 40, (PADDING * 3), selectWidth, Component.empty(), this::selectAtlas);
         addRenderableWidget(atlasSelection);
@@ -159,25 +166,35 @@ public class AtlasScreen extends Screen
                 (int)((maxAtlasHeight + 2) * windowScale)
         );
 
-        if (mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight))
+        boolean cursorOnAtlas = mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight);
+
+        if (highlightAnimated || cursorOnAtlas)
         {
+            TextureDrawer.startColored();
+        }
+
+        if (highlightAnimated && !animatedLocations.isEmpty())
+        {
+            for (Rect2i rect : animatedLocations)
+            {
+                drawColoredBox(poseStack, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0x00FF00FF);
+            }
+        }
+
+        if (cursorOnAtlas){
             int mx = (int)((mouseX - atlasLeft - offsetX) * (1F / atlasScale) / scrollScale);
             int my = (int)((mouseY - atlasTop - offsetY) * (1F / atlasScale) / scrollScale);
             TextureAtlasSprite sprite = spriteTree.find(mx, my);
             hoveredSprite = sprite;
             if (sprite != null)
             {
-                float sx = sprite.getX() * scale + atlasLeft + offsetX;
-                float sy = sprite.getY() * scale + atlasTop + offsetY;
-                float sw = sprite.getWidth() * scale;
-                float sh = sprite.getHeight() * scale;
-                TextureDrawer.startColored();
-                TextureDrawer.fillGuiColorBuffer(poseStack, this, sx - 1F, sy - 1F, 1F, sh + 2F, 0xFF0000FF);
-                TextureDrawer.fillGuiColorBuffer(poseStack, this, sx + sw, sy - 1F, 1F, sh + 2F, 0xFF0000FF);
-                TextureDrawer.fillGuiColorBuffer(poseStack, this, sx,      sy - 1F, sw, 1F,      0xFF0000FF);
-                TextureDrawer.fillGuiColorBuffer(poseStack, this, sx,      sy + sh, sw, 1F,      0xFF0000FF);
-                TextureDrawer.end();
+                drawColoredBox(poseStack, sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight(), scale, true, 0xFF0000FF);
             }
+        }
+
+        if (highlightAnimated || cursorOnAtlas)
+        {
+            TextureDrawer.end();
         }
 
         RenderSystem.disableScissor();
@@ -185,6 +202,25 @@ public class AtlasScreen extends Screen
         menu.render(poseStack);
 
         super.render(poseStack, mouseX, mouseY, partialTick);
+    }
+
+    private void drawColoredBox(PoseStack poseStack, int x, int y, int width, int height, float scale, boolean expand, int color)
+    {
+        float sx = x * scale + atlasLeft + offsetX;
+        float sy = y * scale + atlasTop + offsetY;
+        float sw = width * scale;
+        float sh = height * scale;
+
+        if (expand)
+        {
+            sx--;
+            sy--;
+
+            sw += 2;
+            sh += 2;
+        }
+
+        ClientUtils.drawColoredBox(this, poseStack, sx, sy, sw, sh, color);
     }
 
     @Override
@@ -273,7 +309,7 @@ public class AtlasScreen extends Screen
             atlasScale = (float) maxAtlasHeight / atlasSize.height;
         }
 
-        Collection<TextureAtlasSprite> sprites = ((AccessorTextureAtlas) currentAtlas).getTexturesByName().values();
+        sprites = ((AccessorTextureAtlas) currentAtlas).getTexturesByName().values();
 
         Rect2i treeRect = new Rect2i(0, 0, atlasSize.width, atlasSize.height);
         int minSize = sprites.stream()
@@ -286,6 +322,33 @@ public class AtlasScreen extends Screen
         scrollScale = 1F;
         offsetX = 0;
         offsetY = 0;
+
+        if (highlightAnimated)
+        {
+            gatherAnimatedLocations();
+        }
+    }
+
+    private void highlightAnimated(Button btn)
+    {
+        highlightAnimated = !highlightAnimated;
+        if (highlightAnimated)
+        {
+            gatherAnimatedLocations();
+        }
+    }
+
+    private void gatherAnimatedLocations()
+    {
+        animatedLocations.clear();
+        sprites.stream()
+                .filter(AtlasScreen::hasAnimation)
+                .forEach(sprite -> animatedLocations.add(getSpriteSize(sprite)));
+    }
+
+    private static boolean hasAnimation(TextureAtlasSprite sprite)
+    {
+        return sprite.getAnimationTicker() != null;
     }
 
     private void exportAtlas(Button btn)
