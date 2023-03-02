@@ -7,50 +7,57 @@ import net.minecraft.network.chat.FormattedText;
 
 public class ClientUtils
 {
-    public static void drawNineSliceTexture(Screen screen, PoseStack pstack, int screenX, int screenY, int screenWidth, int screenHeight, int texWidth, int texHeight, int border)
+    public static void drawNineSliceTexture(Screen screen, PoseStack pstack, int elemX, int elemY, int elemW, int elemH, int uW, int uH, int border)
     {
-        int texCenterWidth = texWidth - (border * 2);
-        int texCenterHeight = texHeight - (border * 2);
+        drawNineSliceTexture(screen, pstack, elemX, elemY, elemW, elemH, 0, 0, uW, uH, 256, 256, border);
+    }
+
+    public static void drawNineSliceTexture(
+            Screen screen, PoseStack pstack, int elemX, int elemY, int elemW, int elemH, int uX, int vY, int uW, int vH, int texW, int texH, int border
+    )
+    {
+        int texCenterWidth = uW - (border * 2);
+        int texCenterHeight = vH - (border * 2);
 
         TextureDrawer.start();
 
         if (border > 0)
         {
             //Corners
-            TextureDrawer.fillGuiBuffer(pstack, screen, screenX, screenY, 0, 0, border, border);
-            TextureDrawer.fillGuiBuffer(pstack, screen, screenX + screenWidth - border, screenY, texWidth - border, 0, border, border);
-            TextureDrawer.fillGuiBuffer(pstack, screen, screenX, screenY + screenHeight - border, 0, texHeight - border, border, border);
-            TextureDrawer.fillGuiBuffer(pstack, screen, screenX + screenWidth - border, screenY + screenHeight - border, texWidth - border, texHeight - border, border, border);
+            TextureDrawer.fillGuiBufferArb(pstack, screen, elemX, elemY, uX, vY, border, border, texW, texH);
+            TextureDrawer.fillGuiBufferArb(pstack, screen, elemX + elemW - border, elemY, uX + uW - border, vY, border, border, texW, texH);
+            TextureDrawer.fillGuiBufferArb(pstack, screen, elemX, elemY + elemH - border, uX, vY + vH - border, border, border, texW, texH);
+            TextureDrawer.fillGuiBufferArb(pstack, screen, elemX + elemW - border, elemY + elemH - border, uX + uW - border, vY + vH - border, border, border, texW, texH);
 
             //Edges
-            for (int i = 0; i <= (screenWidth / texCenterWidth); i++)
+            for (int i = 0; i <= (elemW / texCenterWidth); i++)
             {
-                int x = screenX + border + (i * texCenterWidth);
-                int width = Math.min(texCenterWidth, screenWidth - (i * texCenterWidth) - (border * 2));
-                TextureDrawer.fillGuiBuffer(pstack, screen, x, screenY, border, 0, width, border);
-                TextureDrawer.fillGuiBuffer(pstack, screen, x, screenY + screenHeight - border, border, texHeight - border, width, border);
+                int x = elemX + border + (i * texCenterWidth);
+                int width = Math.min(texCenterWidth, elemW - (i * texCenterWidth) - (border * 2));
+                TextureDrawer.fillGuiBufferArb(pstack, screen, x, elemY, uX + border, vY, width, border, texW, texH);
+                TextureDrawer.fillGuiBufferArb(pstack, screen, x, elemY + elemH - border, uX + border, vY + vH - border, width, border, texW, texH);
             }
-            for (int i = 0; i <= (screenHeight / texCenterHeight); i++)
+            for (int i = 0; i <= (elemH / texCenterHeight); i++)
             {
-                int y = screenY + border + (i * texCenterHeight);
-                int height = Math.min(texCenterHeight, screenHeight - (i * texCenterHeight) - (border * 2));
-                TextureDrawer.fillGuiBuffer(pstack, screen, screenX, y, 0, border, border, height);
-                TextureDrawer.fillGuiBuffer(pstack, screen, screenX + screenWidth - border, y, texWidth - border, border, border, height);
+                int y = elemY + border + (i * texCenterHeight);
+                int height = Math.min(texCenterHeight, elemH - (i * texCenterHeight) - (border * 2));
+                TextureDrawer.fillGuiBufferArb(pstack, screen, elemX, y, uX, vY + border, border, height, texW, texH);
+                TextureDrawer.fillGuiBufferArb(pstack, screen, elemX + elemW - border, y, uX + uW - border, vY + border, border, height, texW, texH);
             }
         }
 
         //Center
-        int centerWidth = (screenWidth - (border * 2)) / texCenterWidth;
-        int centerHeight = (screenHeight - (border * 2)) / texCenterHeight;
+        int centerWidth = (elemW - (border * 2)) / texCenterWidth;
+        int centerHeight = (elemH - (border * 2)) / texCenterHeight;
         for (int ix = 0; ix <= centerWidth; ix++)
         {
             for (int iy = 0; iy <= centerHeight; iy++)
             {
-                int x = screenX + border + (ix * texCenterWidth);
-                int y = screenY + border + (iy * texCenterHeight);
-                int width = Math.min(texCenterWidth, screenWidth - (ix * texCenterWidth) - (border * 2));
-                int height = Math.min(texCenterHeight, screenHeight - (iy * texCenterHeight) - (border * 2));
-                TextureDrawer.fillGuiBuffer(pstack, screen, x, y, border, border, width, height);
+                int x = elemX + border + (ix * texCenterWidth);
+                int y = elemY + border + (iy * texCenterHeight);
+                int width = Math.min(texCenterWidth, elemW - (ix * texCenterWidth) - (border * 2));
+                int height = Math.min(texCenterHeight, elemH - (iy * texCenterHeight) - (border * 2));
+                TextureDrawer.fillGuiBufferArb(pstack, screen, x, y, uX + border, vY + border, width, height, texW, texH);
             }
         }
 
