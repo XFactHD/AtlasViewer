@@ -68,4 +68,12 @@ public class ClientUtils
     {
         return font.split(text, width).size() * font.lineHeight;
     }
+
+    public static void drawColoredBox(Screen screen, PoseStack poseStack, float x, float y, float w, float h, int color)
+    {
+        TextureDrawer.fillGuiColorBuffer(poseStack, screen, x,          y         , 1F,  h, color);
+        TextureDrawer.fillGuiColorBuffer(poseStack, screen, x + w - 1F, y         , 1F,  h, color);
+        TextureDrawer.fillGuiColorBuffer(poseStack, screen, x,          y         ,  w, 1F, color);
+        TextureDrawer.fillGuiColorBuffer(poseStack, screen, x,          y + h - 1F,  w, 1F, color);
+    }
 }

@@ -14,6 +14,7 @@
     "value.atlasviewer.false": "false",
     "btn.atlasviewer.export_atlas": "Export Atlas",
     "btn.atlasviewer.export_sprite": "Export Sprite",
+    "btn.atlasviewer.menu": "Tools",
     "msg.atlasviewer.export_atlas_success": "Atlas successfully exported. Click the link below to open the folder containing the exported image.",
     "msg.atlasviewer.export_atlas_error": "Encountered an error while exporting the atlas. An excerpt of the error is shown below. See the game log for more info.",
     "msg.atlasviewer.export_sprite_success": "Sprite successfully exported. Click the link below to open the folder containing the exported image.",

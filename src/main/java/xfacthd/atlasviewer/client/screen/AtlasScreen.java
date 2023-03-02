@@ -17,6 +17,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.mixin.*;
+import xfacthd.atlasviewer.client.screen.widget.MenuContainer;
 import xfacthd.atlasviewer.client.screen.widget.SelectionWidget;
 import xfacthd.atlasviewer.client.util.*;
 
@@ -33,6 +34,7 @@ public class AtlasScreen extends Screen
     public static final NineSlice CHECKER = new NineSlice(0, 0, 256, 256, 256, 256, 0);
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
+    private static final Component TITLE_TOOLS = Component.translatable("btn.atlasviewer.menu");
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_atlas_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_atlas_error");
     private static final Component HOVER_MSG_CLICK_TO_OPEN = Component.translatable("hover.atlasviewer.path.click");
@@ -41,12 +43,14 @@ public class AtlasScreen extends Screen
     private static final int EXPORT_HEIGHT = 20;
     private static final int SELECT_WIDTH = 300;
     private static final int SELECT_HEIGHT = 20;
+    private static final int TOOL_MENU_Y = PADDING * 3;
     private static final Map<TextureAtlas, Size> ATLAS_SIZES = new WeakHashMap<>();
 
     private int atlasLeft;
     private int atlasTop;
     private int maxAtlasWidth;
     private int maxAtlasHeight;
+    private MenuContainer menu;
     private Map<ResourceLocation, TextureAtlas> atlases;
     private TextureAtlas currentAtlas;
     private QuadTree<TextureAtlasSprite> spriteTree;
@@ -67,9 +71,18 @@ public class AtlasScreen extends Screen
         maxAtlasWidth = width - (PADDING * 6);
         maxAtlasHeight = height - atlasTop - (PADDING * 3);
 
+        int titleLen = font.width(TITLE);
+        int selectWidth = Math.min(SELECT_WIDTH, width - (PADDING * 8) - titleLen - 40);
+
+        Button menuButton = addRenderableWidget(new Button(width - (PADDING * 3) - 40, TOOL_MENU_Y, 40, 20, TITLE_TOOLS, this::toggleMenu));
+        menu = new MenuContainer(this, menuButton, true);
+        menu.addButton(addRenderableWidget(
+                new Button(0, 0, EXPORT_WIDTH, EXPORT_HEIGHT, TITLE_EXPORT, this::exportAtlas)
+        ));
+
         addRenderableWidget(new Button(width - (PADDING * 4) - SELECT_WIDTH - EXPORT_WIDTH, PADDING * 3, EXPORT_WIDTH, EXPORT_HEIGHT, TITLE_EXPORT, this::exportAtlas));
 
-        SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(width - (PADDING * 3) - SELECT_WIDTH, (PADDING * 3), SELECT_WIDTH, Component.empty(), this::selectAtlas);
+        SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(width - (PADDING * 4) - selectWidth - 40, (PADDING * 3), selectWidth, Component.empty(), this::selectAtlas);
         addRenderableWidget(atlasSelection);
 
         atlases = new HashMap<>();
@@ -169,6 +182,8 @@ public class AtlasScreen extends Screen
 
         RenderSystem.disableScissor();
 
+        menu.render(poseStack);
+
         super.render(poseStack, mouseX, mouseY, partialTick);
     }
 
@@ -218,6 +233,16 @@ public class AtlasScreen extends Screen
         }
 
         return false;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    {
+        if (menu.isOpen() && !menu.isMouseOver(mouseX, mouseY))
+        {
+            menu.setOpen(false);
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -292,6 +317,11 @@ public class AtlasScreen extends Screen
         float minOffset = (atlasDim * (float)(atlasScale * scrollScale)) - viewDim;
         minOffset = Math.max(minOffset, 0);
         return Mth.clamp(offset, -minOffset, 0);
+    }
+
+    private void toggleMenu(Button btn)
+    {
+        menu.toggleOpen();
     }
 
 
