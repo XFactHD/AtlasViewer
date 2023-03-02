@@ -21,7 +21,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
-version = '3.0.0'
+version = '3.1.0'
 group = 'xfacthd.atlasviewer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'AtlasViewer'
 
