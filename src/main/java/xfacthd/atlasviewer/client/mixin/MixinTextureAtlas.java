@@ -15,7 +15,7 @@ public class MixinTextureAtlas
             method = "upload",
             at = @At("HEAD")
     )
-    private void onUpload(SpriteLoader.Preparations preps, CallbackInfo ci)
+    private void atlasviewer$onUpload(SpriteLoader.Preparations preps, CallbackInfo ci)
     {
         AtlasScreen.storeAtlasSize(
                 (TextureAtlas)(Object) this,
