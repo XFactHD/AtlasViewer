@@ -21,7 +21,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
-version = '2.2.0'
+version = '2.3.0'
 group = 'xfacthd.atlasviewer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'AtlasViewer'
 
@@ -90,7 +90,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19-41.0.64'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.2.0'
 
     //runtimeOnly fg.deobf("curse.maven:jei-238222:3745255")
 

@@ -14,7 +14,7 @@ public class MixinTextureAtlas
             method = "reload",
             at = @At("HEAD")
     )
-    private void onReload(TextureAtlas.Preparations preps, CallbackInfo ci)
+    private void atlasviewer$onReload(TextureAtlas.Preparations preps, CallbackInfo ci)
     {
         AtlasScreen.storeAtlasSize(
                 (TextureAtlas)(Object) this,
