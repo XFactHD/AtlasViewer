@@ -69,7 +69,7 @@ public class MessageScreen extends Screen
         renderBackground(pstack);
 
         RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(this, pstack, leftPos, topPos, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
+        ClientUtils.drawNineSliceTexture(pstack, leftPos, topPos, 0, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
         font.draw(pstack, title, leftPos + TITLE_X, topPos + TITLE_Y, 0x404040);
 
         int y = topPos + TITLE_Y + font.lineHeight * 2;

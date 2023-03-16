@@ -80,12 +80,15 @@ public class AtlasScreen extends Screen
         int titleLen = font.width(TITLE);
         int selectWidth = Math.min(SELECT_WIDTH, width - (PADDING * 8) - titleLen - 40);
 
+        SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(this, width - (PADDING * 4) - selectWidth - 40, (PADDING * 3), selectWidth, Component.empty(), this::selectAtlas);
+        addRenderableWidget(atlasSelection);
+
         Button menuButton = addRenderableWidget(Button.builder(TITLE_TOOLS, this::toggleMenu)
                 .pos(width - (PADDING * 3) - 40, TOOL_MENU_Y)
                 .size(40, 20)
                 .build()
         );
-        menu = new MenuContainer(this, menuButton, true);
+        menu = new MenuContainer(menuButton, true);
         menu.addButton(addRenderableWidget(
                 Button.builder(TITLE_HIGHLIGHT_ANIM, this::highlightAnimated)
                         .pos(0, 0)
@@ -98,9 +101,6 @@ public class AtlasScreen extends Screen
                         .size(EXPORT_WIDTH, EXPORT_HEIGHT)
                         .build()
         ));
-
-        SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(width - (PADDING * 4) - selectWidth - 40, (PADDING * 3), selectWidth, Component.empty(), this::selectAtlas);
-        addRenderableWidget(atlasSelection);
 
         atlases = new HashMap<>();
         ((AccessorTextureManager) Minecraft.getInstance().textureManager).getByPath().forEach((loc, tex) ->
@@ -132,7 +132,7 @@ public class AtlasScreen extends Screen
         renderBackground(poseStack);
 
         RenderSystem.setShaderTexture(0, BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(this, poseStack, PADDING, PADDING, width - (PADDING * 2), height - (PADDING * 2), BACKGROUND);
+        ClientUtils.drawNineSliceTexture(poseStack, PADDING, PADDING, 0, width - (PADDING * 2), height - (PADDING * 2), BACKGROUND);
 
         font.draw(poseStack, title, PADDING * 3, PADDING * 3, 0x404040);
 
@@ -141,40 +141,27 @@ public class AtlasScreen extends Screen
         RenderSystem.setShaderTexture(0, CHECKER_LOC);
         int bgWidth = (int)Math.min(maxAtlasWidth, atlasSize.width * scale);
         int bgHeight = (int)Math.min(maxAtlasHeight, atlasSize.height * scale);
-        ClientUtils.drawNineSliceTexture(this, poseStack, atlasLeft, atlasTop, bgWidth, bgHeight, CHECKER);
+        ClientUtils.drawNineSliceTexture(poseStack, atlasLeft, atlasTop, 0, bgWidth, bgHeight, CHECKER);
 
         RenderSystem.setShaderTexture(0, currentAtlas.location());
 
-        Window window = Minecraft.getInstance().getWindow();
-        int windowHeight = window.getGuiScaledHeight();
-        double windowScale = window.getGuiScale();
-        RenderSystem.enableScissor(
-                (int)(atlasLeft * windowScale),
-                (int)((windowHeight - (atlasTop + maxAtlasHeight)) * windowScale - 1),
-                (int)(maxAtlasWidth * windowScale),
-                (int)((maxAtlasHeight) * windowScale)
-        );
+        enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
 
         RenderSystem.enableBlend();
         TextureDrawer.drawGuiTexture(
                 poseStack,
-                this,
                 atlasLeft + offsetX,
                 atlasTop + offsetY,
+                0,
                 atlasSize.width * scale,
                 atlasSize.height * scale,
                 0F, 1F, 0F, 1F
         );
         RenderSystem.disableBlend();
 
-        RenderSystem.disableScissor();
+        disableScissor();
 
-        RenderSystem.enableScissor(
-                (int)((atlasLeft - 1) * windowScale),
-                (int)((windowHeight - (atlasTop + maxAtlasHeight) - 1) * windowScale - 1),
-                (int)((maxAtlasWidth + 2) * windowScale),
-                (int)((maxAtlasHeight + 2) * windowScale)
-        );
+        enableScissor(atlasLeft - 1, atlasTop - 1, atlasLeft + maxAtlasWidth + 1, atlasTop + maxAtlasHeight + 1);
 
         boolean cursorOnAtlas = mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight);
 
@@ -209,7 +196,7 @@ public class AtlasScreen extends Screen
             TextureDrawer.end();
         }
 
-        RenderSystem.disableScissor();
+        disableScissor();
 
         menu.render(poseStack);
 
@@ -232,7 +219,7 @@ public class AtlasScreen extends Screen
             sh += 2;
         }
 
-        ClientUtils.drawColoredBox(this, poseStack, sx, sy, sw, sh, color);
+        ClientUtils.drawColoredBox(poseStack, sx, sy, 0, sw, sh, color);
     }
 
     @Override
@@ -462,7 +449,7 @@ public class AtlasScreen extends Screen
 
     private record Size(int width, int height) { }
 
-    private static class AtlasEntry extends SelectionWidget.SelectionEntry
+    private static class AtlasEntry extends SelectionWidget.SelectionEntry<AtlasEntry>
     {
         private final ResourceLocation atlas;
 

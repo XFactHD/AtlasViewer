@@ -3,47 +3,59 @@ package xfacthd.atlasviewer.client.screen.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.*;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends AbstractWidget //TODO: add drag scrolling
+//TODO: add drag scrolling
+public class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extends AbstractButton
 {
     private static final ResourceLocation ICONS = new ResourceLocation("minecraft", "textures/gui/resource_packs.png");
     private static final int ENTRY_HEIGHT = 20;
+    private final Screen owner;
     private final Component title;
     private final Consumer<T> selectCallback;
     private final List<T> entries = new ArrayList<>();
+    private T focused = null;
     private T selected = null;
     private boolean extended = false;
     private int scrollOffset = 0;
 
-    public SelectionWidget(int x, int y, int width, Component title, Consumer<T> selectCallback)
+    public SelectionWidget(Screen owner, int x, int y, int width, Component title, Consumer<T> selectCallback)
     {
         super(x, y, width, ENTRY_HEIGHT, Component.empty());
+        this.owner = owner;
         this.title = title;
         this.selectCallback = selectCallback;
     }
 
     @Override
-    public void renderButton(PoseStack pstack, int mouseX, int mouseY, float partialTicks)
+    public void renderWidget(PoseStack pstack, int mouseX, int mouseY, float partialTicks)
     {
-        super.renderButton(pstack, mouseX, mouseY, partialTicks);
+        super.renderWidget(pstack, mouseX, mouseY, partialTicks);
 
         if (selected != null)
         {
+            boolean entryFocused = selected.isFocused();
+            selected.focused = false;
             selected.render(pstack, getX(), getY(), width, false, getFGColor(), alpha);
+            selected.focused = entryFocused;
         }
         else
         {
@@ -109,6 +121,9 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
     }
 
     @Override
+    public void onPress() { }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button)
     {
         if (active && mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() && mouseY <= getY() + getHeight())
@@ -122,8 +137,7 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
 
             if ((mouseY < getY() + ENTRY_HEIGHT && mouseX < getX() + width) || mouseX < maxX)
             {
-                extended = !extended;
-                scrollOffset = 0;
+                toggleExtended();
             }
 
             playDownSound(Minecraft.getInstance().getSoundManager());
@@ -135,6 +149,46 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
         scrollOffset = 0;
 
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+    {
+        boolean hasFocused = extended && focused != null;
+        if (active && visible && (isFocused() || hasFocused))
+        {
+            if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_SPACE || keyCode == GLFW.GLFW_KEY_KP_ENTER)
+            {
+                if (isFocused())
+                {
+                    toggleExtended();
+                }
+                else if (hasFocused)
+                {
+                    setSelected(focused, true);
+                    toggleExtended();
+                }
+                playDownSound(Minecraft.getInstance().getSoundManager());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void toggleExtended()
+    {
+        extended = !extended;
+        scrollOffset = 0;
+        if (extended && selected != null)
+        {
+            owner.setFocused(selected);
+            scrollOffset = Math.min(entries.indexOf(selected), entries.size() - 4);
+        }
+        else if (!extended && focused != null)
+        {
+            focused = null;
+            owner.setFocused(this);
+        }
     }
 
     @Override
@@ -176,7 +230,31 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
         return idx < entries.size() ? entries.get(idx) : null;
     }
 
-    public void addEntry(T entry) { entries.add(entry); }
+    void focusAndScrollTo(T entry)
+    {
+        focused = entry;
+
+        int idx = entries.indexOf(entry);
+        if (idx < 0 || idx >= entries.size())
+        {
+            return;
+        }
+
+        if (idx < scrollOffset)
+        {
+            scrollOffset = idx;
+        }
+        else if (idx > (scrollOffset + 3))
+        {
+            scrollOffset = idx - 3;
+        }
+    }
+
+    public void addEntry(T entry)
+    {
+        entries.add(entry);
+        entry.captureOwner(this);
+    }
 
     public void setSelected(T selected, boolean notify)
     {
@@ -194,15 +272,72 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
     @Override
     protected void updateWidgetNarration(NarrationElementOutput output) { }
 
-    public static class SelectionEntry implements GuiEventListener
+    @Nullable
+    @Override
+    public ComponentPath nextFocusPath(FocusNavigationEvent event)
+    {
+        if (entries.isEmpty() || !extended || !(event instanceof FocusNavigationEvent.ArrowNavigation))
+        {
+            return super.nextFocusPath(event);
+        }
+
+        ScreenDirection dir = ((FocusNavigationEvent.ArrowNavigation) event).direction();
+        if (dir.getAxis() == ScreenAxis.HORIZONTAL)
+        {
+            return null;
+        }
+
+        if (isFocused() && focused != null)
+        {
+            return ComponentPath.leaf(focused);
+        }
+
+        return switch (dir)
+        {
+            case UP -> ComponentPath.leaf(entries.get(entries.size() - 1));
+            case DOWN -> ComponentPath.leaf(entries.get(0));
+            default -> throw new IllegalStateException("Unreachable");
+        };
+    }
+
+    public T getFocusNeighbour(T entry, ScreenDirection dir)
+    {
+        int idx = entries.indexOf(entry);
+        return switch (dir)
+        {
+            case DOWN ->
+            {
+                if (idx < entries.size() - 1)
+                {
+                    yield entries.get(idx + 1);
+                }
+                yield entries.get(0);
+            }
+            case UP ->
+            {
+                if (idx > 0)
+                {
+                    yield entries.get(idx - 1);
+                }
+                yield entries.get(entries.size() - 1);
+            }
+            default -> null;
+        };
+    }
+
+
+
+    public static class SelectionEntry<T extends SelectionEntry<T>> implements GuiEventListener
     {
         private final Component message;
+        private SelectionWidget<T> owner;
+        boolean focused = false;
 
         public SelectionEntry(Component message) { this.message = message; }
 
         public void render(PoseStack pstack, int x, int y, int width, boolean hovered, int fgColor, float alpha)
         {
-            if (hovered)
+            if (hovered || focused)
             {
                 fill(pstack, x, y, x + width, y + ENTRY_HEIGHT, 0xFFA0A0A0);
             }
@@ -210,6 +345,55 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry> extends A
             Font font = Minecraft.getInstance().font;
             FormattedCharSequence text = Language.getInstance().getVisualOrder(FormattedText.composite(font.substrByWidth(message, width - 12)));
             font.drawShadow(pstack, text, x + 6, y + 6, fgColor | Mth.ceil(alpha * 255.0F) << 24);
+        }
+
+        @Override
+        public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+        {
+            if (isFocused())
+            {
+                return owner.keyPressed(keyCode, scanCode, modifiers);
+            }
+            return false;
+        }
+
+        @Nullable
+        @Override
+        public ComponentPath nextFocusPath(FocusNavigationEvent event)
+        {
+            if (isFocused() && event instanceof FocusNavigationEvent.ArrowNavigation arrowNav)
+            {
+                ScreenDirection dir = arrowNav.direction();
+                //noinspection unchecked
+                SelectionEntry<T> entry = owner.getFocusNeighbour((T) this, dir);
+                if (entry != null)
+                {
+                    return ComponentPath.leaf(entry);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public final void setFocused(boolean focused)
+        {
+            this.focused = focused;
+            if (focused)
+            {
+                //noinspection unchecked
+                owner.focusAndScrollTo((T) this);
+            }
+        }
+
+        @Override
+        public final boolean isFocused()
+        {
+            return focused;
+        }
+
+        void captureOwner(SelectionWidget<T> owner)
+        {
+            this.owner = owner;
         }
     }
 }

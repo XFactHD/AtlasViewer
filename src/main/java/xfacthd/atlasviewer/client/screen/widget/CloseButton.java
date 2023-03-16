@@ -20,16 +20,13 @@ public class CloseButton extends Button
             new NineSlice(0, 86, 200, 20, 256, 256, 3)
     };
 
-    private final Screen owner;
-
     public CloseButton(int x, int y, Screen owner)
     {
         super(x, y, 12, 12, TITLE, btn -> owner.onClose(), Button.DEFAULT_NARRATION);
-        this.owner = owner;
     }
 
     @Override
-    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick)
+    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTick)
     {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
@@ -38,11 +35,23 @@ public class CloseButton extends Button
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
 
-        NineSlice slice = SLICES[getYImage(isHoveredOrFocused())];
-        ClientUtils.drawNineSliceTexture(owner, poseStack, getX(), getY(), width, height, slice);
+        NineSlice slice = SLICES[getTextureY()];
+        ClientUtils.drawNineSliceTexture(poseStack, getX(), getY(), 0, width, height, slice);
 
         Font font = Minecraft.getInstance().font;
         int fgColor = getFGColor() | 0xFF000000;
         drawCenteredString(poseStack, font, getMessage(), getX() + width / 2, getY() + (height - 10) / 2, fgColor);
+    }
+
+    private int getTextureY() {
+        if (!active)
+        {
+            return 0;
+        }
+        else if (isHoveredOrFocused())
+        {
+            return 2;
+        }
+        return 1;
     }
 }

@@ -21,7 +21,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
-version = '3.2.0'
+version = '4.0.0'
 group = 'xfacthd.atlasviewer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'AtlasViewer'
 
@@ -30,7 +30,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
-    mappings channel: 'parchment', version: '1.19.2-2022.11.27-1.19.3'
+    mappings channel: 'parchment', version: '1.19.3-2023.03.12-1.19.4'
 
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -90,7 +90,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.3-44.0.1'
+    minecraft 'net.minecraftforge:forge:1.19.4-45.0.1'
 
     //runtimeOnly fg.deobf("curse.maven:jei-238222:3745255")
 

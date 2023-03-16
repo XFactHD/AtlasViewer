@@ -22,7 +22,7 @@ public class TooltipSeparator implements ClientTooltipComponent
     }
 
     @Override
-    public void renderImage(Font font, int mouseX, int mouseY, PoseStack poseStack, ItemRenderer itemRenderer, int blitOffset)
+    public void renderImage(Font font, int mouseX, int mouseY, PoseStack poseStack, ItemRenderer itemRenderer)
     {
         GuiComponent.fill(poseStack, mouseX, mouseY + yOff, mouseX + width + 1, mouseY + yOff + 1, color);
     }

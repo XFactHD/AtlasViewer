@@ -111,7 +111,7 @@ public class SpriteInfoScreen extends Screen
         renderBackground(poseStack);
 
         RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(this, poseStack, xLeft, yTop, WIDTH, HEIGHT, AtlasScreen.BACKGROUND);
+        ClientUtils.drawNineSliceTexture(poseStack, xLeft, yTop, 0, WIDTH, HEIGHT, AtlasScreen.BACKGROUND);
 
         font.draw(poseStack, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0x404040);
 
@@ -159,10 +159,10 @@ public class SpriteInfoScreen extends Screen
 
         RenderSystem.setShaderTexture(0, AtlasScreen.CHECKER_LOC);
         ClientUtils.drawNineSliceTexture(
-                this,
                 poseStack,
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
+                0,
                 (int)(contents.width() * scale),
                 (int)(contents.height() * scale),
                 AtlasScreen.CHECKER
@@ -174,7 +174,7 @@ public class SpriteInfoScreen extends Screen
                 poseStack,
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
-                getBlitOffset(),
+                0,
                 (int)(contents.width() * scale),
                 (int)(contents.height() * scale),
                 sprite

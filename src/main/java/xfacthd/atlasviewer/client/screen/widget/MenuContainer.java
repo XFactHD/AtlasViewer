@@ -2,7 +2,6 @@ package xfacthd.atlasviewer.client.screen.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
 import xfacthd.atlasviewer.client.util.ClientUtils;
 import xfacthd.atlasviewer.client.util.TextureDrawer;
 
@@ -14,7 +13,6 @@ public final class MenuContainer
     private static final int BASE_OFFSET = 2;
     private static final int BUTTON_INTERVAL = Button.DEFAULT_HEIGHT + BASE_OFFSET;
 
-    private final Screen owner;
     private int x;
     private final int y;
     private final Button menuButton;
@@ -25,9 +23,8 @@ public final class MenuContainer
     private int buttonWidth = 0;
     private boolean open = false;
 
-    public MenuContainer(Screen owner, Button menuButton, boolean rightAlign)
+    public MenuContainer(Button menuButton, boolean rightAlign)
     {
-        this.owner = owner;
         this.x = menuButton.getX();
         this.y = menuButton.getY() + menuButton.getHeight();
         this.width = menuButton.getWidth();
@@ -68,8 +65,8 @@ public final class MenuContainer
         if (open)
         {
             TextureDrawer.startColored();
-            TextureDrawer.fillGuiColorBuffer(poseStack, owner, x, y, width, height, 0x666666FF);
-            ClientUtils.drawColoredBox(owner, poseStack, x, y, width, height, 0x333333FF);
+            TextureDrawer.fillGuiColorBuffer(poseStack, x, y, 0, width, height, 0x666666FF);
+            ClientUtils.drawColoredBox(poseStack, x, y, 0, width, height, 0x333333FF);
             TextureDrawer.end();
         }
     }
