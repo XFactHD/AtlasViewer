@@ -1,10 +1,7 @@
 package xfacthd.atlasviewer.client.screen.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -46,35 +43,34 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extend
     }
 
     @Override
-    public void renderWidget(PoseStack pstack, int mouseX, int mouseY, float partialTicks)
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.renderWidget(pstack, mouseX, mouseY, partialTicks);
+        super.renderWidget(graphics, mouseX, mouseY, partialTicks);
 
         if (selected != null)
         {
             boolean entryFocused = selected.isFocused();
             selected.focused = false;
-            selected.render(pstack, getX(), getY(), width, false, getFGColor(), alpha);
+            selected.render(graphics, getX(), getY(), width, false, getFGColor(), alpha);
             selected.focused = entryFocused;
         }
         else
         {
             Font font = Minecraft.getInstance().font;
-            drawString(pstack, font, title, getX() + 6, getY() + (height - 8) / 2, getFGColor() | Mth.ceil(alpha * 255.0F) << 24);
+            graphics.drawString(font, title, getX() + 6, getY() + (height - 8) / 2, getFGColor() | Mth.ceil(alpha * 255.0F) << 24);
         }
 
         if (extended)
         {
-            pstack.pushPose();
-            pstack.translate(0, 0, 500);
+            graphics.pose().pushPose();
+            graphics.pose().translate(0, 0, 500);
 
             int boxHeight = Math.max(1, ENTRY_HEIGHT * Math.min(entries.size(), 4)) + 2;
 
-            fill(pstack, getX(),     getY() + ENTRY_HEIGHT - 1, getX() + width,     getY() + ENTRY_HEIGHT + boxHeight - 1, 0xFFFFFFFF);
-            fill(pstack, getX() + 1, getY() + ENTRY_HEIGHT,     getX() + width - 1, getY() + ENTRY_HEIGHT + boxHeight - 2, 0xFF000000);
+            graphics.fill(getX(),     getY() + ENTRY_HEIGHT - 1, getX() + width,     getY() + ENTRY_HEIGHT + boxHeight - 1, 0xFFFFFFFF);
+            graphics.fill(getX() + 1, getY() + ENTRY_HEIGHT,     getX() + width - 1, getY() + ENTRY_HEIGHT + boxHeight - 2, 0xFF000000);
 
-            RenderSystem.setShaderTexture(0, ICONS);
-            blit(pstack, getX() + width - 17, getY() + 6, 114, 5, 11, 7);
+            graphics.blit(ICONS, getX() + width - 17, getY() + 6, 114, 5, 11, 7);
 
             T hoverEntry = getEntryAtPosition(mouseX, mouseY);
 
@@ -86,7 +82,7 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extend
                     int entryY = getY() + ((i + 1) * ENTRY_HEIGHT);
 
                     T entry = entries.get(idx);
-                    entry.render(pstack, getX() + 1, entryY, width - 2, entry == hoverEntry, getFGColor(), alpha);
+                    entry.render(graphics, getX() + 1, entryY, width - 2, entry == hoverEntry, getFGColor(), alpha);
                 }
             }
 
@@ -97,16 +93,15 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extend
                 int barHeight = (int)(ENTRY_HEIGHT * 4 * scale + 1);
                 int scrollBotY = Math.min(scrollY + barHeight, getY() + ENTRY_HEIGHT + boxHeight - 2);
 
-                fill(pstack, getX() + width - 5, scrollY,     getX() + width - 1, scrollBotY,     0xFF666666);
-                fill(pstack, getX() + width - 4, scrollY + 1, getX() + width - 2, scrollBotY - 1, 0xFFAAAAAA);
+                graphics.fill(getX() + width - 5, scrollY,     getX() + width - 1, scrollBotY,     0xFF666666);
+                graphics.fill(getX() + width - 4, scrollY + 1, getX() + width - 2, scrollBotY - 1, 0xFFAAAAAA);
             }
 
-            pstack.popPose();
+            graphics.pose().popPose();
         }
         else
         {
-            RenderSystem.setShaderTexture(0, ICONS);
-            blit(pstack, getX() + width - 17, getY() + 6, 82, 20, 11, 7);
+            graphics.blit(ICONS, getX() + width - 17, getY() + 6, 82, 20, 11, 7);
         }
     }
 
@@ -335,16 +330,16 @@ public class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extend
 
         public SelectionEntry(Component message) { this.message = message; }
 
-        public void render(PoseStack pstack, int x, int y, int width, boolean hovered, int fgColor, float alpha)
+        public void render(GuiGraphics graphics, int x, int y, int width, boolean hovered, int fgColor, float alpha)
         {
             if (hovered || focused)
             {
-                fill(pstack, x, y, x + width, y + ENTRY_HEIGHT, 0xFFA0A0A0);
+                graphics.fill(x, y, x + width, y + ENTRY_HEIGHT, 0xFFA0A0A0);
             }
 
             Font font = Minecraft.getInstance().font;
             FormattedCharSequence text = Language.getInstance().getVisualOrder(FormattedText.composite(font.substrByWidth(message, width - 12)));
-            font.drawShadow(pstack, text, x + 6, y + 6, fgColor | Mth.ceil(alpha * 255.0F) << 24);
+            graphics.drawString(font, text, x + 6, y + 6, fgColor | Mth.ceil(alpha * 255.0F) << 24);
         }
 
         @Override

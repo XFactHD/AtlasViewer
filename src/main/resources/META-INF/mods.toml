@@ -1,11 +1,11 @@
 modLoader="javafml"
-loaderVersion="[41,)"
+loaderVersion="${loader_version_range}"
 license="LGPL v2.1"
 issueTrackerURL="https://github.com/XFactHD/AtlasViewer/issues"
 
 [[mods]]
 	modId="atlasviewer"
-	version="${file.jarVersion}"
+	version="${mod_version}"
 	displayName="AtlasViewer"
 	#updateJSONURL=""
 	#displayURL=""
@@ -18,13 +18,13 @@ issueTrackerURL="https://github.com/XFactHD/AtlasViewer/issues"
 [[dependencies.atlasviewer]]
     modId="forge"
     mandatory=true
-    versionRange="[41.0.64,)"
+    versionRange="${forge_version_range}"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.atlasviewer]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19,1.20)"
+    versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"

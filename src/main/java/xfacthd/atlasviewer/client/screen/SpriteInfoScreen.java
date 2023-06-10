@@ -2,8 +2,8 @@ package xfacthd.atlasviewer.client.screen;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -106,52 +106,52 @@ public class SpriteInfoScreen extends Screen
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick)
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        renderBackground(poseStack);
+        renderBackground(graphics);
 
         RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(poseStack, xLeft, yTop, 0, WIDTH, HEIGHT, AtlasScreen.BACKGROUND);
+        ClientUtils.drawNineSliceTexture(graphics.pose(), xLeft, yTop, 0, WIDTH, HEIGHT, AtlasScreen.BACKGROUND);
 
-        font.draw(poseStack, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0x404040);
+        graphics.drawString(font, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0x404040, false);
 
         boolean animated = animation != null;
 
-        font.draw(poseStack, LABEL_NAME, xLeft + LABEL_X, yTop + SPRITE_Y, 0x404040);
-        font.draw(poseStack, LABEL_WIDTH, xLeft + LABEL_X, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040);
-        font.draw(poseStack, LABEL_HEIGHT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040);
-        font.draw(poseStack, LABEL_SOURCE, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040);
-        font.draw(poseStack, LABEL_ANIMATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040);
+        graphics.drawString(font, LABEL_NAME, xLeft + LABEL_X, yTop + SPRITE_Y, 0x404040, false);
+        graphics.drawString(font, LABEL_WIDTH, xLeft + LABEL_X, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040, false);
+        graphics.drawString(font, LABEL_HEIGHT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040, false);
+        graphics.drawString(font, LABEL_SOURCE, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
+        graphics.drawString(font, LABEL_ANIMATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040, false);
         if (animated)
         {
-            font.draw(poseStack, LABEL_FRAMECOUNT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040);
-            font.draw(poseStack, LABEL_INTERPOLATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040);
-            font.draw(poseStack, LABEL_FRAMETIME, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040);
+            graphics.drawString(font, LABEL_FRAMECOUNT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
+            graphics.drawString(font, LABEL_INTERPOLATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040, false);
+            graphics.drawString(font, LABEL_FRAMETIME, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
         }
 
         int maxValueLen = WIDTH - (PADDING * 2) - valueX;
 
         TextLine name = TextLine.of(contents.name().toString(), font, maxValueLen);
-        font.draw(poseStack, name.text(), xLeft + valueX, yTop + SPRITE_Y, 0x404040);
-        font.draw(poseStack, contents.width() + "px", xLeft + valueX, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040);
-        font.draw(poseStack, contents.height() + "px", xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040);
-        Component primSrcName = primarySource != null ? TextLine.of(primarySource, font, maxValueLen).text() : VALUE_UNKNOWN_PACK;
-        font.draw(poseStack, primSrcName, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040);
-        font.draw(poseStack, animated ? VALUE_TRUE : VALUE_FALSE, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 4), animated ? 0x00D000 : 0xD00000);
+        graphics.drawString(font, name.text(), xLeft + valueX, yTop + SPRITE_Y, 0x404040, false);
+        graphics.drawString(font, contents.width() + "px", xLeft + valueX, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040, false);
+        graphics.drawString(font, contents.height() + "px", xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040, false);
+        Component primSrcName = primarySource != null && !primarySource.isEmpty() ? TextLine.of(primarySource, font, maxValueLen).text() : VALUE_UNKNOWN_PACK;
+        graphics.drawString(font, primSrcName, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
+        graphics.drawString(font, animated ? VALUE_TRUE : VALUE_FALSE, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 4), animated ? 0x00D000 : 0xD00000, false);
         if (animated)
         {
             int frames = ((AccessorSpriteContents) contents).callGetFrameCount();
-            font.draw(poseStack, String.valueOf(frames), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040);
+            graphics.drawString(font, String.valueOf(frames), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
             boolean interp = ((AccessorAnimatedTexture) animation).getInterpolateFrames();
-            font.draw(poseStack, interp ? VALUE_TRUE : VALUE_FALSE, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), interp ? 0x00D000 : 0xD00000);
+            graphics.drawString(font, interp ? VALUE_TRUE : VALUE_FALSE, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), interp ? 0x00D000 : 0xD00000, false);
 
             if (animFrameTime == -1)
             {
-                font.draw(poseStack, VALUE_FRAMETIME_MIXED, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040);
+                graphics.drawString(font, VALUE_FRAMETIME_MIXED, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
             }
             else
             {
-                font.draw(poseStack, animFrameTime + (animFrameTime == 1 ? " tick" : " ticks"), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040);
+                graphics.drawString(font, animFrameTime + (animFrameTime == 1 ? " tick" : " ticks"), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
             }
         }
 
@@ -159,7 +159,7 @@ public class SpriteInfoScreen extends Screen
 
         RenderSystem.setShaderTexture(0, AtlasScreen.CHECKER_LOC);
         ClientUtils.drawNineSliceTexture(
-                poseStack,
+                graphics.pose(),
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
                 0,
@@ -170,8 +170,7 @@ public class SpriteInfoScreen extends Screen
 
         RenderSystem.setShaderTexture(0, sprite.atlasLocation());
         RenderSystem.enableBlend();
-        blit(
-                poseStack,
+        graphics.blit(
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
                 0,
@@ -181,21 +180,21 @@ public class SpriteInfoScreen extends Screen
         );
         RenderSystem.disableBlend();
 
-        super.render(poseStack, mouseX, mouseY, partialTick);
+        super.render(graphics, mouseX, mouseY, partialTick);
 
         int xRight = xLeft + valueX + font.width(name.text());
         int yBottom = yTop + SPRITE_Y + font.lineHeight;
         if (name.capped() && mouseX >= xLeft + valueX && mouseX <= xRight && mouseY >= yTop + SPRITE_Y && mouseY <= yBottom)
         {
-            renderTooltip(poseStack, name.fullText(), mouseX, mouseY);
+            graphics.renderTooltip(font, name.fullText(), mouseX, mouseY);
         }
 
         xRight = xLeft + valueX + font.width(primSrcName);
         yBottom = yTop + SPRITE_Y + (LINE_HEIGHT * 3) + font.lineHeight;
         if (!sourceNames.isEmpty() && mouseX >= xLeft + valueX && mouseX <= xRight && mouseY >= yTop + SPRITE_Y + (LINE_HEIGHT * 3) && mouseY <= yBottom)
         {
-            int x = xLeft + valueX - 12;
-            renderTooltipInternal(poseStack, sourceNameTooltip, x, yTop + SPRITE_Y + (LINE_HEIGHT * 3) + 12, PACK_LIST_POSITIONER);
+            int x = xLeft + valueX;
+            graphics.renderTooltipInternal(font, sourceNameTooltip, x, yTop + SPRITE_Y + (LINE_HEIGHT * 3), PACK_LIST_POSITIONER);
         }
     }
 
@@ -238,7 +237,6 @@ public class SpriteInfoScreen extends Screen
         }
 
         List<Component> lines = sourceNames.stream()
-                .map(s -> "" + s)
                 .map(Component::literal)
                 .map(Component.class::cast)
                 .toList();

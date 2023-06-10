@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.FormattedText;
 
-public class ClientUtils
+public final class ClientUtils
 {
     public static void drawNineSliceTexture(PoseStack pstack, int elemX, int elemY, float z, int elemW, int elemH, NineSlice ns)
     {
@@ -75,4 +75,8 @@ public class ClientUtils
         TextureDrawer.fillGuiColorBuffer(poseStack, x,          y         , z,  w, 1F, color);
         TextureDrawer.fillGuiColorBuffer(poseStack, x,          y + h - 1F, z,  w, 1F, color);
     }
+
+
+
+    private ClientUtils() { }
 }

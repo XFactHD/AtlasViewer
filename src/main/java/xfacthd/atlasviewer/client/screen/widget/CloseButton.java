@@ -1,9 +1,9 @@
 package xfacthd.atlasviewer.client.screen.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -26,7 +26,7 @@ public class CloseButton extends Button
     }
 
     @Override
-    public void renderWidget(PoseStack poseStack, int mouseX, int mouseY, float partialTick)
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
@@ -36,11 +36,11 @@ public class CloseButton extends Button
         RenderSystem.enableDepthTest();
 
         NineSlice slice = SLICES[getTextureY()];
-        ClientUtils.drawNineSliceTexture(poseStack, getX(), getY(), 0, width, height, slice);
+        ClientUtils.drawNineSliceTexture(graphics.pose(), getX(), getY(), 0, width, height, slice);
 
         Font font = Minecraft.getInstance().font;
         int fgColor = getFGColor() | 0xFF000000;
-        drawCenteredString(poseStack, font, getMessage(), getX() + width / 2, getY() + (height - 10) / 2, fgColor);
+        graphics.drawCenteredString(font, getMessage(), getX() + width / 2, getY() + (height - 10) / 2, fgColor);
     }
 
     private int getTextureY() {

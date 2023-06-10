@@ -1,7 +1,7 @@
 package xfacthd.atlasviewer.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -64,20 +64,20 @@ public class MessageScreen extends Screen
     }
 
     @Override
-    public void render(PoseStack pstack, int mouseX, int mouseY, float partialTicks)
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        renderBackground(pstack);
+        renderBackground(graphics);
 
         RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(pstack, leftPos, topPos, 0, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
-        font.draw(pstack, title, leftPos + TITLE_X, topPos + TITLE_Y, 0x404040);
+        ClientUtils.drawNineSliceTexture(graphics.pose(), leftPos, topPos, 0, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
+        graphics.drawString(font, title, leftPos + TITLE_X, topPos + TITLE_Y, 0x404040, false);
 
         int y = topPos + TITLE_Y + font.lineHeight * 2;
         for (List<FormattedCharSequence> block : textBlocks)
         {
             for (FormattedCharSequence line : block)
             {
-                font.draw(pstack, line, leftPos + TITLE_X, y, 0);
+                graphics.drawString(font, line, leftPos + TITLE_X, y, 0, false);
                 y += font.lineHeight;
             }
             y += font.lineHeight;
@@ -86,10 +86,10 @@ public class MessageScreen extends Screen
         Style style = findTextLine(mouseX, mouseY);
         if (style != null)
         {
-            renderComponentHoverEffect(pstack, style, mouseX, mouseY);
+            graphics.renderComponentHoverEffect(font, style, mouseX, mouseY);
         }
 
-        super.render(pstack, mouseX, mouseY, partialTicks);
+        super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override

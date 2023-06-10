@@ -1,10 +1,8 @@
 package xfacthd.atlasviewer.client.util;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 
 public class TooltipSeparator implements ClientTooltipComponent
 {
@@ -22,9 +20,9 @@ public class TooltipSeparator implements ClientTooltipComponent
     }
 
     @Override
-    public void renderImage(Font font, int mouseX, int mouseY, PoseStack poseStack, ItemRenderer itemRenderer)
+    public void renderImage(Font font, int mouseX, int mouseY, GuiGraphics graphics)
     {
-        GuiComponent.fill(poseStack, mouseX, mouseY + yOff, mouseX + width + 1, mouseY + yOff + 1, color);
+        graphics.fill(mouseX, mouseY + yOff, mouseX + width + 1, mouseY + yOff + 1, color);
     }
 
     @Override

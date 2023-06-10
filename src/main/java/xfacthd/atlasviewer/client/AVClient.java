@@ -14,7 +14,7 @@ import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.screen.AtlasScreen;
 
 @Mod.EventBusSubscriber(modid = AtlasViewer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class AVClient
+public final class AVClient
 {
     private static final Lazy<KeyMapping> KEY_MAPPING_OPEN_VIEWER = makeKeyMapping();
 
@@ -44,4 +44,8 @@ public class AVClient
             new KeyMapping("key.atlasviewer.open_viewer", GLFW.GLFW_KEY_V, "key.categories.atlasviewer")
         );
     }
+
+
+
+    private AVClient() { }
 }

@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.GameRenderer;
 
 @SuppressWarnings("unused")
-public class TextureDrawer
+public final class TextureDrawer
 {
     private static BufferBuilder buffer;
 
@@ -478,4 +478,8 @@ public class TextureDrawer
         ints[3] = (color       & 255);
         return ints;
     }
+
+
+
+    private TextureDrawer() { }
 }

@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
@@ -127,29 +128,29 @@ public class AtlasScreen extends Screen
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick)
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        renderBackground(poseStack);
+        renderBackground(graphics);
 
         RenderSystem.setShaderTexture(0, BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(poseStack, PADDING, PADDING, 0, width - (PADDING * 2), height - (PADDING * 2), BACKGROUND);
+        ClientUtils.drawNineSliceTexture(graphics.pose(), PADDING, PADDING, 0, width - (PADDING * 2), height - (PADDING * 2), BACKGROUND);
 
-        font.draw(poseStack, title, PADDING * 3, PADDING * 3, 0x404040);
+        graphics.drawString(font, title, PADDING * 3, PADDING * 3, 0x404040, false);
 
         float scale = (float)(atlasScale * scrollScale);
 
         RenderSystem.setShaderTexture(0, CHECKER_LOC);
         int bgWidth = (int)Math.min(maxAtlasWidth, atlasSize.width * scale);
         int bgHeight = (int)Math.min(maxAtlasHeight, atlasSize.height * scale);
-        ClientUtils.drawNineSliceTexture(poseStack, atlasLeft, atlasTop, 0, bgWidth, bgHeight, CHECKER);
+        ClientUtils.drawNineSliceTexture(graphics.pose(), atlasLeft, atlasTop, 0, bgWidth, bgHeight, CHECKER);
 
         RenderSystem.setShaderTexture(0, currentAtlas.location());
 
-        enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
+        graphics.enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
 
         RenderSystem.enableBlend();
         TextureDrawer.drawGuiTexture(
-                poseStack,
+                graphics.pose(),
                 atlasLeft + offsetX,
                 atlasTop + offsetY,
                 0,
@@ -159,9 +160,9 @@ public class AtlasScreen extends Screen
         );
         RenderSystem.disableBlend();
 
-        disableScissor();
+        graphics.disableScissor();
 
-        enableScissor(atlasLeft - 1, atlasTop - 1, atlasLeft + maxAtlasWidth + 1, atlasTop + maxAtlasHeight + 1);
+        graphics.enableScissor(atlasLeft - 1, atlasTop - 1, atlasLeft + maxAtlasWidth + 1, atlasTop + maxAtlasHeight + 1);
 
         boolean cursorOnAtlas = mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight);
 
@@ -174,7 +175,7 @@ public class AtlasScreen extends Screen
         {
             for (Rect2i rect : animatedLocations)
             {
-                drawColoredBox(poseStack, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0x00FF00FF);
+                drawColoredBox(graphics.pose(), rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0x00FF00FF);
             }
         }
 
@@ -187,7 +188,7 @@ public class AtlasScreen extends Screen
             if (sprite != null)
             {
                 SpriteContents contents = sprite.contents();
-                drawColoredBox(poseStack, sprite.getX(), sprite.getY(), contents.width(), contents.height(), scale, true, 0xFF0000FF);
+                drawColoredBox(graphics.pose(), sprite.getX(), sprite.getY(), contents.width(), contents.height(), scale, true, 0xFF0000FF);
             }
         }
 
@@ -196,11 +197,11 @@ public class AtlasScreen extends Screen
             TextureDrawer.end();
         }
 
-        disableScissor();
+        graphics.disableScissor();
 
-        menu.render(poseStack);
+        menu.render(graphics.pose());
 
-        super.render(poseStack, mouseX, mouseY, partialTick);
+        super.render(graphics, mouseX, mouseY, partialTick);
     }
 
     private void drawColoredBox(PoseStack poseStack, int x, int y, int width, int height, float scale, boolean expand, int color)
