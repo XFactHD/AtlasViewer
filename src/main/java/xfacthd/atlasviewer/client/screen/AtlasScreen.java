@@ -18,8 +18,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.mixin.*;
-import xfacthd.atlasviewer.client.screen.widget.MenuContainer;
-import xfacthd.atlasviewer.client.screen.widget.SelectionWidget;
+import xfacthd.atlasviewer.client.screen.widget.*;
 import xfacthd.atlasviewer.client.util.*;
 
 import java.io.IOException;
@@ -27,7 +26,7 @@ import java.nio.file.*;
 import java.util.*;
 
 @SuppressWarnings("deprecation")
-public class AtlasScreen extends Screen
+public class AtlasScreen extends Screen implements SearchBox.SearchHandler
 {
     public static final ResourceLocation BACKGROUND_LOC = new ResourceLocation("minecraft", "textures/gui/demo_background.png");
     public static final ResourceLocation CHECKER_LOC = new ResourceLocation(AtlasViewer.MOD_ID, "textures/gui/checker.png");
@@ -45,6 +44,8 @@ public class AtlasScreen extends Screen
     private static final int HIGHLIGHT_ANIM_HEIGHT = 20;
     private static final int EXPORT_WIDTH = 100;
     private static final int EXPORT_HEIGHT = 20;
+    private static final int SEARCH_BAR_WIDTH = 148;
+    private static final int SEARCH_BAR_HEIGHT = 18;
     private static final int SELECT_WIDTH = 300;
     private static final int SELECT_HEIGHT = 20;
     private static final int TOOL_MENU_Y = PADDING * 3;
@@ -55,6 +56,7 @@ public class AtlasScreen extends Screen
     private int maxAtlasWidth;
     private int maxAtlasHeight;
     private MenuContainer menu;
+    private SearchBox searchBar;
     private Map<ResourceLocation, TextureAtlas> atlases;
     private TextureAtlas currentAtlas;
     private QuadTree<TextureAtlasSprite> spriteTree;
@@ -66,6 +68,7 @@ public class AtlasScreen extends Screen
     private float offsetY = 0;
     private boolean highlightAnimated = false;
     private final List<Rect2i> animatedLocations = new ArrayList<>();
+    private final List<Rect2i> searchResultLocations = new ArrayList<>();
     private TextureAtlasSprite hoveredSprite = null;
 
     public AtlasScreen() { super(TITLE); }
@@ -90,18 +93,21 @@ public class AtlasScreen extends Screen
                 .build()
         );
         menu = new MenuContainer(menuButton, true);
-        menu.addButton(addRenderableWidget(
+        menu.addMenuEntry(addRenderableWidget(
                 Button.builder(TITLE_HIGHLIGHT_ANIM, this::highlightAnimated)
                         .pos(0, 0)
                         .size(HIGHLIGHT_ANIM_WIDTH, HIGHLIGHT_ANIM_HEIGHT)
                         .build()
         ));
-        menu.addButton(addRenderableWidget(
+        menu.addMenuEntry(addRenderableWidget(
                 Button.builder(TITLE_EXPORT, this::exportAtlas)
                         .pos(0, 0)
                         .size(EXPORT_WIDTH, EXPORT_HEIGHT)
                         .build()
         ));
+        menu.addMenuEntry(searchBar = addRenderableWidget(
+                new SearchBox(font, 0, 0, SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT, searchBar, this)
+        ), 1, 1);
 
         atlases = new HashMap<>();
         ((AccessorTextureManager) Minecraft.getInstance().textureManager).getByPath().forEach((loc, tex) ->
@@ -165,8 +171,9 @@ public class AtlasScreen extends Screen
         graphics.enableScissor(atlasLeft - 1, atlasTop - 1, atlasLeft + maxAtlasWidth + 1, atlasTop + maxAtlasHeight + 1);
 
         boolean cursorOnAtlas = mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight);
+        boolean hasSearchResults = !searchResultLocations.isEmpty();
 
-        if (highlightAnimated || cursorOnAtlas)
+        if (highlightAnimated || hasSearchResults || cursorOnAtlas)
         {
             TextureDrawer.startColored();
         }
@@ -176,6 +183,14 @@ public class AtlasScreen extends Screen
             for (Rect2i rect : animatedLocations)
             {
                 drawColoredBox(graphics.pose(), rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0x00FF00FF);
+            }
+        }
+
+        if (hasSearchResults)
+        {
+            for (Rect2i rect : searchResultLocations)
+            {
+                drawColoredBox(graphics.pose(), rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0xFFBB00FF);
             }
         }
 
@@ -192,7 +207,7 @@ public class AtlasScreen extends Screen
             }
         }
 
-        if (highlightAnimated || cursorOnAtlas)
+        if (highlightAnimated || hasSearchResults || cursorOnAtlas)
         {
             TextureDrawer.end();
         }
@@ -221,6 +236,12 @@ public class AtlasScreen extends Screen
         }
 
         ClientUtils.drawColoredBox(poseStack, sx, sy, 0, sw, sh, color);
+    }
+
+    @Override
+    public void tick()
+    {
+        searchBar.tick();
     }
 
     @Override
@@ -278,7 +299,12 @@ public class AtlasScreen extends Screen
         {
             menu.setOpen(false);
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        if (!super.mouseClicked(mouseX, mouseY, button))
+        {
+            setFocused(null);
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -323,6 +349,8 @@ public class AtlasScreen extends Screen
         scrollScale = 1F;
         offsetX = 0;
         offsetY = 0;
+        searchBar.setValue("");
+        searchResultLocations.clear();
 
         if (highlightAnimated)
         {
@@ -381,6 +409,29 @@ public class AtlasScreen extends Screen
     private void toggleMenu(Button btn)
     {
         menu.toggleOpen();
+    }
+
+    @Override
+    public int getResultCount()
+    {
+        return searchResultLocations.size();
+    }
+
+    @Override
+    public void updateSearch(String text)
+    {
+        searchResultLocations.clear();
+
+        if (!text.isEmpty())
+        {
+            sprites.forEach(sprite ->
+            {
+                if (sprite.contents().name().toString().contains(text))
+                {
+                    searchResultLocations.add(getSpriteSize(sprite));
+                }
+            });
+        }
     }
 
 
