@@ -40,7 +40,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_atlas_error");
     private static final Component HOVER_MSG_CLICK_TO_OPEN = Component.translatable("hover.atlasviewer.path.click");
     private static final int PADDING = 5;
-    private static final int HIGHLIGHT_ANIM_WIDTH = 150;
+    private static final int HIGHLIGHT_ANIM_WIDTH = 160;
     private static final int HIGHLIGHT_ANIM_HEIGHT = 20;
     private static final int EXPORT_WIDTH = 100;
     private static final int EXPORT_HEIGHT = 20;
@@ -56,6 +56,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private int maxAtlasWidth;
     private int maxAtlasHeight;
     private MenuContainer menu;
+    private IndicatorButton btnHighlightAnim;
     private SearchBox searchBar;
     private Map<ResourceLocation, TextureAtlas> atlases;
     private TextureAtlas currentAtlas;
@@ -66,12 +67,14 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private double scrollScale = 1F;
     private float offsetX = 0;
     private float offsetY = 0;
-    private boolean highlightAnimated = false;
     private final List<Rect2i> animatedLocations = new ArrayList<>();
     private final List<Rect2i> searchResultLocations = new ArrayList<>();
     private TextureAtlasSprite hoveredSprite = null;
 
-    public AtlasScreen() { super(TITLE); }
+    public AtlasScreen()
+    {
+        super(TITLE);
+    }
 
     @Override
     protected void init()
@@ -93,12 +96,13 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
                 .build()
         );
         menu = new MenuContainer(menuButton, true);
-        menu.addMenuEntry(addRenderableWidget(
-                Button.builder(TITLE_HIGHLIGHT_ANIM, this::highlightAnimated)
-                        .pos(0, 0)
-                        .size(HIGHLIGHT_ANIM_WIDTH, HIGHLIGHT_ANIM_HEIGHT)
-                        .build()
-        ));
+        menu.addMenuEntry(btnHighlightAnim = addRenderableWidget(new IndicatorButton(
+                0, 0,
+                HIGHLIGHT_ANIM_WIDTH, HIGHLIGHT_ANIM_HEIGHT,
+                TITLE_HIGHLIGHT_ANIM,
+                btnHighlightAnim,
+                this::highlightAnimated
+        )));
         menu.addMenuEntry(addRenderableWidget(
                 Button.builder(TITLE_EXPORT, this::exportAtlas)
                         .pos(0, 0)
@@ -171,6 +175,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
         graphics.enableScissor(atlasLeft - 1, atlasTop - 1, atlasLeft + maxAtlasWidth + 1, atlasTop + maxAtlasHeight + 1);
 
         boolean cursorOnAtlas = mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight);
+        boolean highlightAnimated = btnHighlightAnim.isChecked();
         boolean hasSearchResults = !searchResultLocations.isEmpty();
 
         if (highlightAnimated || hasSearchResults || cursorOnAtlas)
@@ -352,7 +357,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
         searchBar.setValue("");
         searchResultLocations.clear();
 
-        if (highlightAnimated)
+        if (btnHighlightAnim.isChecked())
         {
             gatherAnimatedLocations();
         }
@@ -360,8 +365,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
 
     private void highlightAnimated(Button btn)
     {
-        highlightAnimated = !highlightAnimated;
-        if (highlightAnimated)
+        if (btnHighlightAnim.isChecked())
         {
             gatherAnimatedLocations();
         }
