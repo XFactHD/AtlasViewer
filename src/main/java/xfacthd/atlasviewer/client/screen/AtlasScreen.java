@@ -1,5 +1,6 @@
 package xfacthd.atlasviewer.client.screen;
 
+import com.google.common.base.Stopwatch;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -36,6 +37,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private static final Component TITLE_HIGHLIGHT_ANIM = Component.translatable("btn.atlasviewer.highlight_animated");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
     private static final Component TITLE_TOOLS = Component.translatable("btn.atlasviewer.menu");
+    private static final Component TITLE_DETAILS = Component.translatable("btn.atlasviewer.details");
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_atlas_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_atlas_error");
     private static final Component HOVER_MSG_CLICK_TO_OPEN = Component.translatable("hover.atlasviewer.path.click");
@@ -48,6 +50,8 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private static final int SEARCH_BAR_HEIGHT = 18;
     private static final int SELECT_WIDTH = 300;
     private static final int SELECT_HEIGHT = 20;
+    private static final int DETAILS_WIDTH = 100;
+    private static final int DETAILS_HEIGHT = 20;
     private static final int TOOL_MENU_Y = PADDING * 3;
     private static final Map<TextureAtlas, Size> ATLAS_SIZES = new WeakHashMap<>();
 
@@ -63,6 +67,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private QuadTree<TextureAtlasSprite> spriteTree;
     private Collection<TextureAtlasSprite> sprites;
     private Size atlasSize;
+    private AtlasInfoScreen.AtlasInfo cachedInfo;
     private double atlasScale = 1F;
     private double scrollScale = 1F;
     private float offsetX = 0;
@@ -107,6 +112,12 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
                 Button.builder(TITLE_EXPORT, this::exportAtlas)
                         .pos(0, 0)
                         .size(EXPORT_WIDTH, EXPORT_HEIGHT)
+                        .build()
+        ));
+        menu.addMenuEntry(addRenderableWidget(
+                Button.builder(TITLE_DETAILS, this::openAtlasDetails)
+                        .pos(0, 0)
+                        .size(DETAILS_WIDTH, DETAILS_HEIGHT)
                         .build()
         ));
         menu.addMenuEntry(searchBar = addRenderableWidget(
@@ -364,6 +375,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
         offsetY = 0;
         searchBar.setValue("");
         searchResultLocations.clear();
+        cachedInfo = null;
 
         if (btnHighlightAnim.isChecked())
         {
@@ -421,6 +433,18 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private void toggleMenu(Button btn)
     {
         menu.toggleOpen();
+    }
+
+    private void openAtlasDetails(Button btn)
+    {
+        if (cachedInfo == null)
+        {
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            cachedInfo = AtlasInfoScreen.computeInfo(currentAtlas, sprites);
+            stopwatch.stop();
+            AtlasViewer.LOGGER.debug("Took {} to compute atlas info for atlas '{}'", stopwatch, currentAtlas.location());
+        }
+        Minecraft.getInstance().pushGuiLayer(new AtlasInfoScreen(cachedInfo));
     }
 
     @Override

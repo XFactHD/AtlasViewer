@@ -13,4 +13,13 @@ public interface AccessorTextureAtlas
 {
     @Accessor
     Map<ResourceLocation, TextureAtlasSprite> getTexturesByName();
+
+    @Accessor
+    int getWidth();
+
+    @Accessor
+    int getHeight();
+
+    @Accessor
+    int getMipLevel();
 }
