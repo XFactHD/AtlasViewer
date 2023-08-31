@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL13;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.mixin.*;
 import xfacthd.atlasviewer.client.screen.widget.*;
@@ -36,8 +37,10 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final Component TITLE_HIGHLIGHT_ANIM = Component.translatable("btn.atlasviewer.highlight_animated");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
+    private static final Component TITLE_EXPORT_MIPPED = Component.translatable("btn.atlasviewer.export_mipped_atlas");
     private static final Component TITLE_TOOLS = Component.translatable("btn.atlasviewer.menu");
     private static final Component TITLE_DETAILS = Component.translatable("btn.atlasviewer.details");
+    private static final Component MSG_EXPORT_DETAILS = Component.translatable("msg.atlasviewer.export_atlas.detail");
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_atlas_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_atlas_error");
     private static final Component HOVER_MSG_CLICK_TO_OPEN = Component.translatable("hover.atlasviewer.path.click");
@@ -52,6 +55,8 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private static final int SELECT_HEIGHT = 20;
     private static final int DETAILS_WIDTH = 100;
     private static final int DETAILS_HEIGHT = 20;
+    private static final int MIP_LEVEL_WIDTH = 160;
+    private static final int MIP_LEVEL_HEIGHT = 20;
     private static final int TOOL_MENU_Y = PADDING * 3;
     private static final Map<TextureAtlas, Size> ATLAS_SIZES = new WeakHashMap<>();
 
@@ -61,6 +66,9 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private int maxAtlasHeight;
     private MenuContainer menu;
     private IndicatorButton btnHighlightAnim;
+    private Button btnExport;
+    private Button btnExportMipped;
+    private DiscreteSliderButton mipLevelSlider;
     private SearchBox searchBar;
     private Map<ResourceLocation, TextureAtlas> atlases;
     private TextureAtlas currentAtlas;
@@ -75,6 +83,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private final List<Rect2i> animatedLocations = new ArrayList<>();
     private final List<Rect2i> searchResultLocations = new ArrayList<>();
     private TextureAtlasSprite hoveredSprite = null;
+    private int currentMipLevel = 0;
 
     public AtlasScreen()
     {
@@ -108,8 +117,14 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
                 btnHighlightAnim,
                 this::highlightAnimated
         )));
-        menu.addMenuEntry(addRenderableWidget(
+        menu.addMenuEntry(btnExport = addRenderableWidget(
                 Button.builder(TITLE_EXPORT, this::exportAtlas)
+                        .pos(0, 0)
+                        .size(EXPORT_WIDTH, EXPORT_HEIGHT)
+                        .build()
+        ));
+        menu.addMenuEntry(btnExportMipped = addRenderableWidget(
+                Button.builder(TITLE_EXPORT_MIPPED, this::exportAtlasMipped)
                         .pos(0, 0)
                         .size(EXPORT_WIDTH, EXPORT_HEIGHT)
                         .build()
@@ -119,6 +134,16 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
                         .pos(0, 0)
                         .size(DETAILS_WIDTH, DETAILS_HEIGHT)
                         .build()
+        ));
+        menu.addMenuEntry(mipLevelSlider = addRenderableWidget(
+                new DiscreteSliderButton(
+                        0, 0,
+                        MIP_LEVEL_WIDTH, MIP_LEVEL_HEIGHT,
+                        "btn.atlasviewer.mip_level",
+                        mipLevelSlider != null ? mipLevelSlider.getStep() : 0,
+                        mipLevelSlider != null ? mipLevelSlider.getMaxStep() : 0,
+                        this::selectMipLevel
+                )
         ));
         menu.addMenuEntry(searchBar = addRenderableWidget(
                 new SearchBox(font, 0, 0, SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT, searchBar, this)
@@ -170,6 +195,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
         graphics.enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
 
         RenderSystem.enableBlend();
+        setAtlasMipLevel(currentAtlas, currentMipLevel);
         TextureDrawer.drawGuiTexture(
                 graphics.pose(),
                 atlasLeft + offsetX,
@@ -179,6 +205,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
                 atlasSize.height * scale,
                 0F, 1F, 0F, 1F
         );
+        setAtlasMipLevel(currentAtlas, 0);
         RenderSystem.disableBlend();
 
         graphics.disableScissor();
@@ -232,7 +259,23 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
 
         menu.render(graphics.pose());
 
+        if (btnExport.isHovered())
+        {
+            setTooltipForNextRenderPass(MSG_EXPORT_DETAILS);
+        }
+        else if (btnExportMipped.active && btnExportMipped.isHovered())
+        {
+            setTooltipForNextRenderPass(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel));
+        }
+
         super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+    public static void setAtlasMipLevel(TextureAtlas atlas, int level)
+    {
+        RenderSystem.activeTexture(GL13.GL_TEXTURE0);
+        RenderSystem.bindTexture(atlas.getId());
+        RenderSystem.texParameter(GL13.GL_TEXTURE_2D, GL13.GL_TEXTURE_BASE_LEVEL, level);
     }
 
     private void drawColoredBox(PoseStack poseStack, int x, int y, int width, int height, float scale, boolean expand, int color)
@@ -331,9 +374,9 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
             return true;
         }
 
-        if (hoveredSprite != null && button == GLFW.GLFW_MOUSE_BUTTON_2)
+        if (hoveredSprite != null && button == GLFW.GLFW_MOUSE_BUTTON_2 && (!menu.isOpen() || !menu.isMouseOver(mouseX, mouseY)))
         {
-            Minecraft.getInstance().pushGuiLayer(new SpriteInfoScreen(hoveredSprite));
+            Minecraft.getInstance().pushGuiLayer(new SpriteInfoScreen(currentAtlas, hoveredSprite, currentMipLevel));
             return true;
         }
 
@@ -370,6 +413,12 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
                 minSize, minSize
         );
 
+        int mipLevels = ((AccessorTextureAtlas) currentAtlas).getMipLevel();
+        mipLevelSlider.setStep(0, true);
+        mipLevelSlider.setMaxStep(mipLevels);
+        mipLevelSlider.active = mipLevels > 0;
+        btnExportMipped.active = false;
+
         scrollScale = 1F;
         offsetX = 0;
         offsetY = 0;
@@ -401,12 +450,24 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
 
     private void exportAtlas(Button btn)
     {
+        exportAtlas(0);
+    }
+
+    private void exportAtlasMipped(Button btn)
+    {
+        exportAtlas(currentMipLevel);
+    }
+
+    private void exportAtlas(int mipLevel)
+    {
         Size size = ATLAS_SIZES.get(currentAtlas);
-        try (NativeImage image = new NativeImage(size.width(), size.height(), false))
+        int width = size.width >> mipLevel;
+        int height = size.height >> mipLevel;
+        try (NativeImage image = new NativeImage(width, height, false))
         {
             int texId = currentAtlas.getId();
             RenderSystem.bindTexture(texId);
-            image.downloadTexture(0, false);
+            image.downloadTexture(mipLevel, false);
             exportNativeImage(image, currentAtlas.location(), "atlas", true, MSG_EXPORT_SUCCESS);
         }
         catch (IOException e)
@@ -445,6 +506,12 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
             AtlasViewer.LOGGER.debug("Took {} to compute atlas info for atlas '{}'", stopwatch, currentAtlas.location());
         }
         Minecraft.getInstance().pushGuiLayer(new AtlasInfoScreen(cachedInfo));
+    }
+
+    private void selectMipLevel(int level)
+    {
+        currentMipLevel = level;
+        btnExportMipped.active = level > 0;
     }
 
     @Override

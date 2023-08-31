@@ -8,8 +8,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
-import net.minecraft.client.renderer.texture.SpriteContents;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.*;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
@@ -22,6 +21,7 @@ import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.mixin.*;
 import xfacthd.atlasviewer.client.screen.widget.CloseButton;
+import xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
 import xfacthd.atlasviewer.client.util.*;
 
 import java.io.IOException;
@@ -46,19 +46,24 @@ public class SpriteInfoScreen extends Screen
     private static final Component VALUE_FRAMETIME_MIXED = Component.translatable("value.atlasviewer.frametime_mixed");
     private static final Component VALUE_UNKNOWN_PACK = Component.translatable("value.atlasviewer.unknown_pack").withStyle(s -> s.withColor(0xD00000));
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_sprite");
+    private static final Component TITLE_EXPORT_MIPPED = Component.translatable("btn.atlasviewer.export_mipped_sprite");
+    private static final Component MSG_EXPORT_DETAILS = Component.translatable("msg.atlasviewer.export_sprite.detail");
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_sprite_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_sprite_error");
     private static final ClientTooltipPositioner PACK_LIST_POSITIONER = new FixedTooltipPositioner();
     private static final int WIDTH = 400;
-    private static final int HEIGHT = 163;
+    private static final int HEIGHT = 193;
     private static final int PADDING = 5;
     private static final int LABEL_X = 148;
     private static final int SPRITE_Y = 25;
-    private static final int LINE_HEIGHT = 15;
-    private static final int EXPORT_WIDTH = 100;
+    private static final int LINE_HEIGHT = 12;
+    private static final int EXPORT_WIDTH = 120;
     private static final int EXPORT_HEIGHT = 20;
+    private static final int MIP_LEVEL_WIDTH = 120;
+    private static final int MIP_LEVEL_HEIGHT = 20;
     private static final int CLOSE_SIZE = 12;
 
+    private final TextureAtlas atlas;
     private final TextureAtlasSprite sprite;
     private final SpriteContents contents;
     private final List<String> sourceNames;
@@ -69,17 +74,22 @@ public class SpriteInfoScreen extends Screen
     private int yTop;
     private int labelLen = 0;
     private int valueX;
+    private Button btnExport;
+    private Button btnExportMipped;
     private List<ClientTooltipComponent> sourceNameTooltip;
+    private int currentMipLevel;
 
-    public SpriteInfoScreen(TextureAtlasSprite sprite)
+    public SpriteInfoScreen(TextureAtlas atlas, TextureAtlasSprite sprite, int currentMipLevel)
     {
         super(TITLE);
+        this.atlas = atlas;
         this.sprite = sprite;
         this.contents = sprite.contents();
         this.sourceNames = collectSourcePackNames();
         this.primarySource = sourceNames.isEmpty() ? null : sourceNames.get(0);
         this.animation = ((AccessorSpriteContents) contents).getAnimatedTexture();
         this.animFrameTime = getAnimationFrameTime();
+        this.currentMipLevel = currentMipLevel;
     }
 
     @Override
@@ -88,11 +98,27 @@ public class SpriteInfoScreen extends Screen
         xLeft = (width / 2) - (WIDTH / 2);
         yTop = (height / 2) - (HEIGHT / 2);
 
-        addRenderableWidget(Button.builder(TITLE_EXPORT, this::exportSprite)
-                .pos(xLeft + WIDTH - PADDING - EXPORT_WIDTH, yTop + HEIGHT - PADDING - EXPORT_HEIGHT)
+        DiscreteSliderButton mipLevelSlider = addRenderableWidget(new DiscreteSliderButton(
+                xLeft + (PADDING * 2), yTop + HEIGHT - (PADDING * 2) - MIP_LEVEL_HEIGHT,
+                MIP_LEVEL_WIDTH, MIP_LEVEL_HEIGHT,
+                "btn.atlasviewer.mip_level",
+                currentMipLevel,
+                ((AccessorTextureAtlas) atlas).getMipLevel(),
+                this::selectMipLevel
+        ));
+        addRenderableWidget(btnExport = Button.builder(TITLE_EXPORT, this::exportSprite)
+                .pos(xLeft + WIDTH - (PADDING * 2) - EXPORT_WIDTH, yTop + HEIGHT - (PADDING * 2) - EXPORT_HEIGHT)
                 .size(EXPORT_WIDTH, EXPORT_HEIGHT)
                 .build()
         );
+        addRenderableWidget(btnExportMipped = Button.builder(TITLE_EXPORT_MIPPED, this::exportSpriteMipped)
+                .pos(xLeft + WIDTH - (PADDING * 4) - (EXPORT_WIDTH * 2), yTop + HEIGHT - (PADDING * 2) - EXPORT_HEIGHT)
+                .size(EXPORT_WIDTH, EXPORT_HEIGHT)
+                .build()
+        );
+
+        mipLevelSlider.active = ((AccessorTextureAtlas) atlas).getMipLevel() > 0;
+        btnExportMipped.active = currentMipLevel > 0;
 
         for (Component label : LABELS)
         {
@@ -170,6 +196,7 @@ public class SpriteInfoScreen extends Screen
 
         RenderSystem.setShaderTexture(0, sprite.atlasLocation());
         RenderSystem.enableBlend();
+        AtlasScreen.setAtlasMipLevel(atlas, currentMipLevel);
         graphics.blit(
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
@@ -178,7 +205,17 @@ public class SpriteInfoScreen extends Screen
                 (int)(contents.height() * scale),
                 sprite
         );
+        AtlasScreen.setAtlasMipLevel(atlas, 0);
         RenderSystem.disableBlend();
+
+        if (btnExport.isHovered())
+        {
+            setTooltipForNextRenderPass(MSG_EXPORT_DETAILS);
+        }
+        else if (btnExportMipped.active && btnExportMipped.isHovered())
+        {
+            setTooltipForNextRenderPass(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel));
+        }
 
         super.render(graphics, mouseX, mouseY, partialTick);
 
@@ -294,11 +331,27 @@ public class SpriteInfoScreen extends Screen
         return first;
     }
 
+    private void selectMipLevel(int level)
+    {
+        currentMipLevel = level;
+        btnExportMipped.active = level > 0;
+    }
+
     private void exportSprite(Button btn)
     {
-        NativeImage image = contents.byMipLevel[0];
+        exportSprite(0);
+    }
+
+    private void exportSpriteMipped(Button btn)
+    {
+        exportSprite(currentMipLevel);
+    }
+
+    private void exportSprite(int mipLevel)
+    {
         try
         {
+            NativeImage image = contents.byMipLevel[mipLevel];
             AtlasScreen.exportNativeImage(image, contents.name(), "sprite", false, MSG_EXPORT_SUCCESS);
         }
         catch (IOException e)
