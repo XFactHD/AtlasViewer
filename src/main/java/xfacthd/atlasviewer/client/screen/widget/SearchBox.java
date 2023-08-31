@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 public final class SearchBox extends EditBox
 {
@@ -61,6 +62,17 @@ public final class SearchBox extends EditBox
     {
         changed = true;
         lastChange = System.currentTimeMillis();
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int btn)
+    {
+        if (btn == GLFW.GLFW_MOUSE_BUTTON_RIGHT && clicked(mouseX, mouseY))
+        {
+            setValue("");
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, btn);
     }
 
     @Override
