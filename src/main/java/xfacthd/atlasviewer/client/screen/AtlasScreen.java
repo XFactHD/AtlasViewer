@@ -345,11 +345,19 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
         Rect2i treeRect = new Rect2i(0, 0, atlasSize.width, atlasSize.height);
         int minSize = sprites.stream()
                 .map(TextureAtlasSprite::contents)
-                .mapToInt(c -> Math.min(c.width(), c.height()))
+                .mapToInt(c -> Math.max(c.width(), c.height()))
                 .min()
                 .orElseThrow();
         spriteTree = new QuadTree<>(treeRect, minSize);
         sprites.forEach(s -> spriteTree.insert(s, AtlasScreen::getSpriteSize));
+        Rect2i minRect = spriteTree.minSize();
+        AtlasViewer.LOGGER.debug(
+                "QuadTree for atlas '{}' has a depth of {}. Smallest sub-tree sized {}x{}, requested {}x{}",
+                currentAtlas.location(),
+                spriteTree.depth(),
+                minRect.getWidth(), minRect.getHeight(),
+                minSize, minSize
+        );
 
         scrollScale = 1F;
         offsetX = 0;
