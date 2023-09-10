@@ -5,6 +5,11 @@ import net.minecraft.network.chat.Component;
 
 public record TextLine(Component text, Component fullText, boolean capped)
 {
+    public TextLine(Component text)
+    {
+        this(text, text, false);
+    }
+
     public static TextLine of(String text, Font font, int maxWidth)
     {
         String cappedText = text;

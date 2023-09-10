@@ -84,6 +84,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     //runtimeOnly fg.deobf("curse.maven:jei-238222:4574528")
+    //runtimeOnly fg.deobf("curse.maven:rubidium-574856:4573226")
+    //runtimeOnly fg.deobf("curse.maven:oculus-581495:4578741")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
@@ -91,6 +93,7 @@ dependencies {
 mixin {
     add sourceSets.main, "atlasviewer.refmap.json"
     config "atlasviewer.mixin.json"
+    //debug true
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

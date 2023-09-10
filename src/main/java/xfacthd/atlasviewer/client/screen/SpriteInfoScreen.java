@@ -2,6 +2,7 @@ package xfacthd.atlasviewer.client.screen;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -19,6 +20,7 @@ import net.minecraftforge.resource.DelegatingPackResources;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
+import xfacthd.atlasviewer.client.api.*;
 import xfacthd.atlasviewer.client.mixin.*;
 import xfacthd.atlasviewer.client.screen.widget.CloseButton;
 import xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
@@ -35,14 +37,27 @@ public class SpriteInfoScreen extends Screen
     private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.spritename");
     private static final Component LABEL_WIDTH = Component.translatable("label.atlasviewer.spritewidth");
     private static final Component LABEL_HEIGHT = Component.translatable("label.atlasviewer.spriteheight");
-    private static final Component LABEL_SOURCE = Component.translatable("label.atlasviewer.spritesource");
+    private static final Component LABEL_SOURCEPACK = Component.translatable("label.atlasviewer.sprite_sourcepack");
+    private static final Component LABEL_READERPACK = Component.translatable("label.atlasviewer.sprite_readerpack");
+    private static final Component LABEL_READERTYPE = Component.translatable("label.atlasviewer.sprite_readertype");
     private static final Component LABEL_ANIMATED = Component.translatable("label.atlasviewer.spriteanimated");
     private static final Component LABEL_FRAMECOUNT = Component.translatable("label.atlasviewer.spriteframes");
     private static final Component LABEL_INTERPOLATED = Component.translatable("label.atlasviewer.spriteinterpolated");
     private static final Component LABEL_FRAMETIME = Component.translatable("label.atlasviewer.spriteframetime");
-    private static final Component[] LABELS = { LABEL_NAME, LABEL_WIDTH, LABEL_HEIGHT, LABEL_ANIMATED, LABEL_FRAMECOUNT, LABEL_INTERPOLATED };
-    private static final Component VALUE_TRUE = Component.translatable("value.atlasviewer.true");
-    private static final Component VALUE_FALSE = Component.translatable("value.atlasviewer.false");
+    private static final Component[] LABELS = {
+            LABEL_NAME,
+            LABEL_WIDTH,
+            LABEL_HEIGHT,
+            LABEL_SOURCEPACK,
+            LABEL_READERPACK,
+            LABEL_READERTYPE,
+            LABEL_ANIMATED,
+            LABEL_FRAMECOUNT,
+            LABEL_INTERPOLATED,
+            LABEL_FRAMETIME
+    };
+    private static final Component VALUE_TRUE = Component.translatable("value.atlasviewer.true").withStyle(Style.EMPTY.withColor(0x00D000));
+    private static final Component VALUE_FALSE = Component.translatable("value.atlasviewer.false").withStyle(Style.EMPTY.withColor(0xD00000));
     private static final Component VALUE_FRAMETIME_MIXED = Component.translatable("value.atlasviewer.frametime_mixed");
     private static final Component VALUE_UNKNOWN_PACK = Component.translatable("value.atlasviewer.unknown_pack").withStyle(s -> s.withColor(0xD00000));
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_sprite");
@@ -50,6 +65,7 @@ public class SpriteInfoScreen extends Screen
     private static final Component MSG_EXPORT_DETAILS = Component.translatable("msg.atlasviewer.export_sprite.detail");
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_sprite_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_sprite_error");
+    private static final Component TOOLTIP_READERPACK = Component.translatable("tooltip.atlasviewer.reader_pack");
     private static final ClientTooltipPositioner PACK_LIST_POSITIONER = new FixedTooltipPositioner();
     private static final int WIDTH = 400;
     private static final int HEIGHT = 193;
@@ -76,7 +92,14 @@ public class SpriteInfoScreen extends Screen
     private int valueX;
     private Button btnExport;
     private Button btnExportMipped;
-    private List<ClientTooltipComponent> sourceNameTooltip;
+    private TextLine spriteName;
+    private TextLine primarySourceName;
+    private SourcePackList sourceNameTooltip;
+    private SpriteSourceInfo sourceInfo;
+    private Component animatedText;
+    private String framesText;
+    private Component interpText;
+    private Component frameTimeText;
     private int currentMipLevel;
 
     public SpriteInfoScreen(TextureAtlas atlas, TextureAtlasSprite sprite, int currentMipLevel)
@@ -128,7 +151,31 @@ public class SpriteInfoScreen extends Screen
 
         addRenderableWidget(new CloseButton(xLeft + WIDTH - PADDING - CLOSE_SIZE, yTop + PADDING, this));
 
+        int maxValueLen = WIDTH - (PADDING * 2) - valueX;
+
+        spriteName = TextLine.of(contents.name().toString(), font, maxValueLen);
+        primarySourceName = primarySource != null && !primarySource.isEmpty() ? TextLine.of(primarySource, font, maxValueLen) : new TextLine(VALUE_UNKNOWN_PACK);
         sourceNameTooltip = makeTooltipList();
+        sourceInfo = makeSourceInfo();
+        if (animation != null)
+        {
+            animatedText = VALUE_TRUE;
+            framesText = String.valueOf(((AccessorSpriteContents) contents).callGetFrameCount());
+            boolean interp = ((AccessorAnimatedTexture) animation).getInterpolateFrames();
+            interpText = interp ? VALUE_TRUE : VALUE_FALSE;
+            if (animFrameTime == -1)
+            {
+                frameTimeText = VALUE_FRAMETIME_MIXED;
+            }
+            else
+            {
+                frameTimeText = Component.literal(animFrameTime + (animFrameTime == 1 ? " tick" : " ticks"));
+            }
+        }
+        else
+        {
+            animatedText = VALUE_FALSE;
+        }
     }
 
     @Override
@@ -146,39 +193,29 @@ public class SpriteInfoScreen extends Screen
         graphics.drawString(font, LABEL_NAME, xLeft + LABEL_X, yTop + SPRITE_Y, 0x404040, false);
         graphics.drawString(font, LABEL_WIDTH, xLeft + LABEL_X, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040, false);
         graphics.drawString(font, LABEL_HEIGHT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040, false);
-        graphics.drawString(font, LABEL_SOURCE, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
-        graphics.drawString(font, LABEL_ANIMATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040, false);
+        graphics.drawString(font, LABEL_SOURCEPACK, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
+        graphics.drawString(font, LABEL_READERPACK, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040, false);
+        graphics.drawString(font, LABEL_READERTYPE, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
+        graphics.drawString(font, LABEL_ANIMATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040, false);
         if (animated)
         {
-            graphics.drawString(font, LABEL_FRAMECOUNT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
-            graphics.drawString(font, LABEL_INTERPOLATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040, false);
-            graphics.drawString(font, LABEL_FRAMETIME, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
+            graphics.drawString(font, LABEL_FRAMECOUNT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
+            graphics.drawString(font, LABEL_INTERPOLATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 8), 0x404040, false);
+            graphics.drawString(font, LABEL_FRAMETIME, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 9), 0x404040, false);
         }
 
-        int maxValueLen = WIDTH - (PADDING * 2) - valueX;
-
-        TextLine name = TextLine.of(contents.name().toString(), font, maxValueLen);
-        graphics.drawString(font, name.text(), xLeft + valueX, yTop + SPRITE_Y, 0x404040, false);
+        graphics.drawString(font, spriteName.text(), xLeft + valueX, yTop + SPRITE_Y, 0x404040, false);
         graphics.drawString(font, contents.width() + "px", xLeft + valueX, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040, false);
         graphics.drawString(font, contents.height() + "px", xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040, false);
-        Component primSrcName = primarySource != null && !primarySource.isEmpty() ? TextLine.of(primarySource, font, maxValueLen).text() : VALUE_UNKNOWN_PACK;
-        graphics.drawString(font, primSrcName, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
-        graphics.drawString(font, animated ? VALUE_TRUE : VALUE_FALSE, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 4), animated ? 0x00D000 : 0xD00000, false);
+        graphics.drawString(font, primarySourceName.text(), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
+        graphics.drawString(font, sourceInfo.sourcePack, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040, false);
+        graphics.drawString(font, sourceInfo.sourceType, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
+        graphics.drawString(font, animatedText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040, false);
         if (animated)
         {
-            int frames = ((AccessorSpriteContents) contents).callGetFrameCount();
-            graphics.drawString(font, String.valueOf(frames), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
-            boolean interp = ((AccessorAnimatedTexture) animation).getInterpolateFrames();
-            graphics.drawString(font, interp ? VALUE_TRUE : VALUE_FALSE, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), interp ? 0x00D000 : 0xD00000, false);
-
-            if (animFrameTime == -1)
-            {
-                graphics.drawString(font, VALUE_FRAMETIME_MIXED, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
-            }
-            else
-            {
-                graphics.drawString(font, animFrameTime + (animFrameTime == 1 ? " tick" : " ticks"), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
-            }
+            graphics.drawString(font, framesText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
+            graphics.drawString(font, interpText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 8), 0x404040, false);
+            graphics.drawString(font, frameTimeText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 9), 0x404040, false);
         }
 
         float scale = 128F / Math.max(contents.width(), contents.height());
@@ -219,31 +256,69 @@ public class SpriteInfoScreen extends Screen
 
         super.render(graphics, mouseX, mouseY, partialTick);
 
-        int xRight = xLeft + valueX + font.width(name.text());
-        int yBottom = yTop + SPRITE_Y + font.lineHeight;
-        if (name.capped() && mouseX >= xLeft + valueX && mouseX <= xRight && mouseY >= yTop + SPRITE_Y && mouseY <= yBottom)
+        int lx = xLeft + LABEL_X;
+        int ly = yTop + SPRITE_Y + (LINE_HEIGHT * 4);
+        if (mouseX >= lx && mouseX < lx + font.width(LABEL_READERPACK) && mouseY >= ly && mouseY < ly + font.lineHeight)
         {
-            graphics.renderTooltip(font, name.fullText(), mouseX, mouseY);
+            setTooltipForNextRenderPass(TOOLTIP_READERPACK);
         }
+        else if (spriteName.capped() && isHoveringLine(mouseX, mouseY, 0, spriteName.text()))
+        {
+            graphics.renderTooltip(font, spriteName.fullText(), mouseX, mouseY);
+        }
+        else if (sourceInfo.sourcePackTooltip != null && isHoveringLine(mouseX, mouseY, 4, sourceInfo.sourcePack))
+        {
+            if (sourceInfo.hasSourcePack)
+            {
+                int x = Math.min(xLeft + valueX, width - font.width(sourceInfo.sourcePackTooltip) - PADDING);
+                int y = yTop + SPRITE_Y + (LINE_HEIGHT * 4);
+                var tooltip = List.of(ClientTooltipComponent.create(sourceInfo.sourcePackTooltip.getVisualOrderText()));
+                graphics.renderTooltipInternal(font, tooltip, x, y, PACK_LIST_POSITIONER);
+            }
+            else
+            {
+                graphics.renderTooltip(font, sourceInfo.sourcePackTooltip, mouseX, mouseY);
+            }
+        }
+        else if (sourceInfo.sourceTypeTooltip != null && isHoveringLine(mouseX, mouseY, 5, sourceInfo.sourceType))
+        {
+            graphics.renderTooltip(font, sourceInfo.sourceTypeTooltip, mouseX, mouseY);
+        }
+        else if ((sourceNames.size() > 1 || primarySourceName.capped()) && isHoveringLine(mouseX, mouseY, 3, primarySourceName.text()))
+        {
+            int x = Math.min(xLeft + valueX, width - sourceNameTooltip.maxLen - PADDING);
+            int y = yTop + SPRITE_Y + (LINE_HEIGHT * 3);
+            graphics.renderTooltipInternal(font, sourceNameTooltip.entries, x, y, PACK_LIST_POSITIONER);
+        }
+    }
 
-        xRight = xLeft + valueX + font.width(primSrcName);
-        yBottom = yTop + SPRITE_Y + (LINE_HEIGHT * 3) + font.lineHeight;
-        if (!sourceNames.isEmpty() && mouseX >= xLeft + valueX && mouseX <= xRight && mouseY >= yTop + SPRITE_Y + (LINE_HEIGHT * 3) && mouseY <= yBottom)
-        {
-            int x = xLeft + valueX;
-            graphics.renderTooltipInternal(font, sourceNameTooltip, x, yTop + SPRITE_Y + (LINE_HEIGHT * 3), PACK_LIST_POSITIONER);
-        }
+    private boolean isHoveringLine(int mouseX, int mouseY, int lineIdx, Component text)
+    {
+        int yTextTop = yTop + SPRITE_Y + (LINE_HEIGHT * lineIdx);
+        int xTextRight = xLeft + valueX + font.width(text);
+        return mouseX >= xLeft + valueX && mouseX <= xTextRight && mouseY >= yTextTop && mouseY <= yTextTop + font.lineHeight;
     }
 
     private List<String> collectSourcePackNames()
     {
         ResourceLocation name = contents.name();
-        ResourceLocation loc = new ResourceLocation(name.getNamespace(), "textures/" + name.getPath() + ".png");
+        ResourceLocation loc = Objects.requireNonNullElseGet(
+                ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getOriginalPath(),
+                () -> new ResourceLocation(name.getNamespace(), "textures/" + name.getPath() + ".png")
+        );
         List<Resource> resources = Minecraft.getInstance().getResourceManager().getResourceStack(loc);
         List<String> sources = resources.stream()
                 .map(Resource::source)
                 .flatMap(pack -> getPackIds(pack, loc))
                 .collect(Collectors.toCollection(ArrayList::new));
+        if (sources.isEmpty())
+        {
+            String capturedPackId = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getTextureSourcePack();
+            if (capturedPackId != null)
+            {
+                sources.add(capturedPackId);
+            }
+        }
         Collections.reverse(sources);
         return sources;
     }
@@ -266,11 +341,11 @@ public class SpriteInfoScreen extends Screen
         return Stream.of(pack.packId());
     }
 
-    private List<ClientTooltipComponent> makeTooltipList()
+    private SourcePackList makeTooltipList()
     {
         if (sourceNames.isEmpty())
         {
-            return List.of();
+            return new SourcePackList(List.of(), 0);
         }
 
         List<Component> lines = sourceNames.stream()
@@ -306,7 +381,73 @@ public class SpriteInfoScreen extends Screen
                 })
                 .collect(Collectors.toCollection(ArrayList::new));
         components.remove(components.size() - 1);
-        return components;
+        return new SourcePackList(components, maxWidth);
+    }
+
+    private SpriteSourceInfo makeSourceInfo()
+    {
+        int maxValueLen = WIDTH - (PADDING * 2) - valueX;
+
+        Component sourcePack;
+        Component sourcePackTooltip;
+        boolean hasSourcePack = false;
+        SourceAwareness awareness = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSourceAwareness();
+        if (awareness == SourceAwareness.SOURCE_KNOWN)
+        {
+            String packId = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSpriteSourceSourcePack();
+            if (packId != null && !packId.isEmpty())
+            {
+                Pair<Component, Component> packIdPair = ellipsise(packId, maxValueLen);
+                sourcePack = packIdPair.getFirst();
+                sourcePackTooltip = packIdPair.getSecond();
+                hasSourcePack = true;
+            }
+            else
+            {
+                sourcePack = VALUE_UNKNOWN_PACK;
+                sourcePackTooltip = null;
+            }
+        }
+        else
+        {
+            sourcePack = awareness.getDescription();
+            sourcePackTooltip = awareness.getTooltip();
+        }
+
+        Component sourceType;
+        Component sourceTypeTooltip;
+        Class<?> sourceTypeClazz = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSpriteSourceType();
+        if (sourceTypeClazz != null)
+        {
+            String typeName = SpriteSourceManager.getSpecialDescription(sourceTypeClazz);
+            if (typeName == null)
+            {
+                typeName = sourceTypeClazz.getName();
+                typeName = typeName.substring(typeName.lastIndexOf('.') + 1);
+            }
+            Pair<Component, Component> typeNamePair = ellipsise(typeName, maxValueLen);
+            sourceType = typeNamePair.getFirst();
+            sourceTypeTooltip = typeNamePair.getSecond();
+        }
+        else
+        {
+            sourceType = awareness.getDescription();
+            sourceTypeTooltip = awareness.getTooltip();
+        }
+
+        return new SpriteSourceInfo(sourcePack, sourcePackTooltip, hasSourcePack, sourceType, sourceTypeTooltip);
+    }
+
+    private Pair<Component, Component> ellipsise(String text, int maxLen)
+    {
+        if (font.width(text) > maxLen)
+        {
+            return new Pair<>(
+                    Component.literal(font.plainSubstrByWidth(text, maxLen) + "..."),
+                    Component.literal(text)
+            );
+        }
+        return new Pair<>(Component.literal(text), null);
     }
 
     private int getAnimationFrameTime()
@@ -374,4 +515,16 @@ public class SpriteInfoScreen extends Screen
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+
+
+
+    private record SourcePackList(List<ClientTooltipComponent> entries, int maxLen) { }
+
+    private record SpriteSourceInfo(
+            Component sourcePack,
+            Component sourcePackTooltip,
+            boolean hasSourcePack,
+            Component sourceType,
+            Component sourceTypeTooltip
+    ) { }
 }
