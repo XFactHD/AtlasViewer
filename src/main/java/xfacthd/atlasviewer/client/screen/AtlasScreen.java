@@ -49,7 +49,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private static final int HIGHLIGHT_ANIM_HEIGHT = 20;
     private static final int EXPORT_WIDTH = 100;
     private static final int EXPORT_HEIGHT = 20;
-    private static final int SEARCH_BAR_WIDTH = 148;
+    private static final int SEARCH_BAR_WIDTH = 198;
     private static final int SEARCH_BAR_HEIGHT = 18;
     private static final int SELECT_WIDTH = 300;
     private static final int SELECT_HEIGHT = 20;
@@ -84,6 +84,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private final List<Rect2i> searchResultLocations = new ArrayList<>();
     private TextureAtlasSprite hoveredSprite = null;
     private int currentMipLevel = 0;
+    private int focusedSearchResultIdx = -1;
 
     public AtlasScreen()
     {
@@ -233,7 +234,8 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
         {
             for (Rect2i rect : searchResultLocations)
             {
-                drawColoredBox(graphics.pose(), rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0xFFBB00FF);
+                boolean focused = ((System.currentTimeMillis() / 200L) % 2L == 0L) && focusedSearchResultIdx == searchResultLocations.indexOf(rect);
+                drawColoredBox(graphics.pose(), rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, focused ? 0xCC00FFFF : 0xFFBB00FF);
             }
         }
 
@@ -424,6 +426,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
         offsetY = 0;
         searchBar.setValue("");
         searchResultLocations.clear();
+        focusedSearchResultIdx = -1;
         cachedInfo = null;
 
         if (btnHighlightAnim.isChecked())
@@ -524,6 +527,7 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
     public void updateSearch(String text)
     {
         searchResultLocations.clear();
+        focusedSearchResultIdx = -1;
 
         if (!text.isEmpty())
         {
@@ -534,7 +538,31 @@ public class AtlasScreen extends Screen implements SearchBox.SearchHandler
                     searchResultLocations.add(getSpriteSize(sprite));
                 }
             });
+            searchResultLocations.sort(Comparator.comparingInt(Rect2i::getY).thenComparing(Rect2i::getX));
         }
+    }
+
+    @Override
+    public void jumpToNextResult()
+    {
+        if (!searchResultLocations.isEmpty())
+        {
+            focusedSearchResultIdx = (focusedSearchResultIdx + 1) % searchResultLocations.size();
+            Rect2i result = searchResultLocations.get(focusedSearchResultIdx);
+            scrollScale = Math.max(1F / atlasScale, 1F);
+
+            double cx = (result.getX() + (result.getWidth() / 2F));
+            double cy = (result.getY() + (result.getHeight() / 2F));
+            double scale = atlasScale * scrollScale;
+            clampOffsetX((float) -(((cx - (maxAtlasWidth / scale)) * scale) + (maxAtlasWidth / 2F)));
+            clampOffsetY((float) -(((cy - (maxAtlasHeight / scale)) * scale) + (maxAtlasHeight / 2F)));
+        }
+    }
+
+    @Override
+    public int getFocusedResultIndex()
+    {
+        return focusedSearchResultIdx;
     }
 
 
