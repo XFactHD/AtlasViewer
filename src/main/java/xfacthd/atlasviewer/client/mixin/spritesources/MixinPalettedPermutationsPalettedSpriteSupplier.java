@@ -12,7 +12,9 @@ import xfacthd.atlasviewer.client.api.*;
 @Mixin(targets = "net/minecraft/client/renderer/texture/atlas/sources/PalettedPermutations$PalettedSpriteSupplier")
 public class MixinPalettedPermutationsPalettedSpriteSupplier implements ISpriteSourcePackAwareSpriteSupplier
 {
-    @Shadow @Final private LazyLoadedImage baseImage;
+    @Shadow
+    @Final
+    private LazyLoadedImage baseImage;
     @Unique
     private String atlasviewer$sourcePackId = null;
     @Unique

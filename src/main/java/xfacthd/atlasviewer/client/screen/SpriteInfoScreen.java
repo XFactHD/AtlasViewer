@@ -2,7 +2,6 @@ package xfacthd.atlasviewer.client.screen;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -270,10 +269,7 @@ public class SpriteInfoScreen extends Screen
         {
             if (sourceInfo.hasSourcePack)
             {
-                int x = Math.min(xLeft + valueX, width - font.width(sourceInfo.sourcePackTooltip) - PADDING);
-                int y = yTop + SPRITE_Y + (LINE_HEIGHT * 4);
-                var tooltip = List.of(ClientTooltipComponent.create(sourceInfo.sourcePackTooltip.getVisualOrderText()));
-                graphics.renderTooltipInternal(font, tooltip, x, y, PACK_LIST_POSITIONER);
+                renderFixedTooltip(graphics, 4, sourceInfo.sourcePackTooltip);
             }
             else
             {
@@ -286,9 +282,7 @@ public class SpriteInfoScreen extends Screen
         }
         else if ((sourceNames.size() > 1 || primarySourceName.capped()) && isHoveringLine(mouseX, mouseY, 3, primarySourceName.text()))
         {
-            int x = Math.min(xLeft + valueX, width - sourceNameTooltip.maxLen - PADDING);
-            int y = yTop + SPRITE_Y + (LINE_HEIGHT * 3);
-            graphics.renderTooltipInternal(font, sourceNameTooltip.entries, x, y, PACK_LIST_POSITIONER);
+            renderFixedTooltip(graphics, 3, sourceNameTooltip.entries, sourceNameTooltip.maxLen);
         }
     }
 
@@ -297,6 +291,21 @@ public class SpriteInfoScreen extends Screen
         int yTextTop = yTop + SPRITE_Y + (LINE_HEIGHT * lineIdx);
         int xTextRight = xLeft + valueX + font.width(text);
         return mouseX >= xLeft + valueX && mouseX <= xTextRight && mouseY >= yTextTop && mouseY <= yTextTop + font.lineHeight;
+    }
+
+    private void renderFixedTooltip(GuiGraphics graphics, int lineIdx, Component text)
+    {
+        var tooltip = List.of(ClientTooltipComponent.create(text.getVisualOrderText()));
+        renderFixedTooltip(graphics, lineIdx, tooltip, font.width(text));
+    }
+
+    private void renderFixedTooltip(
+            GuiGraphics graphics, int lineIdx, List<ClientTooltipComponent> components, int maxLen
+    )
+    {
+        int x = Math.min(xLeft + valueX, width - maxLen - PADDING);
+        int y = yTop + SPRITE_Y + (LINE_HEIGHT * lineIdx);
+        graphics.renderTooltipInternal(font, components, x, y, PACK_LIST_POSITIONER);
     }
 
     private List<String> collectSourcePackNames()
@@ -353,10 +362,7 @@ public class SpriteInfoScreen extends Screen
                 .map(Component.class::cast)
                 .toList();
 
-        int maxWidth = Math.min(
-                lines.stream().mapToInt(font::width).max().orElseThrow(),
-                width - xLeft - valueX - 4 - PADDING
-        );
+        int maxWidth = lines.stream().mapToInt(font::width).max().orElseThrow();
         TooltipSeparator seperator = new TooltipSeparator(maxWidth, 0xFFFFFFFF, false);
 
         MutableBoolean first = new MutableBoolean(true);
@@ -397,9 +403,9 @@ public class SpriteInfoScreen extends Screen
             String packId = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSpriteSourceSourcePack();
             if (packId != null && !packId.isEmpty())
             {
-                Pair<Component, Component> packIdPair = ellipsise(packId, maxValueLen);
-                sourcePack = packIdPair.getFirst();
-                sourcePackTooltip = packIdPair.getSecond();
+                TextLine packIdPair = TextLine.of(packId, font, maxValueLen);
+                sourcePack = packIdPair.text();
+                sourcePackTooltip = !sourcePack.equals(packIdPair.fullText()) ? packIdPair.fullText() : null;
                 hasSourcePack = true;
             }
             else
@@ -416,6 +422,7 @@ public class SpriteInfoScreen extends Screen
 
         Component sourceType;
         Component sourceTypeTooltip;
+        boolean hasConcreteSourceType = false;
         Class<?> sourceTypeClazz = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSpriteSourceType();
         if (sourceTypeClazz != null)
         {
@@ -423,11 +430,17 @@ public class SpriteInfoScreen extends Screen
             if (typeName == null)
             {
                 typeName = sourceTypeClazz.getName();
-                typeName = typeName.substring(typeName.lastIndexOf('.') + 1);
+                String shortTypeName = typeName.substring(typeName.lastIndexOf('.') + 1);
+                sourceType = TextLine.of(shortTypeName, font, maxValueLen).text();
+                sourceTypeTooltip = Component.literal(typeName);
+                hasConcreteSourceType = true;
             }
-            Pair<Component, Component> typeNamePair = ellipsise(typeName, maxValueLen);
-            sourceType = typeNamePair.getFirst();
-            sourceTypeTooltip = typeNamePair.getSecond();
+            else
+            {
+                TextLine typeNamePair = TextLine.of(typeName, font, maxValueLen);
+                sourceType = typeNamePair.text();
+                sourceTypeTooltip = !sourceType.equals(typeNamePair.fullText()) ? typeNamePair.fullText() : null;
+            }
         }
         else
         {
@@ -435,19 +448,7 @@ public class SpriteInfoScreen extends Screen
             sourceTypeTooltip = awareness.getTooltip();
         }
 
-        return new SpriteSourceInfo(sourcePack, sourcePackTooltip, hasSourcePack, sourceType, sourceTypeTooltip);
-    }
-
-    private Pair<Component, Component> ellipsise(String text, int maxLen)
-    {
-        if (font.width(text) > maxLen)
-        {
-            return new Pair<>(
-                    Component.literal(font.plainSubstrByWidth(text, maxLen) + "..."),
-                    Component.literal(text)
-            );
-        }
-        return new Pair<>(Component.literal(text), null);
+        return new SpriteSourceInfo(sourcePack, sourcePackTooltip, hasSourcePack, sourceType, sourceTypeTooltip, hasConcreteSourceType);
     }
 
     private int getAnimationFrameTime()
@@ -525,6 +526,7 @@ public class SpriteInfoScreen extends Screen
             Component sourcePackTooltip,
             boolean hasSourcePack,
             Component sourceType,
-            Component sourceTypeTooltip
+            Component sourceTypeTooltip,
+            boolean hasConcreteSourceType
     ) { }
 }
