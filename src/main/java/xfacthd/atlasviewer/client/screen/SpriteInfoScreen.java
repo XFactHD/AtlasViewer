@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.resource.DelegatingPackResources;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.lwjgl.glfw.GLFW;
@@ -336,13 +335,8 @@ public class SpriteInfoScreen extends Screen
     {
         if (pack instanceof DelegatingPackResources delPack)
         {
-            List<PackResources> delegates = ObfuscationReflectionHelper.getPrivateValue(
-                    DelegatingPackResources.class,
-                    delPack,
-                    "delegates"
-            );
-            Objects.requireNonNull(delegates);
-            return delegates.stream()
+            return Objects.requireNonNull(delPack.getChildren())
+                    .stream()
                     .filter(d -> d.getResource(PackType.CLIENT_RESOURCES, loc) != null)
                     .map(PackResources::packId)
                     .map(id -> "\"" + pack.packId() + "\" -> \"" + (id.isEmpty() ? " " : id) + "\"");
