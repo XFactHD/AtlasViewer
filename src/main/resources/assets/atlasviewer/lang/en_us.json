@@ -59,7 +59,7 @@
     "tooltip.atlasviewer.source_awareness.spritecontents_unaware": "SpriteContents did not receive information about the source's origin pack",
     "tooltip.atlasviewer.source_awareness.spritesupplier_unaware": "SpriteSupplier did not receive information about the source's origin pack",
     "tooltip.atlasviewer.source_awareness.resource_unaware": "Resource did not receive information about the source's origin pack",
-    "tooltip.atlasviewer.source_awareness.spritesource_forced": "SpriteSource is forcefully injected, no have a source pack determined",
+    "tooltip.atlasviewer.source_awareness.spritesource_forced": "SpriteSource is forcefully injected, source pack can't be determined",
     "tooltip.atlasviewer.source_awareness.spritesource_unaware": "SpriteSource did not receive information about its origin pack",
     "tooltip.atlasviewer.source_awareness.spritesource_unsupported": "SpriteSource implementation is not supported",
     "tooltip.atlasviewer.reader_pack": "The top-most resource pack containing the atlas config through which this sprite is registered for stitching. The same resource might also be read through atlas configs in other packs",
