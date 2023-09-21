@@ -26,15 +26,7 @@ public interface MixinSpriteSourceOutput
             SpriteContents contents = SpriteLoader.loadSprite(name, resource);
             if (contents != null)
             {
-                ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setSpriteSourceSourcePack(
-                        ((ISpriteSourcePackAwareResource) resource).atlasviewer$getSpriteSourceSourcePack(),
-                        ((ISpriteSourcePackAwareResource) resource).atlasviewer$getSpriteSourceType(),
-                        ((ISpriteSourcePackAwareResource) resource).atlasviewer$getSourceAwareness()
-                );
-                ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setTextureSourcePack(resource.sourcePackId());
-                ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setOriginalPath(
-                        ((ISpriteSourcePackAwareResource) resource).atlasviewer$getOriginalPath()
-                );
+                ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$captureMetaFromResource(resource);
             }
             return contents;
         });

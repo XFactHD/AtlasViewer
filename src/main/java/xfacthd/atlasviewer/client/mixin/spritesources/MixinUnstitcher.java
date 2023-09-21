@@ -5,8 +5,7 @@ import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import xfacthd.atlasviewer.client.api.IPackAwareSpriteSource;
-import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareSpriteSupplier;
+import xfacthd.atlasviewer.client.api.*;
 
 @Mixin(Unstitcher.class)
 public abstract class MixinUnstitcher implements IPackAwareSpriteSource
@@ -20,9 +19,8 @@ public abstract class MixinUnstitcher implements IPackAwareSpriteSource
     )
     private SpriteSource.SpriteSupplier atlasviewer$spriteSupplierAttachSpriteSourceSourcePack(SpriteSource.SpriteSupplier supplier)
     {
-        ((ISpriteSourcePackAwareSpriteSupplier) supplier).atlasviewer$setSpriteSourceSourcePack(
-                atlasviewer$getSourcePack(), getClass(), atlasviewer$getSourceAwareness()
-        );
+        ((ISpriteSourcePackAwareSpriteSupplier) supplier).atlasviewer$getMeta()
+                .readFromSpriteSourceMeta((SpriteSource) this);
         return supplier;
     }
 }

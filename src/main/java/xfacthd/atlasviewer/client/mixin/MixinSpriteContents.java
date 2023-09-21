@@ -1,11 +1,12 @@
 package xfacthd.atlasviewer.client.mixin;
 
 import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareSpriteContents;
-import xfacthd.atlasviewer.client.api.SourceAwareness;
+import xfacthd.atlasviewer.client.api.*;
 
 @Mixin(SpriteContents.class)
 public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
@@ -22,11 +23,41 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     private ResourceLocation atlasviewer$originalPath = null;
 
     @Override
-    public void atlasviewer$setSpriteSourceSourcePack(String packId, Class<?> sourceType, SourceAwareness awareness)
+    public void atlasviewer$setSpriteSourceSourcePack(
+            String packId, Class<?> sourceType, SourceAwareness awareness, String texSrcPackId, ResourceLocation path
+    )
     {
         atlasviewer$spriteSourceSourcePack = packId;
         atlasviewer$spriteSourceType = sourceType;
         atlasviewer$sourceAwareness = awareness;
+        atlasviewer$textureSourcePack = texSrcPackId;
+        atlasviewer$originalPath = path;
+    }
+
+    @Override
+    public void atlasviewer$captureMetaFromResource(Resource resource)
+    {
+        ISpriteSourcePackAwareResource awareResource = (ISpriteSourcePackAwareResource) resource;
+        atlasviewer$setSpriteSourceSourcePack(
+                awareResource.atlasviewer$getSpriteSourceSourcePack(),
+                awareResource.atlasviewer$getSpriteSourceType(),
+                awareResource.atlasviewer$getSourceAwareness(),
+                resource.sourcePackId(),
+                awareResource.atlasviewer$getOriginalPath()
+        );
+    }
+
+    @Override
+    public void atlasviewer$captureMetaFromSpriteSupplier(SpriteSource.SpriteSupplier supplier, Resource sourceImage)
+    {
+        SpriteSupplierMeta meta = ((ISpriteSourcePackAwareSpriteSupplier) supplier).atlasviewer$getMeta();
+        atlasviewer$setSpriteSourceSourcePack(
+                meta.getSpriteSourceSourcePack(),
+                meta.getSpriteSourceType(),
+                meta.getSourceAwareness(),
+                sourceImage.sourcePackId(),
+                ((ISpriteSourcePackAwareResource) sourceImage).atlasviewer$getOriginalPath()
+        );
     }
 
     @Override
@@ -48,21 +79,9 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     }
 
     @Override
-    public void atlasviewer$setTextureSourcePack(String packId)
-    {
-        atlasviewer$textureSourcePack = packId;
-    }
-
-    @Override
     public String atlasviewer$getTextureSourcePack()
     {
         return atlasviewer$textureSourcePack;
-    }
-
-    @Override
-    public void atlasviewer$setOriginalPath(ResourceLocation path)
-    {
-        atlasviewer$originalPath = path;
     }
 
     @Override

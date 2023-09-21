@@ -1,20 +1,19 @@
 package xfacthd.atlasviewer.client.api;
 
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
+
 /**
- * Implemented on select {@link net.minecraft.client.renderer.texture.atlas.SpriteSource.SpriteSupplier} to allow them to
+ * Implemented on select {@link SpriteSource.SpriteSupplier} to allow them to
  * keep track of the resource pack where the sprite source creating this sprite supplier came from.
  * <p>
- * This is intended to only be used by individual {@link net.minecraft.client.renderer.texture.atlas.SpriteSource}
+ * This is intended to only be used by individual {@link SpriteSource}
  * implementations which create custom sprite suppliers
  */
 public interface ISpriteSourcePackAwareSpriteSupplier
 {
     /**
-     * Capture the pack ID of the pack where the sprite source creating this sprite supplier was loaded from, the
-     * type of said sprite source and to which degree it is aware of its source pack
-     * <p>
-     * The captured data is only to be used by this sprite supplier to copy it to the
-     * {@link net.minecraft.client.renderer.texture.SpriteContents} it creates
+     * {@return the {@link SpriteSupplierMeta} holding the source information about the {@link SpriteSource}
+     * that created this sprite supplier}
      */
-    void atlasviewer$setSpriteSourceSourcePack(String packId, Class<?> sourceType, SourceAwareness awareness);
+    SpriteSupplierMeta atlasviewer$getMeta();
 }

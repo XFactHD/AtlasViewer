@@ -10,9 +10,10 @@ public interface ISpriteSourcePackAwareResource
 {
     /**
      * Capture the pack ID of the pack where the sprite source touching this resource was loaded from, the
-     * type of said sprite source and to which degree it is aware of its source pack
+     * type of said sprite source and to which degree it is aware of its source pack as well as the original path
+     * of this resource
      */
-    void atlasviewer$setSpriteSourceSourcePack(String packId, Class<?> sourceType, SourceAwareness awareness);
+    void atlasviewer$captureMetaFromSpriteSource(SpriteSourceMeta srcMeta, Class<?> sourceType, ResourceLocation originalPath);
 
     /**
      * Get the pack ID of the resource pack where the sprite source touching this resource was loaded from
@@ -29,11 +30,6 @@ public interface ISpriteSourcePackAwareResource
      * resource pack it was loaded from
      */
     SourceAwareness atlasviewer$getSourceAwareness();
-
-    /**
-     * Capture the original path where this resource is located in the resource pack it was loaded from
-     */
-    void atlasviewer$setOriginalPath(ResourceLocation path);
 
     /**
      * Get the original path where this resource is located in the resource pack it was loaded from

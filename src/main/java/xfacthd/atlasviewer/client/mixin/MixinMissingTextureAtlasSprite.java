@@ -22,8 +22,9 @@ public class MixinMissingTextureAtlasSprite
         ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setSpriteSourceSourcePack(
                 "builtin (synthetic)",
                 MissingTextureAtlasSprite.class,
-                SourceAwareness.SOURCE_KNOWN
+                SourceAwareness.SOURCE_KNOWN,
+                "builtin (synthetic)",
+                null
         );
-        ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setTextureSourcePack("builtin (synthetic)");
     }
 }

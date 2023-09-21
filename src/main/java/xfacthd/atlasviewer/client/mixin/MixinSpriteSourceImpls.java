@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.texture.atlas.sources.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import xfacthd.atlasviewer.client.api.IPackAwareSpriteSource;
-import xfacthd.atlasviewer.client.api.SourceAwareness;
+import xfacthd.atlasviewer.client.api.SpriteSourceMeta;
 
 @Mixin({
         DirectoryLister.class,
@@ -15,32 +15,11 @@ import xfacthd.atlasviewer.client.api.SourceAwareness;
 public class MixinSpriteSourceImpls implements IPackAwareSpriteSource
 {
     @Unique
-    private String atlasViewer$sourcePackId = null;
-    @Unique
-    private SourceAwareness atlasviewer$sourceAwareness = SourceAwareness.SPRITESOURCE_UNAWARE;
+    private final SpriteSourceMeta atlasviewer$meta = new SpriteSourceMeta();
 
     @Override
-    public void atlasviewer$setSourcePack(String packId)
+    public SpriteSourceMeta atlasviewer$getMeta()
     {
-        atlasViewer$sourcePackId = packId;
-        atlasviewer$sourceAwareness = SourceAwareness.SOURCE_KNOWN;
-    }
-
-    @Override
-    public void atlasviewer$setForceInjected()
-    {
-        atlasviewer$sourceAwareness = SourceAwareness.SPRITESOURCE_FORCED;
-    }
-
-    @Override
-    public String atlasviewer$getSourcePack()
-    {
-        return atlasViewer$sourcePackId;
-    }
-
-    @Override
-    public SourceAwareness atlasviewer$getSourceAwareness()
-    {
-        return atlasviewer$sourceAwareness;
+        return atlasviewer$meta;
     }
 }

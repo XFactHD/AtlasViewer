@@ -9,8 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xfacthd.atlasviewer.client.api.IPackAwareSpriteSource;
-import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareResource;
+import xfacthd.atlasviewer.client.api.*;
 
 @Mixin(value = DirectoryLister.class, priority = 2000)
 public abstract class MixinDirectoryListerVanilla implements IPackAwareSpriteSource
@@ -30,9 +29,8 @@ public abstract class MixinDirectoryListerVanilla implements IPackAwareSpriteSou
             CallbackInfo ci
     )
     {
-        ((ISpriteSourcePackAwareResource) resource).atlasviewer$setSpriteSourceSourcePack(
-                atlasviewer$getSourcePack(), getClass(), atlasviewer$getSourceAwareness()
+        ((ISpriteSourcePackAwareResource) resource).atlasviewer$captureMetaFromSpriteSource(
+                atlasviewer$getMeta(), getClass(), name
         );
-        ((ISpriteSourcePackAwareResource) resource).atlasviewer$setOriginalPath(name);
     }
 }

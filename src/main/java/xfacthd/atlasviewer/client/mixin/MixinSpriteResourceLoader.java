@@ -66,7 +66,7 @@ public class MixinSpriteResourceLoader
         for (int i = ATLASVIEWER$PRE_ADD_LIST_SIZE.get(); i < sources.size(); i++)
         {
             SpriteSource source = sources.get(i);
-            ((IPackAwareSpriteSource) source).atlasviewer$setSourcePack(packId);
+            ((IPackAwareSpriteSource) source).atlasviewer$getMeta().setSourcePack(packId);
         }
     }
 
@@ -84,14 +84,14 @@ public class MixinSpriteResourceLoader
     )
     {
         long count = sources.stream()
-                .filter(src -> ((IPackAwareSpriteSource) src).atlasviewer$getSourceAwareness() == SourceAwareness.SPRITESOURCE_UNAWARE)
+                .filter(src -> ((IPackAwareSpriteSource) src).atlasviewer$getMeta().isSourceUnaware())
                 .peek(src ->
                 {
                     AtlasViewer.LOGGER.error(
                             "SpriteSource {} did not receive its source pack, the source is most likely injected through non-standard means",
                             SpriteSourceManager.stringifySpriteSource(src)
                     );
-                    ((IPackAwareSpriteSource) src).atlasviewer$setForceInjected();
+                    ((IPackAwareSpriteSource) src).atlasviewer$getMeta().setForceInjected();
                 }).count();
         if (count > 0L)
         {

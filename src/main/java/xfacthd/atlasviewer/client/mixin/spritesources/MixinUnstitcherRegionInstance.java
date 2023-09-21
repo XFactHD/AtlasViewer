@@ -1,8 +1,8 @@
 package xfacthd.atlasviewer.client.mixin.spritesources;
 
 import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.sources.LazyLoadedImage;
-import net.minecraft.server.packs.resources.Resource;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,18 +16,12 @@ public class MixinUnstitcherRegionInstance implements ISpriteSourcePackAwareSpri
     @Final
     private LazyLoadedImage image;
     @Unique
-    private String atlasviewer$sourcePackId = null;
-    @Unique
-    private Class<?> atlasviewer$sourceType = null;
-    @Unique
-    private SourceAwareness atlasviewer$sourceAwareness = SourceAwareness.SPRITESUPPLIER_UNAWARE;
+    private final SpriteSupplierMeta atlasviewer$meta = new SpriteSupplierMeta();
 
     @Override
-    public void atlasviewer$setSpriteSourceSourcePack(String packId, Class<?> sourceType, SourceAwareness awareness)
+    public SpriteSupplierMeta atlasviewer$getMeta()
     {
-        atlasviewer$sourcePackId = packId;
-        atlasviewer$sourceType = sourceType;
-        atlasviewer$sourceAwareness = awareness;
+        return atlasviewer$meta;
     }
 
     @Inject(
@@ -36,16 +30,8 @@ public class MixinUnstitcherRegionInstance implements ISpriteSourcePackAwareSpri
     )
     private void atlasviewer$contentsAttachSpriteSourceSourcePack(CallbackInfoReturnable<SpriteContents> cir)
     {
-        SpriteContents retVal = cir.getReturnValue();
-        ((ISpriteSourcePackAwareSpriteContents) retVal).atlasviewer$setSpriteSourceSourcePack(
-                atlasviewer$sourcePackId, atlasviewer$sourceType, atlasviewer$sourceAwareness
-        );
-        Resource resource = ((AccessorLazyLoadedImage) image).atlasviewer$getResource();
-        ((ISpriteSourcePackAwareSpriteContents) retVal).atlasviewer$setTextureSourcePack(
-                resource.sourcePackId()
-        );
-        ((ISpriteSourcePackAwareSpriteContents) retVal).atlasviewer$setOriginalPath(
-                ((ISpriteSourcePackAwareResource) resource).atlasviewer$getOriginalPath()
+        ((ISpriteSourcePackAwareSpriteContents) cir.getReturnValue()).atlasviewer$captureMetaFromSpriteSupplier(
+                (SpriteSource.SpriteSupplier) this, ((AccessorLazyLoadedImage) image).atlasviewer$getResource()
         );
     }
 }

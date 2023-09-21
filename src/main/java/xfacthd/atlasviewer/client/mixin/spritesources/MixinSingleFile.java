@@ -10,8 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import xfacthd.atlasviewer.client.api.IPackAwareSpriteSource;
-import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareResource;
+import xfacthd.atlasviewer.client.api.*;
 
 import java.util.Optional;
 
@@ -31,9 +30,8 @@ public abstract class MixinSingleFile implements IPackAwareSpriteSource
             ResourceManager manager, SpriteSource.Output output, CallbackInfo ci, ResourceLocation path, Optional<Resource> resource
     )
     {
-        ((ISpriteSourcePackAwareResource) resource.get()).atlasviewer$setSpriteSourceSourcePack(
-                atlasviewer$getSourcePack(), getClass(), atlasviewer$getSourceAwareness()
+        ((ISpriteSourcePackAwareResource) resource.get()).atlasviewer$captureMetaFromSpriteSource(
+                atlasviewer$getMeta(), getClass(), path
         );
-        ((ISpriteSourcePackAwareResource) resource.get()).atlasviewer$setOriginalPath(path);
     }
 }
