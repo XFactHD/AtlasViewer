@@ -1,5 +1,6 @@
 package xfacthd.atlasviewer.client.api;
 
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -13,7 +14,15 @@ public interface ISpriteSourcePackAwareResource
      * type of said sprite source and to which degree it is aware of its source pack as well as the original path
      * of this resource
      */
+    @Deprecated(forRemoval = true)
     void atlasviewer$captureMetaFromSpriteSource(SpriteSourceMeta srcMeta, Class<?> sourceType, ResourceLocation originalPath);
+
+    /**
+     * Capture the pack ID of the pack where the sprite source touching this resource was loaded from,
+     * said sprite source and to which degree it is aware of its source pack as well as the original path
+     * of this resource
+     */
+    void atlasviewer$captureMetaFromSpriteSource(SpriteSourceMeta srcMeta, SpriteSource spriteSource, ResourceLocation originalPath);
 
     /**
      * Get the pack ID of the resource pack where the sprite source touching this resource was loaded from
@@ -21,8 +30,14 @@ public interface ISpriteSourcePackAwareResource
     String atlasviewer$getSpriteSourceSourcePack();
 
     /**
+     * Get the sprite source that touched this resource
+     */
+    SpriteSource atlasviewer$getSpriteSource();
+
+    /**
      * Get the type of the sprite source that touched this resource
      */
+    @Deprecated(forRemoval = true)
     Class<?> atlasviewer$getSpriteSourceType();
 
     /**

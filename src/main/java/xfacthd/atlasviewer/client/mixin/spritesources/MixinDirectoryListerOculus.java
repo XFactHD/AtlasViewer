@@ -1,5 +1,6 @@
 package xfacthd.atlasviewer.client.mixin.spritesources;
 
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -17,7 +18,7 @@ public class MixinDirectoryListerOculus implements IPackAwareSpriteSource
     private void atlasviewer$resourceAttachSpriteSourceSourcePack(ResourceLocation name, Resource resource)
     {
         ((ISpriteSourcePackAwareResource) resource).atlasviewer$captureMetaFromSpriteSource(
-                atlasviewer$getMeta(), getClass(), name
+                atlasviewer$getMeta(), (SpriteSource) this, name
         );
     }
 }

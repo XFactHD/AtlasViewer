@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareSpriteContents;
 import xfacthd.atlasviewer.client.api.SourceAwareness;
+import xfacthd.atlasviewer.client.util.MissingTextureDummySpriteSource;
 
 @Mixin(MissingTextureAtlasSprite.class)
 public class MixinMissingTextureAtlasSprite
@@ -21,7 +22,7 @@ public class MixinMissingTextureAtlasSprite
         SpriteContents contents = cir.getReturnValue();
         ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setSpriteSourceSourcePack(
                 "builtin (synthetic)",
-                MissingTextureAtlasSprite.class,
+                MissingTextureDummySpriteSource.INSTANCE,
                 SourceAwareness.SOURCE_KNOWN,
                 "builtin (synthetic)",
                 null

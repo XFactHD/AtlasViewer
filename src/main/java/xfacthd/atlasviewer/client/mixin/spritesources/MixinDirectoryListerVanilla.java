@@ -30,7 +30,7 @@ public abstract class MixinDirectoryListerVanilla implements IPackAwareSpriteSou
     )
     {
         ((ISpriteSourcePackAwareResource) resource).atlasviewer$captureMetaFromSpriteSource(
-                atlasviewer$getMeta(), getClass(), name
+                atlasviewer$getMeta(), (SpriteSource) this, name
         );
     }
 }

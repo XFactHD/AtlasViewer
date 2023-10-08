@@ -9,4 +9,7 @@ public interface AccessorDirectoryLister
 {
     @Accessor("sourcePath")
     String atlasviewer$getSourcePath();
+
+    @Accessor("idPrefix")
+    String atlasviewer$getIdPrefix();
 }

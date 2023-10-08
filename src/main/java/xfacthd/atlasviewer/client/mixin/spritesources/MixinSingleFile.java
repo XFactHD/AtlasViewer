@@ -31,7 +31,7 @@ public abstract class MixinSingleFile implements IPackAwareSpriteSource
     )
     {
         ((ISpriteSourcePackAwareResource) resource.get()).atlasviewer$captureMetaFromSpriteSource(
-                atlasviewer$getMeta(), getClass(), path
+                atlasviewer$getMeta(), (SpriteSource) this, path
         );
     }
 }

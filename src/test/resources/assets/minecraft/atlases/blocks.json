@@ -3,6 +3,28 @@
         {
             "type": "single",
             "resource": "particle/sonic_boom_8"
+        },
+        {
+            "type": "unstitch",
+            "resource": "minecraft:entity/bell/bell_body",
+            "regions": [
+                {
+                    "sprite": "minecraft:block/bell/bell_top",
+                    "x": 6,
+                    "y": 0,
+                    "width": 6,
+                    "height": 6
+                },
+                {
+                    "sprite": "minecraft:block/bell/bell_bottom",
+                    "x": 8,
+                    "y": 13,
+                    "width": 8,
+                    "height": 8
+                }
+            ],
+            "divisor_x": 32,
+            "divisor_y": 32
         }
     ]
 }

@@ -2,7 +2,6 @@ package xfacthd.atlasviewer.client;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.atlas.sources.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
@@ -17,6 +16,8 @@ import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
 import xfacthd.atlasviewer.client.mixin.spritesources.*;
 import xfacthd.atlasviewer.client.screen.AtlasScreen;
+import xfacthd.atlasviewer.client.tooltips.*;
+import xfacthd.atlasviewer.client.util.MissingTextureDummySpriteSource;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 
 @Mod.EventBusSubscriber(modid = AtlasViewer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -59,8 +60,25 @@ public final class AVClient
         );
 
         event.registerSpecialSourceDescription(
-                MissingTextureAtlasSprite.class,
+                MissingTextureDummySpriteSource.class,
                 "builtin (synthetic)"
+        );
+
+        event.registerSourceTooltipAppender(
+                DirectoryLister.class,
+                new DirectoryListerTooltipAppender()
+        );
+        event.registerSourceTooltipAppender(
+                SingleFile.class,
+                new SingleFileTooltipAppender()
+        );
+        event.registerSourceTooltipAppender(
+                PalettedPermutations.class,
+                new PalettedPermutationsTooltipAppender()
+        );
+        event.registerSourceTooltipAppender(
+                Unstitcher.class,
+                new UnstitcherTooltipAppender()
         );
     }
 

@@ -16,14 +16,18 @@ public final class RegisterSpriteSourceDetailsEvent extends Event implements IMo
 {
     private final StringifierRegistrar stringifierRegistrar;
     private final DescriptionRegistrar descriptionRegistrar;
+    private final TooltipAppenderRegistrar tooltipAppenderRegistrar;
 
     @ApiStatus.Internal
     public RegisterSpriteSourceDetailsEvent(
-            StringifierRegistrar stringifierRegistrar, DescriptionRegistrar descriptionRegistrar
+            StringifierRegistrar stringifierRegistrar,
+            DescriptionRegistrar descriptionRegistrar,
+            TooltipAppenderRegistrar tooltipAppenderRegistrar
     )
     {
         this.stringifierRegistrar = stringifierRegistrar;
         this.descriptionRegistrar = descriptionRegistrar;
+        this.tooltipAppenderRegistrar = tooltipAppenderRegistrar;
     }
 
     /**
@@ -50,10 +54,23 @@ public final class RegisterSpriteSourceDetailsEvent extends Event implements IMo
     /**
      * Add a special description string to be display instead of the source type's simple class name in
      * the sprite details screen
+     * @apiNote any given {@link SpriteSource} may only have either a special description (takes precedence) or a tooltip appender
      */
     public void registerSpecialSourceDescription(Class<?> sourceType, String description)
     {
         descriptionRegistrar.register(sourceType, description);
+    }
+
+    /**
+     * Register a tooltip appender for the given {@link SpriteSource} type to add additional info to the source
+     * tooltip
+     * @apiNote any given {@link SpriteSource} may only have either a special description (takes precedence) or a tooltip appender
+     */
+    public <T extends SpriteSource> void registerSourceTooltipAppender(
+            Class<T> sourceType, SourceTooltipAppender<T> appender
+    )
+    {
+        tooltipAppenderRegistrar.register(sourceType, appender);
     }
 
 
@@ -70,5 +87,12 @@ public final class RegisterSpriteSourceDetailsEvent extends Event implements IMo
     public interface DescriptionRegistrar
     {
         void register(Class<?> sourceType, String description);
+    }
+
+    @ApiStatus.Internal
+    @FunctionalInterface
+    public interface TooltipAppenderRegistrar
+    {
+        <T extends SpriteSource> void register(Class<T> sourceType, SourceTooltipAppender<T> appender);
     }
 }

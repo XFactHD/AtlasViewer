@@ -15,9 +15,19 @@ public interface ISpriteSourcePackAwareSpriteContents
      * type of said sprite source and to which degree it is aware of its source pack as well as the ID of the resource
      * pack the texture represented by these sprite contents was loaded from and the source path of said texture
      */
+    @Deprecated(forRemoval = true)
     void atlasviewer$setSpriteSourceSourcePack(
             String packId, Class<?> sourceType, SourceAwareness awareness, String texSrcPackId, ResourceLocation path
     );
+
+    /**
+     * Capture the pack ID of the pack where the sprite source creating these sprite contents was loaded from, the
+     * type of said sprite source and to which degree it is aware of its source pack as well as the ID of the resource
+     * pack the texture represented by these sprite contents was loaded from and the source path of said texture
+     */
+    default void atlasviewer$setSpriteSourceSourcePack(
+            String packId, SpriteSource spriteSource, SourceAwareness awareness, String texSrcPackId, ResourceLocation path
+    ) { }
 
     /**
      * Capture the source information from the given {@link Resource}
@@ -36,8 +46,14 @@ public interface ISpriteSourcePackAwareSpriteContents
     String atlasviewer$getSpriteSourceSourcePack();
 
     /**
+     * Get the sprite source that created these sprite contents
+     */
+    SpriteSource atlasviewer$getSpriteSource();
+
+    /**
      * Get the type of the sprite source that created these sprite contents
      */
+    @Deprecated(forRemoval = true)
     Class<?> atlasviewer$getSpriteSourceType();
 
     /**

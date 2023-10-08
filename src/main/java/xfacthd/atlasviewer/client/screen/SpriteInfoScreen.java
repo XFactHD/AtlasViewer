@@ -1,7 +1,9 @@
 package xfacthd.atlasviewer.client.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -9,13 +11,17 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.renderer.texture.*;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Tuple;
 import net.minecraftforge.resource.DelegatingPackResources;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.api.*;
@@ -64,6 +70,10 @@ public class SpriteInfoScreen extends Screen
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_sprite_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_sprite_error");
     private static final Component TOOLTIP_READERPACK = Component.translatable("tooltip.atlasviewer.reader_pack");
+    private static final Component FULL_TYPE_PLACEHOLDER = Component.translatable(
+            "value.atlasviewer.source_tooltip.hold_to_show",
+            InputConstants.getKey(GLFW.GLFW_KEY_LEFT_SHIFT, -1).getDisplayName()
+    ).withStyle(ChatFormatting.GOLD);
     private static final ClientTooltipPositioner PACK_LIST_POSITIONER = new FixedTooltipPositioner();
     private static final int WIDTH = 400;
     private static final int HEIGHT = 193;
@@ -277,7 +287,12 @@ public class SpriteInfoScreen extends Screen
         }
         else if (sourceInfo.sourceTypeTooltip != null && isHoveringLine(mouseX, mouseY, 5, sourceInfo.sourceType))
         {
-            graphics.renderTooltip(font, sourceInfo.sourceTypeTooltip, mouseX, mouseY);
+            List<FormattedCharSequence> lines = sourceInfo.sourceTypeTooltip;
+            if (sourceInfo.hasConcreteSourceType && !hasShiftDown())
+            {
+                lines = Objects.requireNonNull(sourceInfo.sourceTypeTooltipNoFullType);
+            }
+            graphics.renderTooltip(font, lines, mouseX, mouseY);
         }
         else if ((sourceNames.size() > 1 || primarySourceName.capped()) && isHoveringLine(mouseX, mouseY, 3, primarySourceName.text()))
         {
@@ -415,34 +430,81 @@ public class SpriteInfoScreen extends Screen
         }
 
         Component sourceType;
-        Component sourceTypeTooltip;
+        List<FormattedCharSequence> sourceTypeTooltip;
+        List<FormattedCharSequence> sourceTypeTooltipNoFullType = null;
         boolean hasConcreteSourceType = false;
-        Class<?> sourceTypeClazz = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSpriteSourceType();
-        if (sourceTypeClazz != null)
+        SpriteSource source = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSpriteSource();
+        if (source != null)
         {
-            String typeName = SpriteSourceManager.getSpecialDescription(sourceTypeClazz);
-            if (typeName == null)
+            Class<?> sourceTypeClazz = source.getClass();
+            String typeDesc = SpriteSourceManager.getSpecialDescription(sourceTypeClazz);
+            if (typeDesc != null)
             {
-                typeName = sourceTypeClazz.getName();
-                String shortTypeName = typeName.substring(typeName.lastIndexOf('.') + 1);
-                sourceType = TextLine.of(shortTypeName, font, maxValueLen).text();
-                sourceTypeTooltip = Component.literal(typeName);
-                hasConcreteSourceType = true;
+                TextLine typeNamePair = TextLine.of(typeDesc, font, maxValueLen);
+                sourceType = typeNamePair.text();
+                if (!sourceType.equals(typeNamePair.fullText()))
+                {
+                    sourceTypeTooltip = List.of(typeNamePair.fullText().getVisualOrderText());
+                }
+                else
+                {
+                    sourceTypeTooltip = null;
+                }
             }
             else
             {
-                TextLine typeNamePair = TextLine.of(typeName, font, maxValueLen);
-                sourceType = typeNamePair.text();
-                sourceTypeTooltip = !sourceType.equals(typeNamePair.fullText()) ? typeNamePair.fullText() : null;
+                String typeName = sourceTypeClazz.getName();
+                String shortTypeName = typeName.substring(typeName.lastIndexOf('.') + 1);
+                sourceType = TextLine.of(shortTypeName, font, maxValueLen).text();
+                hasConcreteSourceType = true;
+
+                List<Tuple<Component, Component>> tooltipLines = SpriteSourceManager.buildSourceTooltip(source, typeName);
+
+                sourceTypeTooltip = formatTooltip(tooltipLines);
+                tooltipLines.get(tooltipLines.size() - 1).setB(FULL_TYPE_PLACEHOLDER);
+                sourceTypeTooltipNoFullType = formatTooltip(tooltipLines);
             }
         }
         else
         {
             sourceType = awareness.getDescription();
-            sourceTypeTooltip = awareness.getTooltip();
+            sourceTypeTooltip = List.of(awareness.getTooltip().getVisualOrderText());
         }
 
-        return new SpriteSourceInfo(sourcePack, sourcePackTooltip, hasSourcePack, sourceType, sourceTypeTooltip, hasConcreteSourceType);
+        return new SpriteSourceInfo(
+                sourcePack,
+                sourcePackTooltip,
+                hasSourcePack,
+                sourceType,
+                sourceTypeTooltip,
+                sourceTypeTooltipNoFullType,
+                hasConcreteSourceType
+        );
+    }
+
+    private static List<FormattedCharSequence> formatTooltip(List<Tuple<Component, Component>> tooltipLines)
+    {
+        return tooltipLines.stream()
+                .peek(pair ->
+                {
+                    //noinspection ConstantConditions
+                    if (pair.getA() != null)
+                    {
+                        pair.setA(pair.getA().copy().withStyle(ChatFormatting.ITALIC));
+                    }
+                })
+                .map(pair ->
+                {
+                    MutableComponent line = Component.empty();
+                    //noinspection ConstantConditions
+                    if (pair.getA() != null)
+                    {
+                        line = line.append(pair.getA()).append(": ");
+                    }
+                    return line.append(pair.getB());
+                })
+                .map(Component::getVisualOrderText)
+                .toList();
     }
 
     private int getAnimationFrameTime()
@@ -473,12 +535,12 @@ public class SpriteInfoScreen extends Screen
         btnExportMipped.active = level > 0;
     }
 
-    private void exportSprite(Button btn)
+    private void exportSprite(@SuppressWarnings("unused") Button btn)
     {
         exportSprite(0);
     }
 
-    private void exportSpriteMipped(Button btn)
+    private void exportSpriteMipped(@SuppressWarnings("unused") Button btn)
     {
         exportSprite(currentMipLevel);
     }
@@ -517,10 +579,11 @@ public class SpriteInfoScreen extends Screen
 
     private record SpriteSourceInfo(
             Component sourcePack,
-            Component sourcePackTooltip,
+            @Nullable Component sourcePackTooltip,
             boolean hasSourcePack,
             Component sourceType,
-            Component sourceTypeTooltip,
+            @Nullable List<FormattedCharSequence> sourceTypeTooltip,
+            @Nullable List<FormattedCharSequence> sourceTypeTooltipNoFullType,
             boolean hasConcreteSourceType
     ) { }
 }
