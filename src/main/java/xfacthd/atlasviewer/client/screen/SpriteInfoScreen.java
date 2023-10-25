@@ -17,8 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Tuple;
+import net.minecraft.util.*;
 import net.minecraftforge.resource.DelegatingPackResources;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.Nullable;
@@ -38,12 +37,18 @@ import java.util.stream.Stream;
 public class SpriteInfoScreen extends Screen
 {
     private static final Component TITLE = Component.translatable("title.atlasviewer.spriteinfo");
+    private static final Component CHAR_INFO = Component.literal("i").withStyle(ChatFormatting.BLUE);
     private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.spritename");
     private static final Component LABEL_WIDTH = Component.translatable("label.atlasviewer.spritewidth");
     private static final Component LABEL_HEIGHT = Component.translatable("label.atlasviewer.spriteheight");
     private static final Component LABEL_SOURCEPACK = Component.translatable("label.atlasviewer.sprite_sourcepack");
-    private static final Component LABEL_READERPACK = Component.translatable("label.atlasviewer.sprite_readerpack");
+    private static final Component LABEL_READERPACK = Component.translatable(
+            "label.atlasviewer.sprite_readerpack", CHAR_INFO
+    );
     private static final Component LABEL_READERTYPE = Component.translatable("label.atlasviewer.sprite_readertype");
+    private static final Component LABEL_MAX_MIP_LEVEL = Component.translatable(
+            "label.atlasviewer.sprite_max_mip_level", CHAR_INFO
+    );
     private static final Component LABEL_ANIMATED = Component.translatable("label.atlasviewer.spriteanimated");
     private static final Component LABEL_FRAMECOUNT = Component.translatable("label.atlasviewer.spriteframes");
     private static final Component LABEL_INTERPOLATED = Component.translatable("label.atlasviewer.spriteinterpolated");
@@ -55,6 +60,7 @@ public class SpriteInfoScreen extends Screen
             LABEL_SOURCEPACK,
             LABEL_READERPACK,
             LABEL_READERTYPE,
+            LABEL_MAX_MIP_LEVEL,
             LABEL_ANIMATED,
             LABEL_FRAMECOUNT,
             LABEL_INTERPOLATED,
@@ -70,6 +76,9 @@ public class SpriteInfoScreen extends Screen
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_sprite_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_sprite_error");
     private static final Component TOOLTIP_READERPACK = Component.translatable("tooltip.atlasviewer.reader_pack");
+    private static final Component TOOLTIP_MAX_MIP_LEVEL = Component.translatable("tooltip.atlasviewer.sprite.max_mip_level");
+    private static final Component TOOLTIP_MIPMAP_DISABLED = Component.translatable("tooltip.atlasviewer.sprite.mipmap_disabled");
+    private static final Component TOOLTIP_MIPMAP_FULL = Component.translatable("tooltip.atlasviewer.sprite.mipmap_full");
     private static final Component FULL_TYPE_PLACEHOLDER = Component.translatable(
             "value.atlasviewer.source_tooltip.hold_to_show",
             InputConstants.getKey(GLFW.GLFW_KEY_LEFT_SHIFT, -1).getDisplayName()
@@ -104,6 +113,8 @@ public class SpriteInfoScreen extends Screen
     private TextLine primarySourceName;
     private SourcePackList sourceNameTooltip;
     private SpriteSourceInfo sourceInfo;
+    private Component maxMipLevel;
+    private Component maxMipLevelTooltip;
     private Component animatedText;
     private String framesText;
     private Component interpText;
@@ -165,6 +176,7 @@ public class SpriteInfoScreen extends Screen
         primarySourceName = primarySource != null && !primarySource.isEmpty() ? TextLine.of(primarySource, font, maxValueLen) : new TextLine(VALUE_UNKNOWN_PACK);
         sourceNameTooltip = makeTooltipList();
         sourceInfo = makeSourceInfo();
+        maxMipLevel = calculateMaxMipLevel();
         if (animation != null)
         {
             animatedText = VALUE_TRUE;
@@ -204,12 +216,13 @@ public class SpriteInfoScreen extends Screen
         graphics.drawString(font, LABEL_SOURCEPACK, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
         graphics.drawString(font, LABEL_READERPACK, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040, false);
         graphics.drawString(font, LABEL_READERTYPE, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
-        graphics.drawString(font, LABEL_ANIMATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040, false);
+        graphics.drawString(font, LABEL_MAX_MIP_LEVEL, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040, false);
+        graphics.drawString(font, LABEL_ANIMATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
         if (animated)
         {
-            graphics.drawString(font, LABEL_FRAMECOUNT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
-            graphics.drawString(font, LABEL_INTERPOLATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 8), 0x404040, false);
-            graphics.drawString(font, LABEL_FRAMETIME, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 9), 0x404040, false);
+            graphics.drawString(font, LABEL_FRAMECOUNT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 8), 0x404040, false);
+            graphics.drawString(font, LABEL_INTERPOLATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 9), 0x404040, false);
+            graphics.drawString(font, LABEL_FRAMETIME, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 10), 0x404040, false);
         }
 
         graphics.drawString(font, spriteName.text(), xLeft + valueX, yTop + SPRITE_Y, 0x404040, false);
@@ -218,12 +231,13 @@ public class SpriteInfoScreen extends Screen
         graphics.drawString(font, primarySourceName.text(), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
         graphics.drawString(font, sourceInfo.sourcePack, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040, false);
         graphics.drawString(font, sourceInfo.sourceType, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
-        graphics.drawString(font, animatedText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040, false);
+        graphics.drawString(font, maxMipLevel, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0xFFFFFF, false);
+        graphics.drawString(font, animatedText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
         if (animated)
         {
-            graphics.drawString(font, framesText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
-            graphics.drawString(font, interpText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 8), 0x404040, false);
-            graphics.drawString(font, frameTimeText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 9), 0x404040, false);
+            graphics.drawString(font, framesText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 8), 0x404040, false);
+            graphics.drawString(font, interpText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 9), 0x404040, false);
+            graphics.drawString(font, frameTimeText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 10), 0x404040, false);
         }
 
         float scale = 128F / Math.max(contents.width(), contents.height());
@@ -265,10 +279,15 @@ public class SpriteInfoScreen extends Screen
         super.render(graphics, mouseX, mouseY, partialTick);
 
         int lx = xLeft + LABEL_X;
-        int ly = yTop + SPRITE_Y + (LINE_HEIGHT * 4);
-        if (mouseX >= lx && mouseX < lx + font.width(LABEL_READERPACK) && mouseY >= ly && mouseY < ly + font.lineHeight)
+        int lyPack = yTop + SPRITE_Y + (LINE_HEIGHT * 4);
+        int lyMip = yTop + SPRITE_Y + (LINE_HEIGHT * 6);
+        if (mouseX >= lx && mouseX < lx + font.width(LABEL_READERPACK) && mouseY >= lyPack && mouseY < lyPack + font.lineHeight)
         {
             setTooltipForNextRenderPass(TOOLTIP_READERPACK);
+        }
+        else if (mouseX >= lx && mouseX < lx + font.width(LABEL_MAX_MIP_LEVEL) && mouseY >= lyMip && mouseY < lyMip + font.lineHeight)
+        {
+            setTooltipForNextRenderPass(TOOLTIP_MAX_MIP_LEVEL);
         }
         else if (spriteName.capped() && isHoveringLine(mouseX, mouseY, 0, spriteName.text()))
         {
@@ -297,6 +316,10 @@ public class SpriteInfoScreen extends Screen
         else if ((sourceNames.size() > 1 || primarySourceName.capped()) && isHoveringLine(mouseX, mouseY, 3, primarySourceName.text()))
         {
             renderFixedTooltip(graphics, 3, sourceNameTooltip.entries, sourceNameTooltip.maxLen);
+        }
+        else if (isHoveringLine(mouseX, mouseY, 6, maxMipLevel))
+        {
+            graphics.renderTooltip(font, maxMipLevelTooltip, mouseX, mouseY);
         }
     }
 
@@ -505,6 +528,30 @@ public class SpriteInfoScreen extends Screen
                 })
                 .map(Component::getVisualOrderText)
                 .toList();
+    }
+
+    private Component calculateMaxMipLevel()
+    {
+        int lowestOne = Math.min(Integer.lowestOneBit(contents.width()), Integer.lowestOneBit(contents.height()));
+        int maxLevel = Math.min(Mth.log2(lowestOne), 4);
+        return switch (maxLevel)
+        {
+            case 0 ->
+            {
+                maxMipLevelTooltip = TOOLTIP_MIPMAP_DISABLED;
+                yield Component.literal("0").withStyle(s -> s.withColor(0xD00000));
+            }
+            case 4 ->
+            {
+                maxMipLevelTooltip = TOOLTIP_MIPMAP_FULL;
+                yield Component.literal("4").withStyle(s -> s.withColor(0x00D000));
+            }
+            default ->
+            {
+                maxMipLevelTooltip = Component.translatable("tooltip.atlasviewer.sprite.mipmap_limited", maxLevel);
+                yield Component.literal(String.valueOf(maxLevel)).withStyle(s -> s.withColor(0xCC6600));
+            }
+        };
     }
 
     private int getAnimationFrameTime()
