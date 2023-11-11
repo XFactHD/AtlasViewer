@@ -1,0 +1,35 @@
+modLoader="javafml"
+loaderVersion="${neoforge_loader_version_range}"
+license="LGPL v2.1"
+issueTrackerURL="https://github.com/XFactHD/AtlasViewer/issues"
+
+[[mods]]
+	modId="atlasviewer"
+	version="${mod_version}"
+	displayName="AtlasViewer"
+	displayURL="https://www.curseforge.com/minecraft/mc-mods/atlasviewer"
+	logoFile= "logo.png"
+	authors="XFactHD"
+    displayTest="IGNORE_ALL_VERSION"
+	description='''
+	'''
+
+[[mixins]]
+    config="atlasviewer.mixin.json"
+
+[[mixins]]
+    config="atlasviewer.neoforge.mixin.json"
+
+[[dependencies.atlasviewer]]
+    modId="neoforge"
+    mandatory=true
+    versionRange="${neoforge_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.atlasviewer]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"

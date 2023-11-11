@@ -1,0 +1,10 @@
+accessWidener v1 named
+accessible class net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture
+accessible class net/minecraft/client/renderer/texture/SpriteContents$FrameInfo
+accessible method net/minecraft/client/gui/GuiGraphics renderTooltipInternal (Lnet/minecraft/client/gui/Font;Ljava/util/List;IILnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;)V
+extendable method net/minecraft/client/gui/components/EditBox onValueChange (Ljava/lang/String;)V
+accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$Region
+extendable method net/minecraft/client/gui/components/AbstractSliderButton getHandleSprite ()Lnet/minecraft/resources/ResourceLocation;
+accessible field net/minecraft/client/renderer/texture/atlas/SpriteSources TYPES Lcom/google/common/collect/BiMap;
+accessible field net/minecraft/client/gui/components/AbstractButton SPRITES Lnet/minecraft/client/gui/components/WidgetSprites;
+accessible field net/minecraft/client/gui/components/AbstractSliderButton SLIDER_HANDLE_SPRITE Lnet/minecraft/resources/ResourceLocation;

@@ -1,0 +1,34 @@
+{
+    "schemaVersion": 1,
+    "id": "atlasviewer",
+    "version": "${mod_version}",
+    "name": "AtlasViewer",
+    "description": "",
+    "authors": [
+        "XFactHD"
+    ],
+    "contact": {
+        "homepage": "https://www.curseforge.com/minecraft/mc-mods/atlasviewer",
+        "sources": "https://github.com/XFactHD/AtlasViewer"
+    },
+    "license": "LGPL v3",
+    "icon": "logo.png",
+    "environment": "*",
+    "entrypoints": {
+        "client": [
+            "xfacthd.atlasviewer.AtlasViewerFabric"
+        ]
+    },
+    "mixins": [
+        "atlasviewer.mixin.json",
+        "atlasviewer.fabric.mixin.json"
+    ],
+    "depends": {
+        "fabricloader": ">=0.14",
+        "fabric": "*",
+        "minecraft": "${minecraft_version}",
+        "java": ">=17"
+    },
+    "suggests": {
+    }
+}
