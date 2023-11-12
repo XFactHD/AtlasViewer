@@ -28,10 +28,19 @@ runs {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+jarJar.enable()
+
 dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
     compileOnly project(':common')
+
+    implementation(jarJar("io.github.llamalad7:mixinextras-neoforge:0.2.0")) {
+        jarJar.ranged(it, "[0.2.0,)")
+    }
 }
+
+// TODO: remove when this is fixed in NG
+tasks.named('build').configure { dependsOn('jarJar') }
 
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code
 TaskCollection.metaClass.excludingNeoTasks = { ->

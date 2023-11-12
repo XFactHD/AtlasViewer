@@ -1,5 +1,8 @@
 package xfacthd.atlasviewer.client.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.texture.atlas.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -13,60 +16,27 @@ import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.api.*;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
 
 // Use higher priority to make reasonably sure that we are injected after weirdos who forcefully inject sprite sources
 @Mixin(value = SpriteSourceList.class, priority = 2000)
 public class MixinSpriteSourceList
 {
-    @Unique
-    private static final ThreadLocal<Integer> ATLASVIEWER$PRE_ADD_LIST_SIZE = ThreadLocal.withInitial(() -> 0);
-
-    @Inject(
+    @WrapOperation(
             method = "load",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/List;addAll(Ljava/util/Collection;)Z"
-            ),
-            locals = LocalCapture.CAPTURE_FAILHARD
+            )
     )
-    private static void atlasviewer$spriteSourceAttachSourcePackCapturePreCount(
-            ResourceManager pResourceManager,
-            ResourceLocation pLocation,
-            CallbackInfoReturnable<SpriteResourceLoader> cir,
-            ResourceLocation path,
-            List<SpriteSource> sources
-    )
-    {
-        ATLASVIEWER$PRE_ADD_LIST_SIZE.set(sources.size());
-    }
-
-    @Inject(
-            method = "load",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Ljava/util/List;addAll(Ljava/util/Collection;)Z",
-                    shift = At.Shift.AFTER
-            ),
-            locals = LocalCapture.CAPTURE_FAILHARD
-    )
-    private static void atlasviewer$spriteSourceAttachSourcePackApply(
-            ResourceManager pResourceManager,
-            ResourceLocation pLocation,
-            CallbackInfoReturnable<SpriteResourceLoader> cir,
-            ResourceLocation path,
-            List<SpriteSource> sources,
-            Iterator<Resource> resourceIterator,
-            Resource resource
+    private static boolean atlasviewer$spriteSourceAttachSourcePack(
+            List<SpriteSource> sources, Collection<SpriteSource> sourcesToAdd, Operation<Boolean> operation, @Local Resource resource
     )
     {
         String packId = resource.sourcePackId();
-        for (int i = ATLASVIEWER$PRE_ADD_LIST_SIZE.get(); i < sources.size(); i++)
-        {
-            SpriteSource source = sources.get(i);
-            ((IPackAwareSpriteSource) source).atlasviewer$getMeta().setSourcePack(packId);
-        }
+        sourcesToAdd.forEach(src -> ((IPackAwareSpriteSource) src).atlasviewer$getMeta().setSourcePack(packId));
+        return operation.call(sources, sourcesToAdd);
     }
 
     @Inject(
