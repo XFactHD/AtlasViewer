@@ -15,7 +15,7 @@ public final class AtlasViewerMixinConfigPlugin implements IMixinConfigPlugin
     @Override
     public String getRefMapperConfig()
     {
-        return null;
+        return "atlasviewer.refmap.json";
     }
 
     @Override

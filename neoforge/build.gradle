@@ -51,16 +51,24 @@ tasks.withType(JavaCompile).excludingNeoTasks().configureEach {
     source(project(':common').sourceSets.main.allSource)
 }
 
-tasks.withType(Javadoc).excludingNeoTasks().configureEach {
+/*tasks.withType(Javadoc).excludingNeoTasks().configureEach {
     source(project(':common').sourceSets.main.allJava)
 }
 
 tasks.named('sourcesJar', Jar) {
     from(project(':common').sourceSets.main.allSource)
-}
+}*/
 
 tasks.withType(ProcessResources).excludingNeoTasks().configureEach {
     from project(":common").sourceSets.main.resources
+}
+
+tasks.jarJar.configure {
+    archiveClassifier = ''
+}
+
+jar {
+    archiveClassifier = 'slim'
 }
 
 publishing {

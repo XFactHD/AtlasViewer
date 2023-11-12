@@ -2,6 +2,7 @@
     "required": true,
     "package": "xfacthd.atlasviewer.client.mixin",
     "compatibilityLevel": "JAVA_17",
+    "plugin": "xfacthd.atlasviewer.client.util.AtlasViewerMixinConfigPlugin",
     "client": [
         "AccessorAnimatedTexture",
         "AccessorFrameInfo",

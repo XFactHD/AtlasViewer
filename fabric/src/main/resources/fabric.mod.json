@@ -19,6 +19,7 @@
             "xfacthd.atlasviewer.AtlasViewerFabric"
         ]
     },
+    "accessWidener" : "atlasviewer.accesswidener",
     "mixins": [
         "atlasviewer.mixin.json",
         "atlasviewer.fabric.mixin.json"
