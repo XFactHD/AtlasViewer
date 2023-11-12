@@ -2,6 +2,7 @@ package xfacthd.atlasviewer.platform;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
@@ -66,5 +67,17 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
                     .map(id -> "\"" + pack.packId() + "\" -> \"" + (id.isEmpty() ? " " : id) + "\"");
         }
         return Stream.of(pack.packId());
+    }
+
+    @Override
+    public String getSpriteSourceName(SpriteSource source)
+    {
+        return source.getClass().getName();
+    }
+
+    @Override
+    public String getSpriteSourceSimpleName(SpriteSource source)
+    {
+        return source.getClass().getSimpleName();
     }
 }

@@ -466,7 +466,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
             }
             else
             {
-                String typeName = sourceTypeClazz.getName();
+                String typeName = Services.PLATFORM.getSpriteSourceName(source);
                 String shortTypeName = typeName.substring(typeName.lastIndexOf('.') + 1);
                 sourceType = TextLine.of(shortTypeName, font, maxValueLen).text();
                 hasConcreteSourceType = true;

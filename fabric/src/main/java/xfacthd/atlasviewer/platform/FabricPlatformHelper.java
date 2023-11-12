@@ -3,6 +3,7 @@ package xfacthd.atlasviewer.platform;
 import com.google.common.base.Preconditions;
 import net.fabricmc.fabric.impl.resource.loader.GroupResourcePack;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
@@ -11,6 +12,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import xfacthd.atlasviewer.client.screen.stacking.ScreenStacker;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import xfacthd.atlasviewer.client.util.SpriteSourceTypeMapper;
 import xfacthd.atlasviewer.platform.services.IPlatformHelper;
 
 import java.lang.invoke.MethodHandle;
@@ -101,5 +103,23 @@ public final class FabricPlatformHelper implements IPlatformHelper
             AtlasViewer.LOGGER.error("Encountered an error when trying to make getter MethodHandle for child packs of GroupResourcePack", t);
             return null;
         }
+    }
+
+    @Override
+    public String getSpriteSourceName(SpriteSource source)
+    {
+        return SpriteSourceTypeMapper.getSpriteSourceName(source);
+    }
+
+    @Override
+    public String getSpriteSourceSimpleName(SpriteSource source)
+    {
+        String name = getSpriteSourceName(source);
+        int lastPeriod = name.lastIndexOf('.');
+        if (lastPeriod > -1)
+        {
+            name = name.substring(lastPeriod + 1);
+        }
+        return name;
     }
 }

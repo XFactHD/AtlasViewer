@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xfacthd.atlasviewer.client.screen.stacking.ScreenStacker;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import xfacthd.atlasviewer.client.util.SpriteSourceTypeMapper;
 
 @Mixin(Minecraft.class)
 @SuppressWarnings({ "MethodMayBeStatic", "DataFlowIssue" })
@@ -53,5 +54,6 @@ public final class MinecraftMixin
     private void atlasviewer$handlePreResourceLoadInit(GameConfig gameConfig, CallbackInfo ci)
     {
         SpriteSourceManager.registerDetails();
+        SpriteSourceTypeMapper.init();
     }
 }
