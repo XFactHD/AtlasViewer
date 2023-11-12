@@ -1,68 +1,49 @@
 package xfacthd.atlasviewer.client.screen.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import xfacthd.atlasviewer.client.util.ClientUtils;
-import xfacthd.atlasviewer.client.util.TextureDrawer;
+import net.minecraft.client.gui.layouts.*;
+import xfacthd.atlasviewer.client.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public final class MenuContainer
+public final class MenuContainer extends GridLayout
 {
-    private static final int BASE_OFFSET = 2;
-    private static final int ENTRY_INTERVAL = Button.DEFAULT_HEIGHT + BASE_OFFSET;
+    private static final int PADDING = 2;
 
-    private int x;
-    private final int y;
+    private final int originX;
+    private final int originWidth;
     private final Button menuButton;
     private final boolean rightAlign;
-    private final List<MenuEntry> entries = new ArrayList<>();
-    private int width;
-    private int height = BASE_OFFSET;
-    private int buttonWidth = 0;
+    private int nextRow = 1;
     private boolean open = false;
 
     public MenuContainer(Button menuButton, boolean rightAlign)
     {
-        this.x = menuButton.getX();
-        this.y = menuButton.getY() + menuButton.getHeight();
-        this.width = menuButton.getWidth();
+        super(menuButton.getX(), menuButton.getY() + Button.DEFAULT_HEIGHT);
+        this.originX = menuButton.getX();
+        this.originWidth = menuButton.getWidth();
         this.menuButton = menuButton;
         this.rightAlign = rightAlign;
+        defaultCellSetting().padding(PADDING);
     }
 
-    public void addMenuEntry(AbstractWidget widget)
+    @Override
+    public void arrangeElements()
     {
-        addMenuEntry(widget, 0, 0);
-    }
-
-    public void addMenuEntry(AbstractWidget widget, int baseX, int baseY)
-    {
-        int btnWidth = Math.max(buttonWidth, widget.getWidth());
-        if (btnWidth != buttonWidth)
-        {
-            buttonWidth = btnWidth;
-        }
-
-        height += ENTRY_INTERVAL;
-        width = Math.max(width, btnWidth + (BASE_OFFSET * 2));
-
-        widget.setY(baseY + y + BASE_OFFSET + (ENTRY_INTERVAL * entries.size()));
-        widget.visible = false;
-        entries.add(new MenuEntry(widget, baseX, baseY));
-
+        super.arrangeElements();
         if (rightAlign)
         {
-            x = menuButton.getX() + menuButton.getWidth() - width;
+            setX(originX + originWidth - getWidth());
         }
+        visitWidgets(widget -> widget.setWidth(getWidth() - (PADDING * 2)));
+        setOpen(this, false);
+    }
 
-        entries.forEach(entry ->
-        {
-            entry.widget.setX(entry.baseX + x + BASE_OFFSET);
-            entry.widget.setWidth(btnWidth - (2 * entry.baseX));
-        });
+    public void addMenuEntry(LayoutElement element)
+    {
+        addChild(element, nextRow, 0);
+        // Remove top padding after first entry for uniform distance
+        defaultCellSetting().paddingTop(0);
+        nextRow++;
     }
 
     public void render(PoseStack poseStack)
@@ -70,8 +51,8 @@ public final class MenuContainer
         if (open)
         {
             TextureDrawer.startColored();
-            TextureDrawer.fillGuiColorBuffer(poseStack, x, y, 0, width, height, 0x666666FF);
-            ClientUtils.drawColoredBox(poseStack, x, y, 0, width, height, 0x333333FF);
+            TextureDrawer.fillGuiColorBuffer(poseStack, getX(), getY(), 0, getWidth(), getHeight(), 0x666666FF);
+            ClientUtils.drawColoredBox(poseStack, getX(), getY(), 0, getWidth(), getHeight(), 0x333333FF);
             TextureDrawer.end();
         }
     }
@@ -86,7 +67,22 @@ public final class MenuContainer
         if (this.open != open)
         {
             this.open = open;
-            entries.forEach(entry -> entry.widget.visible = open);
+            setOpen(this, open);
+        }
+    }
+
+    private void setOpen(LayoutElement element, boolean open)
+    {
+        element.visitWidgets(widget ->
+        {
+            if (widget != menuButton)
+            {
+                ((IVisibilitySetter) widget).atlasviewer$setVisible(open);
+            }
+        });
+        if (element instanceof Layout layout)
+        {
+            layout.visitChildren(childElem -> setOpen(childElem, open));
         }
     }
 
@@ -95,16 +91,13 @@ public final class MenuContainer
         return open;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isMouseOver(double mouseX, double mouseY)
     {
-        if (mouseX >= x && mouseY >= y && mouseX <= x + width && mouseY <= y + height)
+        if (mouseX >= getX() && mouseY >= getY() && mouseX <= getX() + getWidth() && mouseY <= getY() + getHeight())
         {
             return true;
         }
         return menuButton.isMouseOver(mouseX, mouseY);
     }
-
-
-
-    private record MenuEntry(AbstractWidget widget, int baseX, int baseY) { }
 }

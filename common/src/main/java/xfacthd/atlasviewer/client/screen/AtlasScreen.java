@@ -20,6 +20,8 @@ import org.lwjgl.opengl.GL13;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.mixin.*;
 import xfacthd.atlasviewer.client.screen.widget.*;
+import xfacthd.atlasviewer.client.screen.widget.search.SearchBox;
+import xfacthd.atlasviewer.client.screen.widget.search.SearchHandler;
 import xfacthd.atlasviewer.client.util.*;
 import xfacthd.atlasviewer.platform.Services;
 
@@ -28,7 +30,7 @@ import java.nio.file.*;
 import java.util.*;
 
 @SuppressWarnings("deprecation")
-public final class AtlasScreen extends Screen implements SearchBox.SearchHandler
+public final class AtlasScreen extends Screen implements SearchHandler
 {
     public static final ResourceLocation BACKGROUND_LOC = new ResourceLocation("minecraft", "textures/gui/demo_background.png");
     public static final ResourceLocation CHECKER_LOC = new ResourceLocation(AtlasViewer.MOD_ID, "textures/gui/checker.png");
@@ -50,7 +52,7 @@ public final class AtlasScreen extends Screen implements SearchBox.SearchHandler
     private static final int EXPORT_WIDTH = 100;
     private static final int EXPORT_HEIGHT = 20;
     private static final int SEARCH_BAR_WIDTH = 198;
-    private static final int SEARCH_BAR_HEIGHT = 18;
+    private static final int SEARCH_BAR_HEIGHT = 20;
     private static final int SELECT_WIDTH = 300;
     private static final int SELECT_HEIGHT = 20;
     private static final int DETAILS_WIDTH = 100;
@@ -146,9 +148,10 @@ public final class AtlasScreen extends Screen implements SearchBox.SearchHandler
                         this::selectMipLevel
                 )
         ));
-        menu.addMenuEntry(searchBar = addRenderableWidget(
-                new SearchBox(font, 0, 0, SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT, searchBar, this)
-        ), 1, 1);
+        menu.addMenuEntry(searchBar = new SearchBox(
+                0, 0, SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT, searchBar, this, this::addRenderableWidget
+        ));
+        menu.arrangeElements();
 
         atlases = new HashMap<>();
         ((AccessorTextureManager) Minecraft.getInstance().getTextureManager()).atlasviewer$getByPath().forEach((loc, tex) ->
@@ -422,7 +425,7 @@ public final class AtlasScreen extends Screen implements SearchBox.SearchHandler
         scrollScale = 1F;
         offsetX = 0;
         offsetY = 0;
-        searchBar.setValue("");
+        searchBar.clear();
         searchResultLocations.clear();
         focusedSearchResultIdx = -1;
         cachedInfo = null;
