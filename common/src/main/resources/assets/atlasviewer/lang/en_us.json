@@ -84,7 +84,7 @@
     "tooltip.atlasviewer.source_awareness.spritesource_unaware": "SpriteSource did not receive information about its origin pack",
     "tooltip.atlasviewer.source_awareness.spritesource_unsupported": "SpriteSource implementation is not supported",
     "tooltip.atlasviewer.reader_pack": "The top-most resource pack containing the atlas config through which this sprite is registered for stitching. The same resource might also be read through atlas configs in other packs",
-    "tooltip.atlasviewer.sprite.max_mip_level": "The maximum mip level supported by this sprite, irrespective of the currently active mip level",
+    "tooltip.atlasviewer.sprite.max_mip_level": "The maximum mip level supported by this sprite, irrespective of the currently active mip level. This value is only relevant when the underlying atlas uses mipmapping (such as the block atlas)",
     "tooltip.atlasviewer.sprite.mipmap_disabled": "This sprite causes mipmapping to be disabled",
     "tooltip.atlasviewer.sprite.mipmap_limited": "This sprite reduces the maximum mip level to %s",
     "tooltip.atlasviewer.sprite.mipmap_full": "This sprite supports all four mip levels",
