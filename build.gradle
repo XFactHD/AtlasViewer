@@ -7,6 +7,7 @@ plugins {
 subprojects {
     apply plugin: 'java'
 
+    group = "xfacthd.atlasviewer"
     version = mod_version
 
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
