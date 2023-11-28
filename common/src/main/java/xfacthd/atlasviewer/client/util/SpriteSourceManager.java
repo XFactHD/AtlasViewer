@@ -2,12 +2,12 @@ package xfacthd.atlasviewer.client.util;
 
 import com.google.common.base.Preconditions;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import xfacthd.atlasviewer.client.AVClient;
 import xfacthd.atlasviewer.client.api.SourceTooltipAppender;
+import xfacthd.atlasviewer.client.mixin.AccessorSpriteSources;
 import xfacthd.atlasviewer.platform.Services;
 
 import java.util.*;
@@ -81,7 +81,7 @@ public final class SpriteSourceManager
     {
         List<Tuple<Component, Component>> lines = new ArrayList<>();
 
-        ResourceLocation regLoc = SpriteSources.TYPES.inverse().get(source.type());
+        ResourceLocation regLoc = AccessorSpriteSources.atlasviewer$getTypes().inverse().get(source.type());
         Component regName = regLoc != null ? Component.literal(regLoc.toString()) : VALUE_UNREGISTERED;
         lines.add(new Tuple<>(LABEL_REG_NAME, regName));
 

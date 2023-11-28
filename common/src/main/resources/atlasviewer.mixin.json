@@ -7,6 +7,7 @@
         "AccessorAnimatedTexture",
         "AccessorFrameInfo",
         "AccessorSpriteContents",
+        "AccessorSpriteSources",
         "AccessorTextureAtlas",
         "AccessorTextureManager",
         "MixinAbstractWidget",

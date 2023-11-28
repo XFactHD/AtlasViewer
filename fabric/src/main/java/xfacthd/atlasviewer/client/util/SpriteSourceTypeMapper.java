@@ -3,6 +3,7 @@ package xfacthd.atlasviewer.client.util;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.texture.atlas.*;
 import net.minecraft.resources.ResourceLocation;
+import xfacthd.atlasviewer.client.mixin.AccessorSpriteSources;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ public final class SpriteSourceTypeMapper
 
         if (FabricLoader.getInstance().isDevelopmentEnvironment())
         {
-            String missing = SpriteSources.TYPES.entrySet()
+            String missing = AccessorSpriteSources.atlasviewer$getTypes().entrySet()
                     .stream()
                     .filter(e -> e.getKey().getNamespace().equals("minecraft"))
                     .filter(e -> !NAMES.containsKey(e.getValue()))

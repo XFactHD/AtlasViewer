@@ -5,5 +5,4 @@ accessible method net/minecraft/client/gui/GuiGraphics renderTooltipInternal (Ln
 extendable method net/minecraft/client/gui/components/EditBox onValueChange (Ljava/lang/String;)V
 accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$Region
 extendable method net/minecraft/client/gui/components/AbstractSliderButton getHandleSprite ()Lnet/minecraft/resources/ResourceLocation;
-accessible field net/minecraft/client/renderer/texture/atlas/SpriteSources TYPES Lcom/google/common/collect/BiMap;
 accessible field net/minecraft/client/gui/components/AbstractSliderButton SLIDER_HANDLE_SPRITE Lnet/minecraft/resources/ResourceLocation;
