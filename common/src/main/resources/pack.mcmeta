@@ -1,8 +1,8 @@
 {
     "pack": {
         "description": "examplemod resources",
-        "pack_format": 15,
-        "neoforge:resource_pack_format": 18,
-        "neoforge:data_pack_format": 18
+        "pack_format": 22,
+        "neoforge:resource_pack_format": 22,
+        "neoforge:data_pack_format": 26
     }
 }
