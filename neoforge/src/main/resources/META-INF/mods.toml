@@ -22,14 +22,14 @@ issueTrackerURL="https://github.com/XFactHD/AtlasViewer/issues"
 
 [[dependencies.atlasviewer]]
     modId="neoforge"
-    mandatory=true
+    type="required"
     versionRange="${neoforge_version_range}"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.atlasviewer]]
     modId="minecraft"
-    mandatory=true
+    type="required"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
