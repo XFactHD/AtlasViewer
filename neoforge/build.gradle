@@ -14,6 +14,7 @@ minecraft.accessTransformers.file rootProject.file('neoforge/src/main/resources/
 runs {
     configureEach {
         modSource project.sourceSets.main
+        modSource project.sourceSets.test
     }
 
     client {

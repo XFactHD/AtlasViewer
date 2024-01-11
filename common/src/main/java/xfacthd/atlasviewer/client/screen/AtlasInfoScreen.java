@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.client.mixin.AccessorTextureAtlas;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.screen.widget.AtlasLoadTable;
@@ -157,6 +158,17 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
         {
             setTooltipForNextRenderPass(MSG_SPRITES_BY_MAX_MIP);
         }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_1 && (mouseX < xLeft || mouseY < yTop || mouseX > (xLeft + WIDTH) || mouseY > (yTop + HEIGHT)))
+        {
+            onClose();
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
