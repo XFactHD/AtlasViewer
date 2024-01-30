@@ -3,8 +3,6 @@ package xfacthd.atlasviewer.platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackResources;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
@@ -13,7 +11,6 @@ import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 import xfacthd.atlasviewer.platform.services.IPlatformHelper;
 
 import java.nio.file.Path;
-import java.util.stream.Stream;
 
 public final class NeoForgePlatformHelper implements IPlatformHelper
 {
@@ -50,12 +47,6 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
     public void popScreenLayer()
     {
         Minecraft.getInstance().popGuiLayer();
-    }
-
-    @Override
-    public Stream<String> getPackIDs(PackResources pack, ResourceLocation loc)
-    {
-        return Stream.of(pack.packId());
     }
 
     @Override

@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.*;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -358,7 +359,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         List<Resource> resources = Minecraft.getInstance().getResourceManager().getResourceStack(loc);
         List<String> sources = resources.stream()
                 .map(Resource::source)
-                .flatMap(pack -> Services.PLATFORM.getPackIDs(pack, loc))
+                .map(PackResources::packId)
                 .collect(Collectors.toCollection(ArrayList::new));
         if (sources.isEmpty())
         {
