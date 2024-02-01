@@ -299,6 +299,13 @@ public final class AtlasScreen extends Screen implements SearchHandler
         float sw = width * scale;
         float sh = height * scale;
 
+        float nsx = Math.max(sx, atlasLeft);
+        float nsy = Math.max(sy, atlasTop);
+        sw = Math.min(sw - (nsx - sx), Math.max(atlasLeft + maxAtlasWidth - nsx, 0));
+        sh = Math.min(sh - (nsy - sy), Math.max(atlasTop + maxAtlasHeight - nsy, 0));
+        sx = nsx;
+        sy = nsy;
+
         if (expand)
         {
             sx--;
