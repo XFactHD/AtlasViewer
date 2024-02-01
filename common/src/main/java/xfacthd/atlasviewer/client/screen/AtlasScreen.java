@@ -216,7 +216,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
 
         graphics.enableScissor(atlasLeft - 1, atlasTop - 1, atlasLeft + maxAtlasWidth + 1, atlasTop + maxAtlasHeight + 1);
 
-        boolean cursorOnAtlas = mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight);
+        boolean cursorOnAtlas = isMouseOverAtlas(mouseX, mouseY);
         boolean highlightAnimated = btnHighlightAnim.isChecked();
         boolean hasSearchResults = !searchResultLocations.isEmpty();
 
@@ -254,6 +254,10 @@ public final class AtlasScreen extends Screen implements SearchHandler
                 drawColoredBox(graphics.pose(), sprite.getX(), sprite.getY(), contents.width(), contents.height(), scale, true, 0xFF0000FF);
             }
         }
+        else
+        {
+            hoveredSprite = null;
+        }
 
         if (highlightAnimated || hasSearchResults || cursorOnAtlas)
         {
@@ -272,6 +276,13 @@ public final class AtlasScreen extends Screen implements SearchHandler
         {
             setTooltipForNextRenderPass(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel));
         }
+    }
+
+    private boolean isMouseOverAtlas(int mouseX, int mouseY)
+    {
+        if (mouseX < atlasLeft || mouseX > (atlasLeft + maxAtlasWidth)) return false;
+        if (mouseY < atlasTop || mouseY > (atlasTop + maxAtlasHeight)) return false;
+        return !menu.isOpen() || !menu.isMouseOver(mouseX, mouseY);
     }
 
     public static void setAtlasMipLevel(TextureAtlas atlas, int level)
