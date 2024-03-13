@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xfacthd.atlasviewer.client.api.*;
 
 @Mixin(value = DirectoryLister.class, priority = 2000)
-public abstract class MixinDirectoryListerVanilla implements IPackAwareSpriteSource
+public abstract class MixinDirectoryLister implements IPackAwareSpriteSource
 {
     @Inject(
             method = "*",
