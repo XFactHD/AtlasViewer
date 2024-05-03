@@ -3,11 +3,10 @@ package xfacthd.atlasviewer;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import xfacthd.atlasviewer.client.AVClient;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 
@@ -18,7 +17,7 @@ public final class AtlasViewerNeoForge
 
 
 
-    @Mod.EventBusSubscriber(modid = AtlasViewer.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = AtlasViewer.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static final class AVClientNeoForge
     {
         @SubscribeEvent
@@ -35,12 +34,9 @@ public final class AtlasViewerNeoForge
             SpriteSourceManager.registerDetails();
         }
 
-        private static void onClientTick(final TickEvent.ClientTickEvent event)
+        private static void onClientTick(final ClientTickEvent.Pre event)
         {
-            if (event.phase == TickEvent.Phase.START)
-            {
-                AVClient.onClientTickStart(Minecraft.getInstance());
-            }
+            AVClient.onClientTickStart(Minecraft.getInstance());
         }
 
 

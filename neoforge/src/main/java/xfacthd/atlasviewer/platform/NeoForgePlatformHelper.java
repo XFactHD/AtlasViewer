@@ -29,7 +29,7 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
     @Override
     public void fireSpriteSourceDetailsEvent()
     {
-        ModLoader.get().postEvent(new RegisterSpriteSourceDetailsEvent(
+        ModLoader.postEvent(new RegisterSpriteSourceDetailsEvent(
                 SpriteSourceManager::registerSourceStringifier,
                 SpriteSourceManager::registerSimpleSourceStringifier,
                 SpriteSourceManager::registerSpecialSourceDescription,

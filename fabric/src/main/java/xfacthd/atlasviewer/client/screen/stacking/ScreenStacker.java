@@ -66,7 +66,7 @@ public final class ScreenStacker
     {
         // 1000 units for the overlay background,
         // and 10000 units for each layered Screen,
-        return 1000F + 10000F * (1 + LAYERS.size());
+        return 11000.0F + 10000.0F * (1 + LAYERS.size());
     }
 
     public static boolean isNonEmpty()
@@ -85,7 +85,7 @@ public final class ScreenStacker
                 {
                     Screen layer = it.next();
                     layer.renderWithTooltip(guiGraphics, Integer.MAX_VALUE, Integer.MAX_VALUE, tickDelta);
-                    guiGraphics.pose().translate(0, 0, 2000);
+                    guiGraphics.pose().translate(0, 0, 10000);
                 }
             });
 

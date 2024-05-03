@@ -14,8 +14,10 @@ public final class GameRendererMixin
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lorg/joml/Matrix4f;setOrtho(FFFFFF)Lorg/joml/Matrix4f;"
+                    target = "Lorg/joml/Matrix4f;setOrtho(FFFFFF)Lorg/joml/Matrix4f;",
+                    remap = false
             ),
+            remap = true,
             index = 5
     )
     private float atlasviewer$modifyGuiFarPlaneInMatrix(float farPlane)
@@ -27,12 +29,14 @@ public final class GameRendererMixin
             method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"
+                    target = "Lorg/joml/Matrix4fStack;translation(FFF)Lorg/joml/Matrix4f;",
+                    remap = false
             ),
+            remap = true,
             index = 2
     )
     private float atlasviewer$modifyGuiFarPlaneInTranslation(float farPlane)
     {
-        return ScreenStacker.isNonEmpty() ? (1000F - ScreenStacker.getGuiFarPlane()) : farPlane;
+        return ScreenStacker.isNonEmpty() ? (10000F - ScreenStacker.getGuiFarPlane()) : farPlane;
     }
 }
