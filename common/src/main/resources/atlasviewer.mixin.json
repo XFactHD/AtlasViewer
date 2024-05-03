@@ -18,6 +18,7 @@
         "MixinSpriteSourceImpls",
         "MixinSpriteSourceOutput",
         "MixinTextureAtlas",
+        "MixinTextureUtil",
         "spritesources.AccessorDirectoryLister",
         "spritesources.AccessorLazyLoadedImage",
         "spritesources.AccessorPalettedPermutations",

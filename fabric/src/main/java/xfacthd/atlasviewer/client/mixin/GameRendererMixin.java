@@ -17,7 +17,6 @@ public final class GameRendererMixin
                     target = "Lorg/joml/Matrix4f;setOrtho(FFFFFF)Lorg/joml/Matrix4f;",
                     remap = false
             ),
-            remap = true,
             index = 5
     )
     private float atlasviewer$modifyGuiFarPlaneInMatrix(float farPlane)
@@ -32,7 +31,6 @@ public final class GameRendererMixin
                     target = "Lorg/joml/Matrix4fStack;translation(FFF)Lorg/joml/Matrix4f;",
                     remap = false
             ),
-            remap = true,
             index = 2
     )
     private float atlasviewer$modifyGuiFarPlaneInTranslation(float farPlane)

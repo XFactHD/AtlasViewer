@@ -3,9 +3,23 @@ package xfacthd.atlasviewer.client.util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.FormattedText;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLCapabilities;
 
 public final class ClientUtils
 {
+    private static Boolean arbClearTextureSupported = null;
+
+    public static boolean isArbClearTextureSupported()
+    {
+        if (arbClearTextureSupported == null)
+        {
+            GLCapabilities capabilities = GL.getCapabilities();
+            arbClearTextureSupported = capabilities.GL_ARB_clear_texture;
+        }
+        return arbClearTextureSupported;
+    }
+
     public static void drawNineSliceTexture(PoseStack pstack, int elemX, int elemY, float z, int elemW, int elemH, NineSlice ns)
     {
         drawNineSliceTexture(pstack, elemX, elemY, z, elemW, elemH, ns.uX(), ns.vY(), ns.uW(), ns.vH(), ns.texW(), ns.texH(), ns.border());
