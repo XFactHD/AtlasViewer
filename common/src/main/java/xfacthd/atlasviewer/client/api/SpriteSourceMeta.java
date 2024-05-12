@@ -44,7 +44,7 @@ public sealed class SpriteSourceMeta permits SpriteSourceMeta.Unsupported
 
     public boolean isSourceUnaware()
     {
-        return sourceAwareness == SourceAwareness.SPRITESOURCE_UNAWARE;
+        return getSourceAwareness() == SourceAwareness.SPRITESOURCE_UNAWARE;
     }
 
 
