@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
+import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
@@ -31,39 +32,44 @@ import xfacthd.atlasviewer.platform.Services;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class SpriteInfoScreen extends Screen implements IStackedScreen
 {
     private static final Component TITLE = Component.translatable("title.atlasviewer.spriteinfo");
     private static final Component CHAR_INFO = Component.literal("i").withStyle(ChatFormatting.BLUE);
-    private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.spritename");
-    private static final Component LABEL_WIDTH = Component.translatable("label.atlasviewer.spritewidth");
-    private static final Component LABEL_HEIGHT = Component.translatable("label.atlasviewer.spriteheight");
-    private static final Component LABEL_SOURCEPACK = Component.translatable("label.atlasviewer.sprite_sourcepack");
+    private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.spriteinfo.name");
+    private static final Component LABEL_SIZE = Component.translatable("label.atlasviewer.spriteinfo.size");
+    private static final Component LABEL_SOURCEPACK = Component.translatable("label.atlasviewer.spriteinfo.sourcepack");
     private static final Component LABEL_READERPACK = Component.translatable(
-            "label.atlasviewer.sprite_readerpack", CHAR_INFO
+            "label.atlasviewer.spriteinfo.readerpack", CHAR_INFO
     );
-    private static final Component LABEL_READERTYPE = Component.translatable("label.atlasviewer.sprite_readertype");
+    private static final Component LABEL_READERTYPE = Component.translatable("label.atlasviewer.spriteinfo.readertype");
     private static final Component LABEL_MAX_MIP_LEVEL = Component.translatable(
-            "label.atlasviewer.sprite_max_mip_level", CHAR_INFO
+            "label.atlasviewer.spriteinfo.max_mip_level", CHAR_INFO
     );
-    private static final Component LABEL_ANIMATED = Component.translatable("label.atlasviewer.spriteanimated");
-    private static final Component LABEL_FRAMECOUNT = Component.translatable("label.atlasviewer.spriteframes");
-    private static final Component LABEL_INTERPOLATED = Component.translatable("label.atlasviewer.spriteinterpolated");
-    private static final Component LABEL_FRAMETIME = Component.translatable("label.atlasviewer.spriteframetime");
-    private static final Component[] LABELS = {
-            LABEL_NAME,
-            LABEL_WIDTH,
-            LABEL_HEIGHT,
-            LABEL_SOURCEPACK,
-            LABEL_READERPACK,
-            LABEL_READERTYPE,
-            LABEL_MAX_MIP_LEVEL,
-            LABEL_ANIMATED,
-            LABEL_FRAMECOUNT,
-            LABEL_INTERPOLATED,
-            LABEL_FRAMETIME
+    private static final Component LABEL_ANIMATED = Component.translatable("label.atlasviewer.spriteinfo.animated");
+    private static final Component LABEL_FRAMECOUNT = Component.translatable("label.atlasviewer.spriteinfo.frames");
+    private static final Component LABEL_INTERPOLATED = Component.translatable("label.atlasviewer.spriteinfo.interpolated");
+    private static final Component LABEL_FRAMETIME = Component.translatable("label.atlasviewer.spriteinfo.frametime");
+    private static final Component LABEL_GUI_SPRITE_TYPE = Component.translatable("label.atlasviewer.spriteinfo.gui_type");
+    private static final Component LABEL_GUI_SPRITE_SIZE = Component.translatable("label.atlasviewer.spriteinfo.gui_size");
+    private static final Component LABEL_GUI_SPRITE_NINESLICE_BORDER = Component.translatable("label.atlasviewer.spriteinfo.gui_nineslice_border");
+    private static final Label[] LABELS = {
+            new Label(LABEL_NAME),
+            new Label(LABEL_SIZE),
+            new Label(LABEL_SOURCEPACK),
+            new Label(LABEL_READERPACK),
+            new Label(LABEL_READERTYPE),
+            new Label(LABEL_MAX_MIP_LEVEL, screen -> screen.mipped),
+            new Label(LABEL_ANIMATED),
+            new Label(LABEL_FRAMECOUNT, screen -> screen.animated),
+            new Label(LABEL_INTERPOLATED, screen -> screen.animated),
+            new Label(LABEL_FRAMETIME, screen -> screen.animated),
+            new Label(LABEL_GUI_SPRITE_TYPE, screen -> screen.guiSprite),
+            new Label(LABEL_GUI_SPRITE_SIZE, screen -> screen.guiSprite && screen.guiScaling.type() != GuiSpriteScaling.Type.STRETCH),
+            new Label(LABEL_GUI_SPRITE_NINESLICE_BORDER, screen -> screen.guiSprite && screen.guiScaling.type() == GuiSpriteScaling.Type.NINE_SLICE)
     };
     private static final Component VALUE_TRUE = Component.translatable("value.atlasviewer.true").withStyle(Style.EMPTY.withColor(0x00D000));
     private static final Component VALUE_FALSE = Component.translatable("value.atlasviewer.false").withStyle(Style.EMPTY.withColor(0xD00000));
@@ -84,7 +90,6 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     ).withStyle(ChatFormatting.GOLD);
     private static final ClientTooltipPositioner PACK_LIST_POSITIONER = new FixedTooltipPositioner();
     private static final int WIDTH = 400;
-    private static final int HEIGHT = 193;
     private static final int PADDING = 5;
     private static final int LABEL_X = 148;
     private static final int SPRITE_Y = 25;
@@ -94,30 +99,41 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private static final int MIP_LEVEL_WIDTH = 120;
     private static final int MIP_LEVEL_HEIGHT = 20;
     private static final int CLOSE_SIZE = 12;
+    private static final int SPRITE_SIZE = 128;
+    private static final int FOOTER_HEIGHT = MIP_LEVEL_HEIGHT + PADDING * 4;
+    private static final int MIN_HEIGHT = SPRITE_Y + SPRITE_SIZE + FOOTER_HEIGHT;
 
     private final TextureAtlas atlas;
     private final TextureAtlasSprite sprite;
     private final SpriteContents contents;
+    private final boolean mipped;
+    private final boolean animated;
+    private final boolean guiSprite;
     private final List<String> sourceNames;
     private final String primarySource;
     private final SpriteContents.AnimatedTexture animation;
     private final int animFrameTime;
+    private final GuiSpriteScaling guiScaling;
+    private int imageHeight;
     private int xLeft;
     private int yTop;
-    private int labelLen = 0;
     private int valueX;
     private Button btnExport;
     private Button btnExportMipped;
     private TextLine spriteName;
+    private Component spriteSizeText;
     private TextLine primarySourceName;
     private SourcePackList sourceNameTooltip;
     private SpriteSourceInfo sourceInfo;
     private Component maxMipLevel;
     private Component maxMipLevelTooltip;
     private Component animatedText;
-    private String framesText;
+    private Component framesText;
     private Component interpText;
     private Component frameTimeText;
+    private Component guiSpriteTypeText;
+    private Component guiSpriteSizeText;
+    private Component guiSpriteNinesliceBorderText;
     private int currentMipLevel;
 
     public SpriteInfoScreen(TextureAtlas atlas, TextureAtlasSprite sprite, int currentMipLevel)
@@ -126,21 +142,36 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         this.atlas = atlas;
         this.sprite = sprite;
         this.contents = sprite.contents();
+        this.mipped = ((IMipAwareTextureAtlas) atlas).atlasviewer$isMipMapEnabled();
+        this.guiSprite = atlas == ((AccessorTextureAtlasHolder) Minecraft.getInstance().getGuiSprites()).atlasviewer$getAtlas();
         this.sourceNames = collectSourcePackNames();
-        this.primarySource = sourceNames.isEmpty() ? null : sourceNames.get(0);
+        this.primarySource = sourceNames.isEmpty() ? null : sourceNames.getFirst();
         this.animation = ((AccessorSpriteContents) contents).atlasviewer$getAnimatedTexture();
+        this.animated = animation != null;
         this.animFrameTime = getAnimationFrameTime();
+        this.guiScaling = guiSprite ? Minecraft.getInstance().getGuiSprites().getSpriteScaling(sprite) : null;
         this.currentMipLevel = currentMipLevel;
     }
 
     @Override
     protected void init()
     {
+        int labelLen = 0;
+        int labelHeight = 0;
+        for (Label label : LABELS)
+        {
+            if (!label.active.test(this)) continue;
+            labelLen = Math.max(labelLen, font.width(label.text));
+            labelHeight += LINE_HEIGHT;
+        }
+        valueX = LABEL_X + labelLen + PADDING;
+
+        imageHeight = Math.max(MIN_HEIGHT, SPRITE_Y + labelHeight + FOOTER_HEIGHT);
         xLeft = (width / 2) - (WIDTH / 2);
-        yTop = (height / 2) - (HEIGHT / 2);
+        yTop = (height / 2) - (imageHeight / 2);
 
         DiscreteSliderButton mipLevelSlider = addRenderableWidget(new DiscreteSliderButton(
-                xLeft + (PADDING * 2), yTop + HEIGHT - (PADDING * 2) - MIP_LEVEL_HEIGHT,
+                xLeft + (PADDING * 2), yTop + imageHeight - (PADDING * 2) - MIP_LEVEL_HEIGHT,
                 MIP_LEVEL_WIDTH, MIP_LEVEL_HEIGHT,
                 "btn.atlasviewer.mip_level",
                 currentMipLevel,
@@ -148,12 +179,12 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
                 this::selectMipLevel
         ));
         addRenderableWidget(btnExport = Button.builder(TITLE_EXPORT, this::exportSprite)
-                .pos(xLeft + WIDTH - (PADDING * 2) - EXPORT_WIDTH, yTop + HEIGHT - (PADDING * 2) - EXPORT_HEIGHT)
+                .pos(xLeft + WIDTH - (PADDING * 2) - EXPORT_WIDTH, yTop + imageHeight - (PADDING * 2) - EXPORT_HEIGHT)
                 .size(EXPORT_WIDTH, EXPORT_HEIGHT)
                 .build()
         );
         addRenderableWidget(btnExportMipped = Button.builder(TITLE_EXPORT_MIPPED, this::exportSpriteMipped)
-                .pos(xLeft + WIDTH - (PADDING * 4) - (EXPORT_WIDTH * 2), yTop + HEIGHT - (PADDING * 2) - EXPORT_HEIGHT)
+                .pos(xLeft + WIDTH - (PADDING * 4) - (EXPORT_WIDTH * 2), yTop + imageHeight - (PADDING * 2) - EXPORT_HEIGHT)
                 .size(EXPORT_WIDTH, EXPORT_HEIGHT)
                 .build()
         );
@@ -161,25 +192,23 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         mipLevelSlider.active = ((AccessorTextureAtlas) atlas).atlasviewer$getMipLevel() > 0;
         btnExportMipped.active = currentMipLevel > 0;
 
-        for (Component label : LABELS)
-        {
-            labelLen = Math.max(labelLen, font.width(label));
-        }
-        valueX = LABEL_X + labelLen + PADDING;
-
         addRenderableWidget(new CloseButton(xLeft + WIDTH - PADDING - CLOSE_SIZE, yTop + PADDING, this));
 
         int maxValueLen = WIDTH - (PADDING * 2) - valueX;
 
         spriteName = TextLine.of(contents.name().toString(), font, maxValueLen);
+        spriteSizeText = Component.translatable("value.atlasviewer.size", contents.width(), contents.height());
         primarySourceName = primarySource != null && !primarySource.isEmpty() ? TextLine.of(primarySource, font, maxValueLen) : new TextLine(VALUE_UNKNOWN_PACK);
         sourceNameTooltip = makeTooltipList();
         sourceInfo = makeSourceInfo();
-        maxMipLevel = calculateMaxMipLevel();
-        if (animation != null)
+        if (mipped)
+        {
+            maxMipLevel = calculateMaxMipLevel();
+        }
+        if (animated)
         {
             animatedText = VALUE_TRUE;
-            framesText = String.valueOf(((AccessorSpriteContents) contents).atlasviewer$callGetFrameCount());
+            framesText = Component.literal(String.valueOf(((AccessorSpriteContents) contents).atlasviewer$callGetFrameCount()));
             boolean interp = ((AccessorAnimatedTexture) animation).atlasviewer$getInterpolateFrames();
             interpText = interp ? VALUE_TRUE : VALUE_FALSE;
             if (animFrameTime == -1)
@@ -195,6 +224,32 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         {
             animatedText = VALUE_FALSE;
         }
+        if (guiSprite)
+        {
+            guiSpriteTypeText = Component.translatable("value.atlasviewer.spriteinfo.gui_sprite_type." + guiScaling.type().getSerializedName());
+            switch (guiScaling)
+            {
+                case GuiSpriteScaling.Tile tile ->
+                        guiSpriteSizeText = Component.translatable("value.atlasviewer.size", tile.width(), tile.height());
+                case GuiSpriteScaling.NineSlice nineSlice ->
+                {
+                    guiSpriteSizeText = Component.translatable("value.atlasviewer.size", nineSlice.width(), nineSlice.height());
+                    GuiSpriteScaling.NineSlice.Border border = nineSlice.border();
+                    if (border.top() == border.bottom() && border.top() == border.left() && border.top() == border.right())
+                    {
+                        guiSpriteNinesliceBorderText = Component.literal(border.top() + "px");
+                    }
+                    else
+                    {
+                        guiSpriteNinesliceBorderText = Component.translatable(
+                                "value.atlasviewer.spriteinfo.gui_nineslice_border",
+                                border.top(), border.bottom(), border.left(), border.right()
+                        );
+                    }
+                }
+                default -> { }
+            }
+        }
     }
 
     @Override
@@ -203,43 +258,41 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         super.renderBackground(graphics, mouseX, mouseY, partialTick);
 
         RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(graphics.pose(), xLeft, yTop, 0, WIDTH, HEIGHT, AtlasScreen.BACKGROUND);
+        ClientUtils.drawNineSliceTexture(graphics.pose(), xLeft, yTop, 0, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
 
         graphics.drawString(font, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0x404040, false);
 
-        boolean animated = animation != null;
-
-        graphics.drawString(font, LABEL_NAME, xLeft + LABEL_X, yTop + SPRITE_Y, 0x404040, false);
-        graphics.drawString(font, LABEL_WIDTH, xLeft + LABEL_X, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040, false);
-        graphics.drawString(font, LABEL_HEIGHT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040, false);
-        graphics.drawString(font, LABEL_SOURCEPACK, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
-        graphics.drawString(font, LABEL_READERPACK, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040, false);
-        graphics.drawString(font, LABEL_READERTYPE, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
-        graphics.drawString(font, LABEL_MAX_MIP_LEVEL, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0x404040, false);
-        graphics.drawString(font, LABEL_ANIMATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
+        int y = yTop + SPRITE_Y;
+        y = drawLine(graphics, LABEL_NAME, spriteName.text(), y);
+        y = drawLine(graphics, LABEL_SIZE, spriteSizeText, y);
+        y = drawLine(graphics, LABEL_SOURCEPACK, primarySourceName.text(), y);
+        y = drawLine(graphics, LABEL_READERPACK, sourceInfo.sourcePack, y);
+        y = drawLine(graphics, LABEL_READERTYPE, sourceInfo.sourceType, y);
+        if (mipped)
+        {
+            y = drawLine(graphics, LABEL_MAX_MIP_LEVEL, maxMipLevel, y);
+        }
+        y = drawLine(graphics, LABEL_ANIMATED, animatedText, y);
         if (animated)
         {
-            graphics.drawString(font, LABEL_FRAMECOUNT, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 8), 0x404040, false);
-            graphics.drawString(font, LABEL_INTERPOLATED, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 9), 0x404040, false);
-            graphics.drawString(font, LABEL_FRAMETIME, xLeft + LABEL_X, yTop + SPRITE_Y + (LINE_HEIGHT * 10), 0x404040, false);
+            y = drawLine(graphics, LABEL_FRAMECOUNT, framesText, y);
+            y = drawLine(graphics, LABEL_INTERPOLATED, interpText, y);
+            y = drawLine(graphics, LABEL_FRAMETIME, frameTimeText, y);
         }
-
-        graphics.drawString(font, spriteName.text(), xLeft + valueX, yTop + SPRITE_Y, 0x404040, false);
-        graphics.drawString(font, contents.width() + "px", xLeft + valueX, yTop + SPRITE_Y + LINE_HEIGHT, 0x404040, false);
-        graphics.drawString(font, contents.height() + "px", xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 2), 0x404040, false);
-        graphics.drawString(font, primarySourceName.text(), xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 3), 0x404040, false);
-        graphics.drawString(font, sourceInfo.sourcePack, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 4), 0x404040, false);
-        graphics.drawString(font, sourceInfo.sourceType, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 5), 0x404040, false);
-        graphics.drawString(font, maxMipLevel, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 6), 0xFFFFFF, false);
-        graphics.drawString(font, animatedText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 7), 0x404040, false);
-        if (animated)
+        if (guiSprite)
         {
-            graphics.drawString(font, framesText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 8), 0x404040, false);
-            graphics.drawString(font, interpText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 9), 0x404040, false);
-            graphics.drawString(font, frameTimeText, xLeft + valueX, yTop + SPRITE_Y + (LINE_HEIGHT * 10), 0x404040, false);
+            y = drawLine(graphics, LABEL_GUI_SPRITE_TYPE, guiSpriteTypeText, y);
+            if (guiSpriteSizeText != null)
+            {
+                y = drawLine(graphics, LABEL_GUI_SPRITE_SIZE, guiSpriteSizeText, y);
+            }
+            if (guiSpriteNinesliceBorderText != null)
+            {
+                y = drawLine(graphics, LABEL_GUI_SPRITE_NINESLICE_BORDER, guiSpriteNinesliceBorderText, y);
+            }
         }
 
-        float scale = 128F / Math.max(contents.width(), contents.height());
+        float scale = (float) SPRITE_SIZE / Math.max(contents.width(), contents.height());
 
         RenderSystem.setShaderTexture(0, AtlasScreen.CHECKER_LOC);
         ClientUtils.drawNineSliceTexture(
@@ -274,6 +327,13 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         {
             setTooltipForNextRenderPass(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel));
         }
+    }
+
+    private int drawLine(GuiGraphics graphics, Component label, Component value, int y)
+    {
+        graphics.drawString(font, label, xLeft + LABEL_X, y, 0x404040, false);
+        graphics.drawString(font, value, xLeft + valueX, y, 0x404040, false);
+        return y + LINE_HEIGHT;
     }
 
     @Override
@@ -320,7 +380,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         {
             renderFixedTooltip(graphics, 3, sourceNameTooltip.entries, sourceNameTooltip.maxLen);
         }
-        else if (isHoveringLine(mouseX, mouseY, 6, maxMipLevel))
+        else if (mipped && isHoveringLine(mouseX, mouseY, 6, maxMipLevel))
         {
             graphics.renderTooltip(font, maxMipLevelTooltip, mouseX, mouseY);
         }
@@ -409,7 +469,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
                     return lineComponents.stream();
                 })
                 .collect(Collectors.toCollection(ArrayList::new));
-        components.remove(components.size() - 1);
+        components.removeLast();
         return new SourcePackList(components, maxWidth);
     }
 
@@ -475,7 +535,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
                 List<Tuple<Component, Component>> tooltipLines = SpriteSourceManager.buildSourceTooltip(source, typeName);
 
                 sourceTypeTooltip = formatTooltip(tooltipLines);
-                tooltipLines.get(tooltipLines.size() - 1).setB(FULL_TYPE_PLACEHOLDER);
+                tooltipLines.getLast().setB(FULL_TYPE_PLACEHOLDER);
                 sourceTypeTooltipNoFullType = formatTooltip(tooltipLines);
             }
         }
@@ -554,7 +614,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
 
         List<SpriteContents.FrameInfo> frames = ((AccessorAnimatedTexture) animation).atlasviewer$getFrames();
 
-        int first = ((AccessorFrameInfo) frames.get(0)).atlasviewer$getTime();
+        int first = ((AccessorFrameInfo) frames.getFirst()).atlasviewer$getTime();
         for (SpriteContents.FrameInfo frame : frames)
         {
             if (((AccessorFrameInfo) frame).atlasviewer$getTime() != first)
@@ -603,7 +663,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button)
     {
-        if (button == GLFW.GLFW_MOUSE_BUTTON_1 && (mouseX < xLeft || mouseY < yTop || mouseX > (xLeft + WIDTH) || mouseY > (yTop + HEIGHT)))
+        if (button == GLFW.GLFW_MOUSE_BUTTON_1 && (mouseX < xLeft || mouseY < yTop || mouseX > (xLeft + WIDTH) || mouseY > (yTop + imageHeight)))
         {
             onClose();
             return true;
@@ -618,6 +678,14 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     }
 
 
+
+    private record Label(Component text, Predicate<SpriteInfoScreen> active)
+    {
+        public Label(Component text)
+        {
+            this(text, screen -> true);
+        }
+    }
 
     private record SourcePackList(List<ClientTooltipComponent> entries, int maxLen) { }
 

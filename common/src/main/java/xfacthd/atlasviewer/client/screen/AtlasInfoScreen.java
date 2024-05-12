@@ -16,9 +16,11 @@ import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.screen.widget.AtlasLoadTable;
 import xfacthd.atlasviewer.client.screen.widget.CloseButton;
 import xfacthd.atlasviewer.client.util.ClientUtils;
+import xfacthd.atlasviewer.client.util.IMipAwareTextureAtlas;
 import xfacthd.atlasviewer.platform.Services;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class AtlasInfoScreen extends Screen implements IStackedScreen
@@ -31,8 +33,7 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
             s.withFont(new ResourceLocation("atlasviewer:arrow"))
     );
     private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.atlas_name");
-    private static final Component LABEL_WIDTH = Component.translatable("label.atlasviewer.atlas_width");
-    private static final Component LABEL_HEIGHT = Component.translatable("label.atlasviewer.atlas_height");
+    private static final Component LABEL_SIZE = Component.translatable("label.atlasviewer.atlas_size");
     @SuppressWarnings("UnnecessaryUnicodeEscape")
     private static final Component LABEL_MAX_SIZE = Component.translatable(
             "label.atlasviewer.atlas_max_size",
@@ -46,8 +47,14 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
             Component.literal("i").withStyle(ChatFormatting.BLUE)
     );
     private static final Component LABEL_PERCENT_FILLED = Component.translatable("label.atlasviewer.atlas_percent_filled");
-    private static final Component[] LABELS = {
-            LABEL_NAME, LABEL_WIDTH, LABEL_HEIGHT, LABEL_MAX_SIZE, LABEL_MIP_LEVELS, LABEL_SPRITES, LABEL_SPRITES_BY_MAX_MIP, LABEL_PERCENT_FILLED
+    private static final Label[] LABELS = {
+            new Label(LABEL_NAME),
+            new Label(LABEL_SIZE),
+            new Label(LABEL_MAX_SIZE),
+            new Label(LABEL_MIP_LEVELS, screen -> screen.atlasInfo.mipped),
+            new Label(LABEL_SPRITES),
+            new Label(LABEL_SPRITES_BY_MAX_MIP, screen -> screen.atlasInfo.mipped),
+            new Label(LABEL_PERCENT_FILLED)
     };
     private static final int WIDTH = 400;
     private static final int PADDING = 5;
@@ -56,15 +63,19 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
     private static final int TEXT_X = PADDING * 2;
     private static final int FIRST_LINE_Y = TITLE_Y + (PADDING * 4);
     private static final int TABLE_WIDTH = WIDTH - (PADDING * 4);
-    private static final int HEIGHT = FIRST_LINE_Y + (LINE_HEIGHT * 9) + AtlasLoadTable.TABLE_HEIGHT + (PADDING * 2);
     private static final int CLOSE_SIZE = 12;
 
     private final AtlasInfo atlasInfo;
+    private final Component atlasSizeText;
+    private final Component atlasMaxSizeText;
+    private final Component atlasMipLevelText;
+    private final Component spriteCountText;
     private final Component countsByMip;
+    private final Component percentFilledText;
     private final Component tableHeader;
+    private int imageHeight;
     private int xLeft;
     private int yTop;
-    private int labelLen = 0;
     private int valueX;
     private int tableTitleY;
 
@@ -72,41 +83,47 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
     {
         super(TITLE);
         this.atlasInfo = atlasInfo;
-        this.countsByMip = Component.translatable(
+        this.atlasSizeText = Component.translatable("value.atlasviewer.size", atlasInfo.width, atlasInfo.height);
+        this.atlasMaxSizeText = Component.translatable("value.atlasviewer.size", atlasInfo.maxSize, atlasInfo.maxSize);
+        this.atlasMipLevelText = Component.literal(Integer.toString(atlasInfo.mipLevels));
+        this.spriteCountText = Component.literal(Integer.toString(atlasInfo.spriteCount));
+        this.countsByMip = atlasInfo.mipped ? Component.translatable(
                 "value.atlasviewer.atlas_sprites_by_max_mip",
                 Arrays.stream(atlasInfo.spriteCountByMaxMipLevel)
                         .mapToObj(String::valueOf)
                         .map(v -> Component.literal(v).withStyle(Style.EMPTY.withColor(0x666666)))
                         .toArray()
-        );
+        ) : null;
+        this.percentFilledText = Component.literal("%.1f %%".formatted(atlasInfo.percentFilled * 100F));
         int nsCount = atlasInfo.fillStats.size();
         if (nsCount == 1)
         {
-            this.tableHeader = Component.translatable(
-                    "label.atlasviewer.atlas_percent_filled_by_ns_single", CHAR_ARROW
-            );
+            this.tableHeader = Component.translatable("label.atlasviewer.atlas_percent_filled_by_ns_single", CHAR_ARROW);
         }
         else
         {
-            this.tableHeader = Component.translatable(
-                    "label.atlasviewer.atlas_percent_filled_by_ns", CHAR_ARROW, atlasInfo.fillStats.size()
-            );
+            this.tableHeader = Component.translatable("label.atlasviewer.atlas_percent_filled_by_ns", CHAR_ARROW, nsCount);
         }
     }
 
     @Override
     protected void init()
     {
-        xLeft = (width / 2) - (WIDTH / 2);
-        yTop = (height / 2) - (HEIGHT / 2);
-
-        for (Component label : LABELS)
+        int labelLen = 0;
+        int labelHeight = 0;
+        for (Label label : LABELS)
         {
-            labelLen = Math.max(labelLen, font.width(label));
+            if (!label.active.test(this)) continue;
+            labelLen = Math.max(labelLen, font.width(label.text));
+            labelHeight += LINE_HEIGHT;
         }
         valueX = TEXT_X + labelLen + PADDING;
 
-        tableTitleY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 8);
+        imageHeight = FIRST_LINE_Y + labelHeight + LINE_HEIGHT + AtlasLoadTable.TABLE_HEIGHT + PADDING * 2;
+        xLeft = (width / 2) - (WIDTH / 2);
+        yTop = (height / 2) - (imageHeight / 2);
+
+        tableTitleY = yTop + FIRST_LINE_Y + labelHeight;
         addRenderableWidget(new AtlasLoadTable(xLeft + TEXT_X, tableTitleY + LINE_HEIGHT, TABLE_WIDTH, atlasInfo));
 
         addRenderableWidget(new CloseButton(xLeft + WIDTH - PADDING - CLOSE_SIZE, yTop + PADDING, this));
@@ -118,52 +135,55 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
         super.renderBackground(graphics, mouseX, mouseY, partialTick);
 
         RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(graphics.pose(), xLeft, yTop, 0, WIDTH, HEIGHT, AtlasScreen.BACKGROUND);
+        ClientUtils.drawNineSliceTexture(graphics.pose(), xLeft, yTop, 0, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
 
         graphics.drawString(font, title, xLeft + TEXT_X, yTop + (PADDING * 2), 0x404040, false);
 
-        graphics.drawString(font, LABEL_NAME, xLeft + TEXT_X, yTop + FIRST_LINE_Y, 0x404040, false);
-        graphics.drawString(font, LABEL_WIDTH, xLeft + TEXT_X, yTop + FIRST_LINE_Y + LINE_HEIGHT, 0x404040, false);
-        graphics.drawString(font, LABEL_HEIGHT, xLeft + TEXT_X, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 2), 0x404040, false);
-        graphics.drawString(font, LABEL_MAX_SIZE, xLeft + TEXT_X, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 3), 0x404040, false);
-        graphics.drawString(font, LABEL_MIP_LEVELS, xLeft + TEXT_X, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 4), 0x404040, false);
-        graphics.drawString(font, LABEL_SPRITES, xLeft + TEXT_X, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 5), 0x404040, false);
-        graphics.drawString(font, LABEL_SPRITES_BY_MAX_MIP, xLeft + TEXT_X, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 6), 0x404040, false);
-        graphics.drawString(font, LABEL_PERCENT_FILLED, xLeft + TEXT_X, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 7), 0x404040, false);
-
-        graphics.drawString(font, atlasInfo.name, xLeft + valueX, yTop + FIRST_LINE_Y, 0x404040, false);
-        graphics.drawString(font, atlasInfo.width + "px", xLeft + valueX, yTop + FIRST_LINE_Y + LINE_HEIGHT, 0x404040, false);
-        graphics.drawString(font, atlasInfo.height + "px", xLeft + valueX, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 2), 0x404040, false);
-        String maxSize = atlasInfo.maxSize + "px x " + atlasInfo.maxSize + "px";
-        graphics.drawString(font, maxSize, xLeft + valueX, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 3), 0x404040, false);
-        String mipLevels = Integer.toString(atlasInfo.mipLevels);
-        graphics.drawString(font, mipLevels, xLeft + valueX, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 4), 0x404040, false);
-        String spriteCount = Integer.toString(atlasInfo.spriteCount);
-        graphics.drawString(font, spriteCount, xLeft + valueX, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 5), 0x404040, false);
-        graphics.drawString(font, countsByMip, xLeft + valueX, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 6), 0x404040, false);
-        String percentFilled = "%.1f %%".formatted(atlasInfo.percentFilled * 100F);
-        graphics.drawString(font, percentFilled, xLeft + valueX, yTop + FIRST_LINE_Y + (LINE_HEIGHT * 7), 0x404040, false);
+        int y = yTop + FIRST_LINE_Y;
+        y = drawLine(graphics, LABEL_NAME, Component.literal(atlasInfo.name), y);
+        y = drawLine(graphics, LABEL_SIZE, atlasSizeText, y);
+        y = drawLine(graphics, LABEL_MAX_SIZE, atlasMaxSizeText, y);
+        if (atlasInfo.mipped)
+        {
+            y = drawLine(graphics, LABEL_MIP_LEVELS, atlasMipLevelText, y);
+        }
+        y = drawLine(graphics, LABEL_SPRITES, spriteCountText, y);
+        if (atlasInfo.mipped)
+        {
+            y = drawLine(graphics, LABEL_SPRITES_BY_MAX_MIP, countsByMip, y);
+        }
+        y = drawLine(graphics, LABEL_PERCENT_FILLED, percentFilledText, y);
 
         graphics.drawString(font, tableHeader, xLeft + TEXT_X, tableTitleY, 0x404040, false);
 
         int len = font.width(LABEL_MAX_SIZE);
-        int minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 3);
+        int minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 2);
         if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= minY && mouseY <= minY + font.lineHeight)
         {
             setTooltipForNextRenderPass(MSG_HW_DEPEND);
         }
-        len = font.width(LABEL_SPRITES_BY_MAX_MIP);
-        minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 6);
-        if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= minY && mouseY <= minY + font.lineHeight)
+        if (atlasInfo.mipped)
         {
-            setTooltipForNextRenderPass(MSG_SPRITES_BY_MAX_MIP);
+            len = font.width(LABEL_SPRITES_BY_MAX_MIP);
+            minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 5);
+            if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= minY && mouseY <= minY + font.lineHeight)
+            {
+                setTooltipForNextRenderPass(MSG_SPRITES_BY_MAX_MIP);
+            }
         }
+    }
+
+    private int drawLine(GuiGraphics graphics, Component label, Component value, int y)
+    {
+        graphics.drawString(font, label, xLeft + TEXT_X, y, 0x404040, false);
+        graphics.drawString(font, value, xLeft + valueX, y, 0x404040, false);
+        return y + LINE_HEIGHT;
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button)
     {
-        if (button == GLFW.GLFW_MOUSE_BUTTON_1 && (mouseX < xLeft || mouseY < yTop || mouseX > (xLeft + WIDTH) || mouseY > (yTop + HEIGHT)))
+        if (button == GLFW.GLFW_MOUSE_BUTTON_1 && (mouseX < xLeft || mouseY < yTop || mouseX > (xLeft + WIDTH) || mouseY > (yTop + imageHeight)))
         {
             onClose();
             return true;
@@ -221,6 +241,7 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
 
         return new AtlasInfo(
                 atlas.location().toString(),
+                ((IMipAwareTextureAtlas) atlas).atlasviewer$isMipMapEnabled(),
                 atlas.maxSupportedTextureSize(),
                 width,
                 height,
@@ -234,6 +255,7 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
 
     public record AtlasInfo(
             String name,
+            boolean mipped,
             int maxSize,
             int width,
             int height,
@@ -245,4 +267,12 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
     ) { }
 
     public record FillStat(String namespace, int count, float percentOfTotal, float percentOfFilled) { }
+
+    private record Label(Component text, Predicate<AtlasInfoScreen> active)
+    {
+        public Label(Component text)
+        {
+            this(text, screen -> true);
+        }
+    }
 }
