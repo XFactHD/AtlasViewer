@@ -342,13 +342,13 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         super.render(graphics, mouseX, mouseY, partialTicks);
 
         int lx = xLeft + LABEL_X;
-        int lyPack = yTop + SPRITE_Y + (LINE_HEIGHT * 4);
-        int lyMip = yTop + SPRITE_Y + (LINE_HEIGHT * 6);
+        int lyPack = yTop + SPRITE_Y + (LINE_HEIGHT * 3);
+        int lyMip = yTop + SPRITE_Y + (LINE_HEIGHT * 5);
         if (mouseX >= lx && mouseX < lx + font.width(LABEL_READERPACK) && mouseY >= lyPack && mouseY < lyPack + font.lineHeight)
         {
             setTooltipForNextRenderPass(TOOLTIP_READERPACK);
         }
-        else if (mouseX >= lx && mouseX < lx + font.width(LABEL_MAX_MIP_LEVEL) && mouseY >= lyMip && mouseY < lyMip + font.lineHeight)
+        else if (mipped && mouseX >= lx && mouseX < lx + font.width(LABEL_MAX_MIP_LEVEL) && mouseY >= lyMip && mouseY < lyMip + font.lineHeight)
         {
             setTooltipForNextRenderPass(TOOLTIP_MAX_MIP_LEVEL);
         }
