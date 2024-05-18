@@ -20,7 +20,7 @@
     "value.atlasviewer.spriteinfo.gui_sprite_type.nine_slice": "Nine-Slice",
     "label.atlasviewer.spriteinfo.gui_size": "GUI sprite size:",
     "label.atlasviewer.spriteinfo.gui_nineslice_border": "Nine-slice border:",
-    "value.atlasviewer.spriteinfo.gui_nineslice_border": "T: %s B: %s L: %s R: %s",
+    "value.atlasviewer.spriteinfo.gui_nineslice_border": "T: %spx B: %spx L: %spx R: %spx",
     "label.atlasviewer.atlas_name": "Name:",
     "label.atlasviewer.atlas_size": "Size:",
     "label.atlasviewer.atlas_max_size": "Max Size (%s):",
