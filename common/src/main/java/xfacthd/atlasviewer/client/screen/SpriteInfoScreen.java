@@ -102,6 +102,11 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private static final int SPRITE_SIZE = 128;
     private static final int FOOTER_HEIGHT = MIP_LEVEL_HEIGHT + PADDING * 4;
     private static final int MIN_HEIGHT = SPRITE_Y + SPRITE_SIZE + FOOTER_HEIGHT;
+    private static final int LINE_NAME = 0;
+    private static final int LINE_SOURCEPACK = 2;
+    private static final int LINE_READERPACK = 3;
+    private static final int LINE_READERTYPE = 4;
+    private static final int LINE_MAX_MIP_LEVEL = 5;
 
     private final TextureAtlas atlas;
     private final TextureAtlasSprite sprite;
@@ -342,8 +347,8 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         super.render(graphics, mouseX, mouseY, partialTicks);
 
         int lx = xLeft + LABEL_X;
-        int lyPack = yTop + SPRITE_Y + (LINE_HEIGHT * 3);
-        int lyMip = yTop + SPRITE_Y + (LINE_HEIGHT * 5);
+        int lyPack = yTop + SPRITE_Y + (LINE_HEIGHT * LINE_READERPACK);
+        int lyMip = yTop + SPRITE_Y + (LINE_HEIGHT * LINE_MAX_MIP_LEVEL);
         if (mouseX >= lx && mouseX < lx + font.width(LABEL_READERPACK) && mouseY >= lyPack && mouseY < lyPack + font.lineHeight)
         {
             setTooltipForNextRenderPass(TOOLTIP_READERPACK);
@@ -352,22 +357,22 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         {
             setTooltipForNextRenderPass(TOOLTIP_MAX_MIP_LEVEL);
         }
-        else if (spriteName.capped() && isHoveringLine(mouseX, mouseY, 0, spriteName.text()))
+        else if (spriteName.capped() && isHoveringLine(mouseX, mouseY, LINE_NAME, spriteName.text()))
         {
             graphics.renderTooltip(font, spriteName.fullText(), mouseX, mouseY);
         }
-        else if (sourceInfo.sourcePackTooltip != null && isHoveringLine(mouseX, mouseY, 4, sourceInfo.sourcePack))
+        else if (sourceInfo.sourcePackTooltip != null && isHoveringLine(mouseX, mouseY, LINE_READERPACK, sourceInfo.sourcePack))
         {
             if (sourceInfo.hasSourcePack)
             {
-                renderFixedTooltip(graphics, 4, sourceInfo.sourcePackTooltip);
+                renderFixedTooltip(graphics, LINE_READERPACK, sourceInfo.sourcePackTooltip);
             }
             else
             {
                 graphics.renderTooltip(font, sourceInfo.sourcePackTooltip, mouseX, mouseY);
             }
         }
-        else if (sourceInfo.sourceTypeTooltip != null && isHoveringLine(mouseX, mouseY, 5, sourceInfo.sourceType))
+        else if (sourceInfo.sourceTypeTooltip != null && isHoveringLine(mouseX, mouseY, LINE_READERTYPE, sourceInfo.sourceType))
         {
             List<FormattedCharSequence> lines = sourceInfo.sourceTypeTooltip;
             if (sourceInfo.hasConcreteSourceType && !hasShiftDown())
@@ -376,11 +381,11 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
             }
             graphics.renderTooltip(font, lines, mouseX, mouseY);
         }
-        else if ((sourceNames.size() > 1 || primarySourceName.capped()) && isHoveringLine(mouseX, mouseY, 3, primarySourceName.text()))
+        else if ((sourceNames.size() > 1 || primarySourceName.capped()) && isHoveringLine(mouseX, mouseY, LINE_SOURCEPACK, primarySourceName.text()))
         {
-            renderFixedTooltip(graphics, 3, sourceNameTooltip.entries, sourceNameTooltip.maxLen);
+            renderFixedTooltip(graphics, LINE_SOURCEPACK, sourceNameTooltip.entries, sourceNameTooltip.maxLen);
         }
-        else if (mipped && isHoveringLine(mouseX, mouseY, 6, maxMipLevel))
+        else if (mipped && isHoveringLine(mouseX, mouseY, LINE_MAX_MIP_LEVEL, maxMipLevel))
         {
             graphics.renderTooltip(font, maxMipLevelTooltip, mouseX, mouseY);
         }
