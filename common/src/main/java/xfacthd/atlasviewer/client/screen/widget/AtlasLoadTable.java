@@ -16,8 +16,8 @@ import java.util.List;
 
 public final class AtlasLoadTable extends AbstractWidget
 {
-    private static final ResourceLocation ARROW_UP = new ResourceLocation("minecraft", "transferable_list/move_up");
-    private static final ResourceLocation ARROW_DOWN = new ResourceLocation("minecraft", "transferable_list/move_down");
+    private static final ResourceLocation ARROW_UP = ResourceLocation.withDefaultNamespace("transferable_list/move_up");
+    private static final ResourceLocation ARROW_DOWN = ResourceLocation.withDefaultNamespace("transferable_list/move_down");
     // The arrow sprites have whitespace around the content, coordinates need to be offset accordingly
     private static final float ARROW_SCALE = .5F;
     private static final float ARROW_UP_OFF_X = 18F * ARROW_SCALE;

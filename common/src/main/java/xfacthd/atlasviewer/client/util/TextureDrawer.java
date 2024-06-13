@@ -189,8 +189,7 @@ public final class TextureDrawer
         if (buffer != null) { throw new IllegalStateException("Last drawing operation not finished!"); }
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
     }
 
     /**
@@ -202,8 +201,7 @@ public final class TextureDrawer
         if (buffer != null) { throw new IllegalStateException("Last drawing operation not finished!"); }
 
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
     }
 
     /**
@@ -215,8 +213,7 @@ public final class TextureDrawer
         if (buffer != null) { throw new IllegalStateException("Last drawing operation not finished!"); }
 
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
     }
 
     /**
@@ -389,10 +386,10 @@ public final class TextureDrawer
     {
         if (buffer == null) { throw new IllegalStateException("Drawing operation not started!"); }
 
-        buffer.vertex(pstack.last().pose(), x,     y + h, z).uv(minU, maxV).endVertex();
-        buffer.vertex(pstack.last().pose(), x + w, y + h, z).uv(maxU, maxV).endVertex();
-        buffer.vertex(pstack.last().pose(), x + w, y,     z).uv(maxU, minV).endVertex();
-        buffer.vertex(pstack.last().pose(), x,     y,     z).uv(minU, minV).endVertex();
+        buffer.addVertex(pstack.last().pose(), x,     y + h, z).setUv(minU, maxV);
+        buffer.addVertex(pstack.last().pose(), x + w, y + h, z).setUv(maxU, maxV);
+        buffer.addVertex(pstack.last().pose(), x + w, y,     z).setUv(maxU, minV);
+        buffer.addVertex(pstack.last().pose(), x,     y,     z).setUv(minU, minV);
     }
 
     /**
@@ -414,10 +411,10 @@ public final class TextureDrawer
         if (buffer == null) { throw new IllegalStateException("Drawing operation not started!"); }
 
         int[] colors = getRGBAArrayFromHexColor(color);
-        buffer.vertex(pstack.last().pose(), x,     y + h, z).uv(minU, maxV).color(colors[0], colors[1], colors[2], colors[3]).endVertex();
-        buffer.vertex(pstack.last().pose(), x + w, y + h, z).uv(maxU, maxV).color(colors[0], colors[1], colors[2], colors[3]).endVertex();
-        buffer.vertex(pstack.last().pose(), x + w, y,     z).uv(maxU, minV).color(colors[0], colors[1], colors[2], colors[3]).endVertex();
-        buffer.vertex(pstack.last().pose(), x,     y,     z).uv(minU, minV).color(colors[0], colors[1], colors[2], colors[3]).endVertex();
+        buffer.addVertex(pstack.last().pose(), x,     y + h, z).setUv(minU, maxV).setColor(colors[0], colors[1], colors[2], colors[3]);
+        buffer.addVertex(pstack.last().pose(), x + w, y + h, z).setUv(maxU, maxV).setColor(colors[0], colors[1], colors[2], colors[3]);
+        buffer.addVertex(pstack.last().pose(), x + w, y,     z).setUv(maxU, minV).setColor(colors[0], colors[1], colors[2], colors[3]);
+        buffer.addVertex(pstack.last().pose(), x,     y,     z).setUv(minU, minV).setColor(colors[0], colors[1], colors[2], colors[3]);
     }
 
     /**
@@ -434,10 +431,10 @@ public final class TextureDrawer
     public static void fillColorBuffer(PoseStack pstack, float x, float y, float z, float w, float h, int color)
     {
         int[] colors = getRGBAArrayFromHexColor(color);
-        buffer.vertex(pstack.last().pose(), x,     y + h, z).color(colors[0], colors[1], colors[2], colors[3]).endVertex();
-        buffer.vertex(pstack.last().pose(), x + w, y + h, z).color(colors[0], colors[1], colors[2], colors[3]).endVertex();
-        buffer.vertex(pstack.last().pose(), x + w, y,     z).color(colors[0], colors[1], colors[2], colors[3]).endVertex();
-        buffer.vertex(pstack.last().pose(), x,     y,     z).color(colors[0], colors[1], colors[2], colors[3]).endVertex();
+        buffer.addVertex(pstack.last().pose(), x,     y + h, z).setColor(colors[0], colors[1], colors[2], colors[3]);
+        buffer.addVertex(pstack.last().pose(), x + w, y + h, z).setColor(colors[0], colors[1], colors[2], colors[3]);
+        buffer.addVertex(pstack.last().pose(), x + w, y,     z).setColor(colors[0], colors[1], colors[2], colors[3]);
+        buffer.addVertex(pstack.last().pose(), x,     y,     z).setColor(colors[0], colors[1], colors[2], colors[3]);
     }
 
     /**
@@ -464,7 +461,11 @@ public final class TextureDrawer
     {
         if (buffer == null) { throw new IllegalStateException("Drawing operation not started!"); }
 
-        BufferUploader.drawWithShader(buffer.end());
+        MeshData mesh = buffer.build();
+        if (mesh != null)
+        {
+            BufferUploader.drawWithShader(mesh);
+        }
 
         buffer = null;
     }

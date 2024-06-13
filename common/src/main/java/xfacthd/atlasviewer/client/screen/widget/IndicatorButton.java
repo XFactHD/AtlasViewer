@@ -10,8 +10,8 @@ import xfacthd.atlasviewer.AtlasViewer;
 
 public final class IndicatorButton extends Button
 {
-    private static final ResourceLocation INDICATOR_TEXTURE = new ResourceLocation(AtlasViewer.MOD_ID, "indicator");
-    private static final ResourceLocation INDICATOR_CHECKED_TEXTURE = new ResourceLocation(AtlasViewer.MOD_ID, "indicator_checked");
+    private static final ResourceLocation INDICATOR_TEXTURE = AtlasViewer.rl("indicator");
+    private static final ResourceLocation INDICATOR_CHECKED_TEXTURE = AtlasViewer.rl("indicator_checked");
     private static final int INDICATOR_SIZE = 13;
 
     private boolean checked = false;

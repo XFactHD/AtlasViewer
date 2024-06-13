@@ -32,8 +32,8 @@ import java.util.*;
 @SuppressWarnings("deprecation")
 public final class AtlasScreen extends Screen implements SearchHandler
 {
-    public static final ResourceLocation BACKGROUND_LOC = new ResourceLocation("minecraft", "textures/gui/demo_background.png");
-    public static final ResourceLocation CHECKER_LOC = new ResourceLocation(AtlasViewer.MOD_ID, "textures/gui/checker.png");
+    public static final ResourceLocation BACKGROUND_LOC = ResourceLocation.withDefaultNamespace("textures/gui/demo_background.png");
+    public static final ResourceLocation CHECKER_LOC = AtlasViewer.rl("textures/gui/checker.png");
     public static final NineSlice BACKGROUND = new NineSlice(0, 0, 248, 166, 256, 256, 4);
     public static final NineSlice CHECKER = new NineSlice(0, 0, 256, 256, 256, 256, 0);
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");

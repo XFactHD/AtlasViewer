@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
+import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.mixin.AccessorTextureAtlas;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.screen.widget.AtlasLoadTable;
@@ -30,7 +31,7 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
     private static final Component MSG_SPRITES_BY_MAX_MIP = Component.translatable("msg.atlasviewer.atlas_sprites_by_max_mip");
     @SuppressWarnings("UnnecessaryUnicodeEscape")
     private static final Component CHAR_ARROW = Component.literal("\u21B3").withStyle(s ->
-            s.withFont(new ResourceLocation("atlasviewer:arrow"))
+            s.withFont(AtlasViewer.rl("arrow"))
     );
     private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.atlas_name");
     private static final Component LABEL_SIZE = Component.translatable("label.atlasviewer.atlas_size");

@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 //TODO: add drag scrolling
 public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extends AbstractButton
 {
-    private static final ResourceLocation ARROW_UP = new ResourceLocation("minecraft", "transferable_list/move_up");
-    private static final ResourceLocation ARROW_DOWN = new ResourceLocation("minecraft", "transferable_list/move_down");
+    private static final ResourceLocation ARROW_UP = ResourceLocation.withDefaultNamespace("transferable_list/move_up");
+    private static final ResourceLocation ARROW_DOWN = ResourceLocation.withDefaultNamespace("transferable_list/move_down");
     // The arrow sprites have whitespace around the content, coordinates need to be offset accordingly
     private static final int ARROW_UP_OFF_X = 18;
     private static final int ARROW_UP_OFF_Y = 5;
@@ -303,8 +303,8 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
 
         return switch (dir)
         {
-            case UP -> ComponentPath.leaf(entries.get(entries.size() - 1));
-            case DOWN -> ComponentPath.leaf(entries.get(0));
+            case UP -> ComponentPath.leaf(entries.getLast());
+            case DOWN -> ComponentPath.leaf(entries.getFirst());
             default -> throw new IllegalStateException("Unreachable");
         };
     }
@@ -320,7 +320,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
                 {
                     yield entries.get(idx + 1);
                 }
-                yield entries.get(0);
+                yield entries.getFirst();
             }
             case UP ->
             {
@@ -328,7 +328,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
                 {
                     yield entries.get(idx - 1);
                 }
-                yield entries.get(entries.size() - 1);
+                yield entries.getLast();
             }
             default -> null;
         };

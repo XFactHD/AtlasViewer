@@ -419,7 +419,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         ResourceLocation name = contents.name();
         ResourceLocation loc = Objects.requireNonNullElseGet(
                 ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getOriginalPath(),
-                () -> new ResourceLocation(name.getNamespace(), "textures/" + name.getPath() + ".png")
+                () -> ResourceLocation.fromNamespaceAndPath(name.getNamespace(), "textures/" + name.getPath() + ".png")
         );
         List<Resource> resources = Minecraft.getInstance().getResourceManager().getResourceStack(loc);
         List<String> sources = resources.stream()
