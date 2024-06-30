@@ -1,11 +1,16 @@
 package xfacthd.atlasviewer.client.util;
 
 import com.google.common.base.Preconditions;
+import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.Tuple;
+import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.AVClient;
+import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareSpriteContents;
 import xfacthd.atlasviewer.client.api.SourceTooltipAppender;
 import xfacthd.atlasviewer.client.mixin.AccessorSpriteSources;
 import xfacthd.atlasviewer.platform.Services;
@@ -18,10 +23,23 @@ public final class SpriteSourceManager
     private static final Component LABEL_FULL_TYPE = Component.translatable("label.atlasviewer.source_tooltip.full_type");
     private static final Component LABEL_REG_NAME = Component.translatable("label.atlasviewer.source_tooltip.reg_name");
     private static final Component VALUE_UNREGISTERED = Component.translatable("value.atlasviewer.source_tooltip.unregistered").withStyle(s -> s.withColor(0xD00000));
+    private static final Map<Class<? extends SpriteSource.SpriteSupplier>, Function<SpriteSource.SpriteSupplier, Resource>> PRIMARY_RESOURCE_GETTERS = new IdentityHashMap<>();
     private static final Map<Class<? extends SpriteSource>, Function<SpriteSource, String>> SOURCE_STRINGIFIERS = new IdentityHashMap<>();
     private static final Map<Class<?>, String> SPECIAL_SOURCE_DESCRIPTIONS = new IdentityHashMap<>();
     private static final Map<Class<? extends SpriteSource>, SourceTooltipAppender<SpriteSource>> SOURCE_TOOLTIP_APPENDERS = new IdentityHashMap<>();
     private static boolean locked = true;
+
+    @SuppressWarnings("unchecked")
+    public static <T extends SpriteSource.SpriteSupplier> void registerPrimaryResourceGetter(
+            Class<T> supplierType, Function<T, Resource> resourceGetter
+    )
+    {
+        Preconditions.checkState(!locked, "Registration is locked");
+        if (PRIMARY_RESOURCE_GETTERS.put(supplierType, (Function<SpriteSource.SpriteSupplier, Resource>) resourceGetter) != null)
+        {
+            throw new IllegalStateException("Supplier type '%s' had a previous mapping".formatted(supplierType));
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public static <T extends SpriteSource> void registerSourceStringifier(
@@ -67,8 +85,35 @@ public final class SpriteSourceManager
         }
     }
 
+    public static void copySpriteSupplierMetaToSpriteContents(Function<SpriteResourceLoader, SpriteContents> function, SpriteContents contents)
+    {
+        if (!(function instanceof SpriteSource.SpriteSupplier supplier))
+        {
+            String className = function.getClass().getName();
+            // Prevent undesired logging for the "missing texture" supplier
+            if (!className.startsWith("net.minecraft.") && !className.startsWith("class_"))
+            {
+                AtlasViewer.LOGGER.warn(
+                        "Encountered a non-SpriteSource.SpriteSupplier implementation of Function<SpriteResourceLoader, SpriteContents>: {}",
+                        function.getClass()
+                );
+            }
+            return;
+        }
+
+        SpriteSource.SpriteSupplier unwrappedSupplier = WrappedSpriteSupplier.resolve(supplier);
+        Function<SpriteSource.SpriteSupplier, Resource> resourceGetter = PRIMARY_RESOURCE_GETTERS.get(unwrappedSupplier.getClass());
+        if (resourceGetter != null)
+        {
+            ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$captureMetaFromSpriteSupplier(
+                    supplier, resourceGetter.apply(unwrappedSupplier)
+            );
+        }
+    }
+
     public static String stringifySpriteSource(SpriteSource source)
     {
+        source = WrappedSpriteSource.resolve(source);
         return SOURCE_STRINGIFIERS.getOrDefault(source.getClass(), SpriteSource::toString).apply(source);
     }
 
@@ -80,6 +125,7 @@ public final class SpriteSourceManager
     public static List<Tuple<Component, Component>> buildSourceTooltip(SpriteSource source, String typeName)
     {
         List<Tuple<Component, Component>> lines = new ArrayList<>();
+        source = WrappedSpriteSource.resolve(source);
 
         ResourceLocation regLoc = AccessorSpriteSources.atlasviewer$getTypes().inverse().get(source.type());
         Component regName = regLoc != null ? Component.literal(regLoc.toString()) : VALUE_UNREGISTERED;

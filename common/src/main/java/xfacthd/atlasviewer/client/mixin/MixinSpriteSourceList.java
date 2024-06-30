@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.api.*;
-import xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import xfacthd.atlasviewer.client.util.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +23,20 @@ import java.util.List;
 @Mixin(value = SpriteSourceList.class, priority = 2000)
 public class MixinSpriteSourceList
 {
+    @WrapOperation(
+            method = "*",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/texture/atlas/SpriteSource;run(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/client/renderer/texture/atlas/SpriteSource$Output;)V"
+            )
+    )
+    private static void atlasviewer$makeOutputSourceAware(
+            SpriteSource source, ResourceManager resMgr, SpriteSource.Output output, Operation<Void> operation
+    )
+    {
+        operation.call(source, resMgr, new SpriteSourceAwareSpriteOutput(source, output));
+    }
+
     @WrapOperation(
             method = "load",
             at = @At(
@@ -35,7 +49,14 @@ public class MixinSpriteSourceList
     )
     {
         String packId = resource.sourcePackId();
-        sourcesToAdd.forEach(src -> ((IPackAwareSpriteSource) src).atlasviewer$getMeta().setSourcePack(packId));
+        sourcesToAdd = sourcesToAdd.stream()
+                .map(src ->
+                {
+                    src = WrappedSpriteSource.of(src);
+                    ((IPackAwareSpriteSource) src).atlasviewer$getMeta().setSourcePack(packId);
+                    return src;
+                })
+                .toList();
         return operation.call(sources, sourcesToAdd);
     }
 

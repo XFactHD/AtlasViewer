@@ -1,6 +1,7 @@
 package xfacthd.atlasviewer.client.api;
 
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
+import xfacthd.atlasviewer.client.util.WrappedSpriteSource;
 
 public final class SpriteSupplierMeta
 {
@@ -13,7 +14,7 @@ public final class SpriteSupplierMeta
     {
         SpriteSourceMeta srcMeta = ((IPackAwareSpriteSource) source).atlasviewer$getMeta();
         sourcePackId = srcMeta.getSourcePack();
-        spriteSource = source;
+        spriteSource = WrappedSpriteSource.resolve(source);
         sourceType = source.getClass();
         sourceAwareness = srcMeta.getSourceAwareness();
     }

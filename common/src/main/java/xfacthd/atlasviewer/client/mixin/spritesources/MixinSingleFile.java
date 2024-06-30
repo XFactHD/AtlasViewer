@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,6 +18,9 @@ import java.util.Optional;
 @Mixin(SingleFile.class)
 public abstract class MixinSingleFile implements IPackAwareSpriteSource
 {
+    @Unique
+    private final SpriteSourceMeta atlasviewer$meta = new SpriteSourceMeta();
+
     @Inject(
             method = "run",
             at = @At(
@@ -33,5 +37,11 @@ public abstract class MixinSingleFile implements IPackAwareSpriteSource
         ((ISpriteSourcePackAwareResource) resource.get()).atlasviewer$captureMetaFromSpriteSource(
                 atlasviewer$getMeta(), (SpriteSource) this, path
         );
+    }
+
+    @Override
+    public SpriteSourceMeta atlasviewer$getMeta()
+    {
+        return atlasviewer$meta;
     }
 }

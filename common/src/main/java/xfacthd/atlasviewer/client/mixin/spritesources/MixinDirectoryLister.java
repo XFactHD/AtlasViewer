@@ -6,6 +6,7 @@ import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -14,6 +15,9 @@ import xfacthd.atlasviewer.client.api.*;
 @Mixin(value = DirectoryLister.class, priority = 2000)
 public abstract class MixinDirectoryLister implements IPackAwareSpriteSource
 {
+    @Unique
+    private final SpriteSourceMeta atlasviewer$meta = new SpriteSourceMeta();
+
     @Inject(
             method = "*",
             at = @At(
@@ -32,5 +36,11 @@ public abstract class MixinDirectoryLister implements IPackAwareSpriteSource
         ((ISpriteSourcePackAwareResource) resource).atlasviewer$captureMetaFromSpriteSource(
                 atlasviewer$getMeta(), (SpriteSource) this, name
         );
+    }
+
+    @Override
+    public SpriteSourceMeta atlasviewer$getMeta()
+    {
+        return atlasviewer$meta;
     }
 }

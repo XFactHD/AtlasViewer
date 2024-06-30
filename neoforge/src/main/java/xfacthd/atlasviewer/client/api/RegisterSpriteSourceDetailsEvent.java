@@ -1,6 +1,8 @@
 package xfacthd.atlasviewer.client.api;
 
+import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
+import net.minecraft.server.packs.resources.Resource;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 import org.jetbrains.annotations.ApiStatus;
@@ -14,6 +16,7 @@ import java.util.function.Function;
  */
 public final class RegisterSpriteSourceDetailsEvent extends Event implements IModBusEvent
 {
+    private final PrimaryResourceGetterRegistrar resourceGetterRegistrar;
     private final StringifierRegistrar stringifierRegistrar;
     private final StringifierRegistrar simpleStringifierRegistrar;
     private final DescriptionRegistrar descriptionRegistrar;
@@ -21,16 +24,29 @@ public final class RegisterSpriteSourceDetailsEvent extends Event implements IMo
 
     @ApiStatus.Internal
     public RegisterSpriteSourceDetailsEvent(
+            PrimaryResourceGetterRegistrar resourceGetterRegistrar,
             StringifierRegistrar stringifierRegistrar,
             StringifierRegistrar simpleStringifierRegistrar,
             DescriptionRegistrar descriptionRegistrar,
             TooltipAppenderRegistrar tooltipAppenderRegistrar
     )
     {
+        this.resourceGetterRegistrar = resourceGetterRegistrar;
         this.stringifierRegistrar = stringifierRegistrar;
         this.simpleStringifierRegistrar = simpleStringifierRegistrar;
         this.descriptionRegistrar = descriptionRegistrar;
         this.tooltipAppenderRegistrar = tooltipAppenderRegistrar;
+    }
+
+    /**
+     * Register a function for retrieving the primary {@link Resource} from which the {@link SpriteSource.SpriteSupplier}
+     * created the {@link SpriteContents} in {@link SpriteSource.SpriteSupplier#apply}
+     */
+    public <T extends SpriteSource.SpriteSupplier> void registerPrimaryResourceGetter(
+            Class<T> supplierType, Function<T, Resource> resourceGetter
+    )
+    {
+        resourceGetterRegistrar.register(supplierType, resourceGetter);
     }
 
     /**
@@ -75,6 +91,13 @@ public final class RegisterSpriteSourceDetailsEvent extends Event implements IMo
     }
 
 
+
+    @ApiStatus.Internal
+    @FunctionalInterface
+    public interface PrimaryResourceGetterRegistrar
+    {
+        <T extends SpriteSource.SpriteSupplier> void register(Class<T> supplierType, Function<T, Resource> resourceGetter);
+    }
 
     @ApiStatus.Internal
     @FunctionalInterface

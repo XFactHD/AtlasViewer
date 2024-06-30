@@ -9,8 +9,5 @@ public interface IPackAwareSpriteSource
     /**
      * {@return the {@link SpriteSourceMeta} holding the source information about this sprite source}
      */
-    default SpriteSourceMeta atlasviewer$getMeta()
-    {
-        return SpriteSourceMeta.Unsupported.INSTANCE;
-    }
+    SpriteSourceMeta atlasviewer$getMeta();
 }

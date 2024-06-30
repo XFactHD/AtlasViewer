@@ -16,9 +16,9 @@
         "MixinMissingTextureAtlasSprite",
         "MixinResource",
         "MixinSpriteContents",
+        "MixinSpriteLoader",
         "MixinSpriteSourceList",
         "MixinSpriteSource",
-        "MixinSpriteSourceImpls",
         "MixinSpriteSourceOutput",
         "MixinTextureAtlas",
         "MixinTextureUtil",
@@ -27,12 +27,9 @@
         "spritesources.AccessorPalettedPermutations",
         "spritesources.AccessorSingleFile",
         "spritesources.AccessorUnstitcher",
+        "spritesources.AccessorUnstitcherRegionInstance",
         "spritesources.MixinDirectoryLister",
-        "spritesources.MixinPalettedPermutations",
-        "spritesources.MixinPalettedPermutationsPalettedSpriteSupplier",
-        "spritesources.MixinSingleFile",
-        "spritesources.MixinUnstitcher",
-        "spritesources.MixinUnstitcherRegionInstance"
+        "spritesources.MixinSingleFile"
     ],
     "injectors": {
         "defaultRequire": 1

@@ -7,3 +7,5 @@ accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$
 extendable method net/minecraft/client/gui/components/AbstractSliderButton getHandleSprite ()Lnet/minecraft/resources/ResourceLocation;
 accessible field net/minecraft/client/gui/components/AbstractSliderButton SLIDER_HANDLE_SPRITE Lnet/minecraft/resources/ResourceLocation;
 accessible class net/minecraft/client/resources/model/AtlasSet$AtlasEntry
+accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$RegionInstance
+accessible class net/minecraft/client/renderer/texture/atlas/sources/PalettedPermutations$PalettedSpriteSupplier

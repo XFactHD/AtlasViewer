@@ -7,10 +7,13 @@ import net.minecraft.server.packs.resources.Resource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import xfacthd.atlasviewer.client.api.*;
+import xfacthd.atlasviewer.client.util.WrappedSpriteSource;
 
 @Mixin(SpriteContents.class)
 public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
 {
+    @Unique
+    private boolean atlasviewer$metaReceived = false;
     @Unique
     private String atlasviewer$spriteSourceSourcePack;
     @Unique
@@ -27,8 +30,12 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
             String packId, SpriteSource spriteSource, SourceAwareness awareness, String texSrcPackId, ResourceLocation path
     )
     {
+        // Prevent overwriting metadata already set for these contents
+        if (atlasviewer$metaReceived) return;
+
+        atlasviewer$metaReceived = true;
         atlasviewer$spriteSourceSourcePack = packId;
-        atlasviewer$spriteSource = spriteSource;
+        atlasviewer$spriteSource = WrappedSpriteSource.resolve(spriteSource);
         atlasviewer$sourceAwareness = awareness;
         atlasviewer$textureSourcePack = texSrcPackId;
         atlasviewer$originalPath = path;

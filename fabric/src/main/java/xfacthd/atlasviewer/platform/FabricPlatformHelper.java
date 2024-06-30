@@ -28,7 +28,8 @@ public final class FabricPlatformHelper implements IPlatformHelper
     @Override
     public void fireSpriteSourceDetailsEvent()
     {
-        RegisterSpriteSourceDetailsEvent.EVENT.invoker().accept(
+        RegisterSpriteSourceDetailsEvent.EVENT_V2.invoker().accept(
+                SpriteSourceManager::registerPrimaryResourceGetter,
                 SpriteSourceManager::registerSourceStringifier,
                 SpriteSourceManager::registerSimpleSourceStringifier,
                 SpriteSourceManager::registerSpecialSourceDescription,

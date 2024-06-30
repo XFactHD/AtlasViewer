@@ -5,6 +5,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.atlas.sources.*;
 import org.lwjgl.glfw.GLFW;
+import xfacthd.atlasviewer.client.mixin.spritesources.AccessorLazyLoadedImage;
 import xfacthd.atlasviewer.client.mixin.spritesources.*;
 import xfacthd.atlasviewer.client.screen.AtlasScreen;
 import xfacthd.atlasviewer.client.tooltips.*;
@@ -27,6 +28,19 @@ public final class AVClient
 
     public static void registerBuiltInSpriteSourceDetails()
     {
+        SpriteSourceManager.registerPrimaryResourceGetter(
+                Unstitcher.RegionInstance.class,
+                region ->
+                {
+                    LazyLoadedImage image = ((AccessorUnstitcherRegionInstance) region).atlasviewer$getImage();
+                    return ((AccessorLazyLoadedImage) image).atlasviewer$getResource();
+                }
+        );
+        SpriteSourceManager.registerPrimaryResourceGetter(
+                PalettedPermutations.PalettedSpriteSupplier.class,
+                supplier -> ((AccessorLazyLoadedImage) supplier.baseImage()).atlasviewer$getResource()
+        );
+
         SpriteSourceManager.registerSimpleSourceStringifier(
                 DirectoryLister.class,
                 lister -> ((AccessorDirectoryLister) lister).atlasviewer$getSourcePath()

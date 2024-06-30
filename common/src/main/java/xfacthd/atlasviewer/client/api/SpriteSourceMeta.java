@@ -53,6 +53,8 @@ public sealed class SpriteSourceMeta permits SpriteSourceMeta.Unsupported
     {
         public static final Unsupported INSTANCE = new Unsupported();
 
+        private Unsupported() { }
+
         @Override
         public void setSourcePack(String packId) { }
 
