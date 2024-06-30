@@ -34,6 +34,11 @@ public enum SourceAwareness
      */
     SPRITESUPPLIER_UNAWARE,
     /**
+     * The {@link SpriteSource.SpriteSupplier} does not implement the necessary APIs and also does not provide a getter
+     * for the primary {@link Resource} it uses and therefore cannot keep track of its source pack
+     */
+    SPRITESUPPLIER_UNSUPPORTED,
+    /**
      * The {@link Resource} did not receive any data.
      * This usually means that a custom {@link SpriteSource.SpriteSupplier} which does not implement the
      * necessary APIs touched this {@link Resource}

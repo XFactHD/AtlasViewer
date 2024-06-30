@@ -8,10 +8,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.Tuple;
-import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.AVClient;
-import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareSpriteContents;
-import xfacthd.atlasviewer.client.api.SourceTooltipAppender;
+import xfacthd.atlasviewer.client.api.*;
 import xfacthd.atlasviewer.client.mixin.AccessorSpriteSources;
 import xfacthd.atlasviewer.platform.Services;
 
@@ -89,15 +87,9 @@ public final class SpriteSourceManager
     {
         if (!(function instanceof SpriteSource.SpriteSupplier supplier))
         {
-            String className = function.getClass().getName();
-            // Prevent undesired logging for the "missing texture" supplier
-            if (!className.startsWith("net.minecraft.") && !className.startsWith("class_"))
-            {
-                AtlasViewer.LOGGER.warn(
-                        "Encountered a non-SpriteSource.SpriteSupplier implementation of Function<SpriteResourceLoader, SpriteContents>: {}",
-                        function.getClass()
-                );
-            }
+            ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setSpriteSourceSourcePack(
+                    null, null, SourceAwareness.SPRITESUPPLIER_UNSUPPORTED, null, null
+            );
             return;
         }
 
@@ -107,6 +99,12 @@ public final class SpriteSourceManager
         {
             ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$captureMetaFromSpriteSupplier(
                     supplier, resourceGetter.apply(unwrappedSupplier)
+            );
+        }
+        else if (!(unwrappedSupplier instanceof ISpriteSourcePackAwareSpriteSupplier))
+        {
+            ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setSpriteSourceSourcePack(
+                    null, null, SourceAwareness.SPRITESUPPLIER_UNSUPPORTED, null, null
             );
         }
     }
