@@ -1,36 +1,38 @@
 plugins {
-    id 'idea'
-    id 'java'
-    id 'maven-publish'
-    id 'org.spongepowered.gradle.vanilla'
+    id 'multiloader-common'
+    id 'net.neoforged.moddev'
 }
 
-base {
-    archivesName = 'AtlasViewer-common'
-}
+neoForge {
+    neoFormVersion = neo_form_version
 
-minecraft {
-    version(minecraft_version)
-    accessWideners(file('src/main/resources/atlasviewer.accesswidener'))
+    accessTransformers.add(file('src/main/resources/META-INF/accesstransformer.cfg').absolutePath)
+
+    parchment {
+        minecraftVersion = parchment_minecraft_version
+        mappingsVersion = parchment_mappings_version
+    }
 }
 
 dependencies {
      compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
-     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
 
-    compileOnly("io.github.llamalad7:mixinextras-common:0.3.1")
+    compileOnly('io.github.llamalad7:mixinextras-common:0.3.5')
+    annotationProcessor(group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.3.5')
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
-        }
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
     }
-    repositories {
-        maven {
-            url 'file://' + System.getenv('local_maven')
-        }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
     }
+}
+
+artifacts {
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
 }

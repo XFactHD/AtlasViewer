@@ -1,70 +1,42 @@
 plugins {
-    id 'idea'
-    id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.142'
-    id 'java-library'
+    id 'multiloader-loader'
+    id 'net.neoforged.moddev'
 }
 
-base {
-    archivesName = 'AtlasViewer-neoforge'
-}
+neoForge {
+    version = neoforge_version
 
-minecraft.accessTransformers.file rootProject.file('neoforge/src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformers.add(project(':common').file('src/main/resources/META-INF/accesstransformer.cfg').absolutePath)
 
-runs {
-    configureEach {
-        modSource project.sourceSets.main
-        modSource project.sourceSets.test
+    parchment {
+        minecraftVersion = parchment_minecraft_version
+        mappingsVersion = parchment_mappings_version
     }
 
-    client {
-        workingDirectory project.file('run_client')
+    runs {
+        configureEach {
+            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
+            ideName = "NeoForge ${it.name.capitalize()} (${project.path})" // Unify the run config names with fabric
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+
+        client {
+            client()
+            gameDirectory = project.file('run_client')
+        }
+
+        server {
+            server()
+            gameDirectory = project.file('run_server')
+            programArgument '--nogui'
+        }
     }
 
-    server {
-        workingDirectory project.file('run_server')
-        programArgument '--nogui'
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
     }
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
-
-dependencies {
-    implementation "net.neoforged:neoforge:${neoforge_version}"
-    compileOnly project(':common')
-}
-
-// NeoGradle compiles the game, but we don't want to add our common code to the game's code
-TaskCollection.metaClass.excludingNeoTasks = { ->
-    delegate.matching { !it.name.startsWith('neo') }
-}
-
-tasks.withType(JavaCompile).excludingNeoTasks().configureEach {
-    source(project(':common').sourceSets.main.allSource)
-}
-
-/*tasks.withType(Javadoc).excludingNeoTasks().configureEach {
-    source(project(':common').sourceSets.main.allJava)
-}
-
-tasks.named('sourcesJar', Jar) {
-    from(project(':common').sourceSets.main.allSource)
-}*/
-
-tasks.withType(ProcessResources).excludingNeoTasks().configureEach {
-    from project(":common").sourceSets.main.resources
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
-        }
-    }
-    repositories {
-        maven {
-            url 'file://' + System.getenv('local_maven')
-        }
-    }
-}
