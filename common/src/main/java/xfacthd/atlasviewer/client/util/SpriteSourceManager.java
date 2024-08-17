@@ -87,9 +87,7 @@ public final class SpriteSourceManager
     {
         if (!(function instanceof SpriteSource.SpriteSupplier supplier))
         {
-            ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setSpriteSourceSourcePack(
-                    null, null, SourceAwareness.SPRITESUPPLIER_UNSUPPORTED, null, null
-            );
+            contents.atlasviewer$setSpriteSourceSourcePack(null, null, SourceAwareness.SPRITESUPPLIER_UNSUPPORTED, null, null);
             return;
         }
 
@@ -97,15 +95,11 @@ public final class SpriteSourceManager
         Function<SpriteSource.SpriteSupplier, Resource> resourceGetter = PRIMARY_RESOURCE_GETTERS.get(unwrappedSupplier.getClass());
         if (resourceGetter != null)
         {
-            ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$captureMetaFromSpriteSupplier(
-                    supplier, resourceGetter.apply(unwrappedSupplier)
-            );
+            contents.atlasviewer$captureMetaFromSpriteSupplier(supplier, resourceGetter.apply(unwrappedSupplier));
         }
         else if (!(unwrappedSupplier instanceof ISpriteSourcePackAwareSpriteSupplier))
         {
-            ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$setSpriteSourceSourcePack(
-                    null, null, SourceAwareness.SPRITESUPPLIER_UNSUPPORTED, null, null
-            );
+            contents.atlasviewer$setSpriteSourceSourcePack(null, null, SourceAwareness.SPRITESUPPLIER_UNSUPPORTED, null, null);
         }
     }
 

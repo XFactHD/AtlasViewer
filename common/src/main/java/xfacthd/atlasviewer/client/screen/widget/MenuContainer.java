@@ -3,7 +3,8 @@ package xfacthd.atlasviewer.client.screen.widget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.*;
-import xfacthd.atlasviewer.client.util.*;
+import xfacthd.atlasviewer.client.util.ClientUtils;
+import xfacthd.atlasviewer.client.util.TextureDrawer;
 
 public final class MenuContainer extends GridLayout
 {
@@ -77,7 +78,7 @@ public final class MenuContainer extends GridLayout
         {
             if (widget != menuButton)
             {
-                ((IVisibilitySetter) widget).atlasviewer$setVisible(open);
+                widget.atlasviewer$setVisible(open);
             }
         });
         if (element instanceof Layout layout)

@@ -38,7 +38,7 @@ public final class WrappedSpriteSource implements SpriteSource, IPackAwareSprite
 
     public static SpriteSource of(SpriteSource wrapped)
     {
-        SpriteSourceMeta meta = ((IPackAwareSpriteSource) wrapped).atlasviewer$getMeta();
+        SpriteSourceMeta meta = wrapped.atlasviewer$getMeta();
         if (meta != null && meta != SpriteSourceMeta.Unsupported.INSTANCE)
         {
             // Don't wrap if the sprite source already implements the API

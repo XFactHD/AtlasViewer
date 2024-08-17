@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xfacthd.atlasviewer.client.util.IMipAwareTextureAtlas;
 
 import java.util.Map;
 
@@ -22,6 +21,6 @@ public class MixinAtlasSet
     )
     private void atlasviewer$setAtlasMipAware(Map<ResourceLocation, ResourceLocation> $$0, TextureManager manager, CallbackInfo ci)
     {
-        atlases.values().forEach(atlasEntry -> ((IMipAwareTextureAtlas) atlasEntry.atlas()).atlasviewer$setMipMapEnabled(true));
+        atlases.values().forEach(atlasEntry -> atlasEntry.atlas().atlasviewer$setMipMapEnabled(true));
     }
 }

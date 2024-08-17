@@ -3,7 +3,6 @@ package xfacthd.atlasviewer.client.tooltips;
 import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
 import net.minecraft.network.chat.Component;
 import xfacthd.atlasviewer.client.api.SourceTooltipAppender;
-import xfacthd.atlasviewer.client.mixin.spritesources.AccessorUnstitcher;
 
 import java.util.List;
 
@@ -26,25 +25,15 @@ public final class UnstitcherTooltipAppender implements SourceTooltipAppender<Un
     @Override
     public void accept(Unstitcher source, LineConsumer lineConsumer)
     {
-        lineConsumer.accept(
-                LABEL_RESOURCE,
-                Component.literal(((AccessorUnstitcher) source).atlasviewer$getResource().toString())
-        );
+        lineConsumer.accept(LABEL_RESOURCE, Component.literal(source.atlasviewer$getResource().toString()));
 
         lineConsumer.accept(LABEL_REGIONS, Component.empty());
-        List<Unstitcher.Region> regions = ((AccessorUnstitcher) source).atlasviewer$getRegions();
+        List<Unstitcher.Region> regions = source.atlasviewer$getRegions();
         regions.forEach(region -> lineConsumer.accept(null, Component.translatable(
                 VALUE_REGION, region.sprite(), region.x(), region.y(), region.width(), region.height()
         )));
 
-        lineConsumer.accept(
-                LABEL_X_DIVISOR,
-                Component.literal(Double.toString(((AccessorUnstitcher) source).atlasviewer$getXDivisor()))
-        );
-
-        lineConsumer.accept(
-                LABEL_Y_DIVISOR,
-                Component.literal(Double.toString(((AccessorUnstitcher) source).atlasviewer$getYDivisor()))
-        );
+        lineConsumer.accept(LABEL_X_DIVISOR, Component.literal(Double.toString(source.atlasviewer$getXDivisor())));
+        lineConsumer.accept(LABEL_Y_DIVISOR, Component.literal(Double.toString(source.atlasviewer$getYDivisor())));
     }
 }

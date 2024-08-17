@@ -2,5 +2,5 @@ package xfacthd.atlasviewer.client.util;
 
 public interface IVisibilitySetter
 {
-    void atlasviewer$setVisible(boolean visible);
+    default void atlasviewer$setVisible(boolean visible) { throw new UnsupportedOperationException("Not injected"); }
 }

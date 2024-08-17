@@ -22,8 +22,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
-import xfacthd.atlasviewer.client.api.*;
-import xfacthd.atlasviewer.client.mixin.*;
+import xfacthd.atlasviewer.client.api.SourceAwareness;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.screen.widget.CloseButton;
 import xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
@@ -147,11 +146,11 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         this.atlas = atlas;
         this.sprite = sprite;
         this.contents = sprite.contents();
-        this.mipped = ((IMipAwareTextureAtlas) atlas).atlasviewer$isMipMapEnabled();
-        this.guiSprite = atlas == ((AccessorTextureAtlasHolder) Minecraft.getInstance().getGuiSprites()).atlasviewer$getAtlas();
+        this.mipped = atlas.atlasviewer$isMipMapEnabled();
+        this.guiSprite = atlas == Minecraft.getInstance().getGuiSprites().atlasviewer$getAtlas();
         this.sourceNames = collectSourcePackNames();
         this.primarySource = sourceNames.isEmpty() ? null : sourceNames.getFirst();
-        this.animation = ((AccessorSpriteContents) contents).atlasviewer$getAnimatedTexture();
+        this.animation = contents.atlasviewer$getAnimatedTexture();
         this.animated = animation != null;
         this.animFrameTime = getAnimationFrameTime();
         this.guiScaling = guiSprite ? Minecraft.getInstance().getGuiSprites().getSpriteScaling(sprite) : null;
@@ -180,7 +179,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
                 MIP_LEVEL_WIDTH, MIP_LEVEL_HEIGHT,
                 "btn.atlasviewer.mip_level",
                 currentMipLevel,
-                ((AccessorTextureAtlas) atlas).atlasviewer$getMipLevel(),
+                atlas.atlasviewer$getMipLevel(),
                 this::selectMipLevel
         ));
         addRenderableWidget(btnExport = Button.builder(TITLE_EXPORT, this::exportSprite)
@@ -194,7 +193,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
                 .build()
         );
 
-        mipLevelSlider.active = ((AccessorTextureAtlas) atlas).atlasviewer$getMipLevel() > 0;
+        mipLevelSlider.active = atlas.atlasviewer$getMipLevel() > 0;
         btnExportMipped.active = currentMipLevel > 0;
 
         addRenderableWidget(new CloseButton(xLeft + WIDTH - PADDING - CLOSE_SIZE, yTop + PADDING, this));
@@ -213,8 +212,8 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         if (animated)
         {
             animatedText = VALUE_TRUE;
-            framesText = Component.literal(String.valueOf(((AccessorSpriteContents) contents).atlasviewer$callGetFrameCount()));
-            boolean interp = ((AccessorAnimatedTexture) animation).atlasviewer$getInterpolateFrames();
+            framesText = Component.literal(String.valueOf(contents.atlasviewer$callGetFrameCount()));
+            boolean interp = animation.atlasviewer$getInterpolateFrames();
             interpText = interp ? VALUE_TRUE : VALUE_FALSE;
             if (animFrameTime == -1)
             {
@@ -418,7 +417,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     {
         ResourceLocation name = contents.name();
         ResourceLocation loc = Objects.requireNonNullElseGet(
-                ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getOriginalPath(),
+                contents.atlasviewer$getOriginalPath(),
                 () -> ResourceLocation.fromNamespaceAndPath(name.getNamespace(), "textures/" + name.getPath() + ".png")
         );
         List<Resource> resources = Minecraft.getInstance().getResourceManager().getResourceStack(loc);
@@ -428,7 +427,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
                 .collect(Collectors.toCollection(ArrayList::new));
         if (sources.isEmpty())
         {
-            String capturedPackId = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getTextureSourcePack();
+            String capturedPackId = contents.atlasviewer$getTextureSourcePack();
             if (capturedPackId != null)
             {
                 sources.add(capturedPackId);
@@ -485,10 +484,10 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         Component sourcePack;
         Component sourcePackTooltip;
         boolean hasSourcePack = false;
-        SourceAwareness awareness = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSourceAwareness();
+        SourceAwareness awareness = contents.atlasviewer$getSourceAwareness();
         if (awareness == SourceAwareness.SOURCE_KNOWN)
         {
-            String packId = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSpriteSourceSourcePack();
+            String packId = contents.atlasviewer$getSpriteSourceSourcePack();
             if (packId != null && !packId.isEmpty())
             {
                 TextLine packIdPair = TextLine.of(packId, font, maxValueLen);
@@ -512,7 +511,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         List<FormattedCharSequence> sourceTypeTooltip;
         List<FormattedCharSequence> sourceTypeTooltipNoFullType = null;
         boolean hasConcreteSourceType = false;
-        SpriteSource source = ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$getSpriteSource();
+        SpriteSource source = contents.atlasviewer$getSpriteSource();
         if (source != null)
         {
             Class<?> sourceTypeClazz = source.getClass();
@@ -617,12 +616,12 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
             return 0;
         }
 
-        List<SpriteContents.FrameInfo> frames = ((AccessorAnimatedTexture) animation).atlasviewer$getFrames();
+        List<SpriteContents.FrameInfo> frames = animation.atlasviewer$getFrames();
 
-        int first = ((AccessorFrameInfo) frames.getFirst()).atlasviewer$getTime();
+        int first = frames.getFirst().atlasviewer$getTime();
         for (SpriteContents.FrameInfo frame : frames)
         {
-            if (((AccessorFrameInfo) frame).atlasviewer$getTime() != first)
+            if (frame.atlasviewer$getTime() != first)
             {
                 // No point in displaying a frame time when it's different for some frames
                 return -1;
@@ -652,7 +651,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     {
         try
         {
-            NativeImage image = ((AccessorSpriteContents) contents).atlasviewer$getByMipLevel()[mipLevel];
+            NativeImage image = contents.atlasviewer$getByMipLevel()[mipLevel];
             AtlasScreen.exportNativeImage(image, contents.name(), "sprite", false, MSG_EXPORT_SUCCESS);
         }
         catch (IOException e)

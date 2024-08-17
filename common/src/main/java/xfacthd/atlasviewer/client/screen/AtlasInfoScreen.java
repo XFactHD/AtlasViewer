@@ -12,12 +12,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
-import xfacthd.atlasviewer.client.mixin.AccessorTextureAtlas;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.screen.widget.AtlasLoadTable;
 import xfacthd.atlasviewer.client.screen.widget.CloseButton;
 import xfacthd.atlasviewer.client.util.ClientUtils;
-import xfacthd.atlasviewer.client.util.IMipAwareTextureAtlas;
 import xfacthd.atlasviewer.platform.Services;
 
 import java.util.*;
@@ -223,8 +221,8 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
             spritesByMaxMip[maxLevel]++;
         });
 
-        int width = ((AccessorTextureAtlas) atlas).atlasviewer$getWidth();
-        int height = ((AccessorTextureAtlas) atlas).atlasviewer$getHeight();
+        int width = atlas.atlasviewer$getWidth();
+        int height = atlas.atlasviewer$getHeight();
         int area = width * height;
         int areaFilled = areaByNamespace.values().stream().mapToInt(Integer::intValue).sum();
         float filled = (float) areaFilled / (float) area;
@@ -242,11 +240,11 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
 
         return new AtlasInfo(
                 atlas.location().toString(),
-                ((IMipAwareTextureAtlas) atlas).atlasviewer$isMipMapEnabled(),
+                atlas.atlasviewer$isMipMapEnabled(),
                 atlas.maxSupportedTextureSize(),
                 width,
                 height,
-                ((AccessorTextureAtlas) atlas).atlasviewer$getMipLevel(),
+                atlas.atlasviewer$getMipLevel(),
                 sprites.size(),
                 spritesByMaxMip,
                 filled,

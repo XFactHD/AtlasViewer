@@ -9,5 +9,5 @@ public interface IPackAwareSpriteSource
     /**
      * {@return the {@link SpriteSourceMeta} holding the source information about this sprite source}
      */
-    SpriteSourceMeta atlasviewer$getMeta();
+    default SpriteSourceMeta atlasviewer$getMeta() { throw new UnsupportedOperationException("Not injected"); }
 }

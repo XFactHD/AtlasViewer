@@ -12,7 +12,7 @@ public final class SpriteSupplierMeta
 
     public void readFromSpriteSourceMeta(SpriteSource source)
     {
-        SpriteSourceMeta srcMeta = ((IPackAwareSpriteSource) source).atlasviewer$getMeta();
+        SpriteSourceMeta srcMeta = source.atlasviewer$getMeta();
         sourcePackId = srcMeta.getSourcePack();
         spriteSource = WrappedSpriteSource.resolve(source);
         sourceType = source.getClass();

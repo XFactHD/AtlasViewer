@@ -5,8 +5,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.atlas.sources.*;
 import org.lwjgl.glfw.GLFW;
-import xfacthd.atlasviewer.client.mixin.spritesources.AccessorLazyLoadedImage;
-import xfacthd.atlasviewer.client.mixin.spritesources.*;
+import xfacthd.atlasviewer.client.mixin.spritesources.AccessorDirectoryLister;
 import xfacthd.atlasviewer.client.screen.AtlasScreen;
 import xfacthd.atlasviewer.client.tooltips.*;
 import xfacthd.atlasviewer.client.util.MissingTextureDummySpriteSource;
@@ -30,32 +29,28 @@ public final class AVClient
     {
         SpriteSourceManager.registerPrimaryResourceGetter(
                 Unstitcher.RegionInstance.class,
-                region ->
-                {
-                    LazyLoadedImage image = ((AccessorUnstitcherRegionInstance) region).atlasviewer$getImage();
-                    return ((AccessorLazyLoadedImage) image).atlasviewer$getResource();
-                }
+                region -> region.atlasviewer$getImage().atlasviewer$getResource()
         );
         SpriteSourceManager.registerPrimaryResourceGetter(
                 PalettedPermutations.PalettedSpriteSupplier.class,
-                supplier -> ((AccessorLazyLoadedImage) supplier.baseImage()).atlasviewer$getResource()
+                supplier -> supplier.baseImage().atlasviewer$getResource()
         );
 
         SpriteSourceManager.registerSimpleSourceStringifier(
                 DirectoryLister.class,
-                lister -> ((AccessorDirectoryLister) lister).atlasviewer$getSourcePath()
+                AccessorDirectoryLister::atlasviewer$getSourcePath
         );
         SpriteSourceManager.registerSimpleSourceStringifier(
                 SingleFile.class,
-                file -> ((AccessorSingleFile) file).atlasviewer$getResourceId().toString()
+                file -> file.atlasviewer$getResourceId().toString()
         );
         SpriteSourceManager.registerSimpleSourceStringifier(
                 PalettedPermutations.class,
-                permutations -> ((AccessorPalettedPermutations) permutations).atlasviewer$getTextures().toString()
+                permutations -> permutations.atlasviewer$getTextures().toString()
         );
         SpriteSourceManager.registerSimpleSourceStringifier(
                 Unstitcher.class,
-                unstitcher -> ((AccessorUnstitcher) unstitcher).atlasviewer$getResource().toString()
+                unstitcher -> unstitcher.atlasviewer$getResource().toString()
         );
 
         SpriteSourceManager.registerSpecialSourceDescription(

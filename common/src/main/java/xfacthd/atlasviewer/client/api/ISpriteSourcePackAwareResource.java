@@ -14,26 +14,29 @@ public interface ISpriteSourcePackAwareResource
      * said sprite source and to which degree it is aware of its source pack as well as the original path
      * of this resource
      */
-    void atlasviewer$captureMetaFromSpriteSource(SpriteSourceMeta srcMeta, SpriteSource spriteSource, ResourceLocation originalPath);
+    default void atlasviewer$captureMetaFromSpriteSource(SpriteSourceMeta srcMeta, SpriteSource spriteSource, ResourceLocation originalPath)
+    {
+        throw new UnsupportedOperationException("Not injected");
+    }
 
     /**
      * Get the pack ID of the resource pack where the sprite source touching this resource was loaded from
      */
-    String atlasviewer$getSpriteSourceSourcePack();
+    default String atlasviewer$getSpriteSourceSourcePack() { throw new UnsupportedOperationException("Not injected"); }
 
     /**
      * Get the sprite source that touched this resource
      */
-    SpriteSource atlasviewer$getSpriteSource();
+    default SpriteSource atlasviewer$getSpriteSource() { throw new UnsupportedOperationException("Not injected"); }
 
     /**
      * Get the awareness indicating to what degree the sprite source touching this resource knows about the
      * resource pack it was loaded from
      */
-    SourceAwareness atlasviewer$getSourceAwareness();
+    default SourceAwareness atlasviewer$getSourceAwareness() { throw new UnsupportedOperationException("Not injected"); }
 
     /**
      * Get the original path where this resource is located in the resource pack it was loaded from
      */
-    ResourceLocation atlasviewer$getOriginalPath();
+    default ResourceLocation atlasviewer$getOriginalPath() { throw new UnsupportedOperationException("Not injected"); }
 }

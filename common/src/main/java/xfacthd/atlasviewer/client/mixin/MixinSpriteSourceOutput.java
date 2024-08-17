@@ -8,7 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
-import xfacthd.atlasviewer.client.api.*;
 
 @Mixin(SpriteSource.Output.class)
 public interface MixinSpriteSourceOutput
@@ -24,7 +23,7 @@ public interface MixinSpriteSourceOutput
     {
         if (contents != null)
         {
-            ((ISpriteSourcePackAwareSpriteContents) contents).atlasviewer$captureMetaFromResource(resource);
+            contents.atlasviewer$captureMetaFromResource(resource);
         }
         return contents;
     }

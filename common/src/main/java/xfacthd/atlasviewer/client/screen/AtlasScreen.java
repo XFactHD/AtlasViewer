@@ -18,7 +18,6 @@ import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL13;
 import xfacthd.atlasviewer.AtlasViewer;
-import xfacthd.atlasviewer.client.mixin.*;
 import xfacthd.atlasviewer.client.screen.widget.*;
 import xfacthd.atlasviewer.client.screen.widget.search.SearchBox;
 import xfacthd.atlasviewer.client.screen.widget.search.SearchHandler;
@@ -154,7 +153,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
         menu.arrangeElements();
 
         atlases = new HashMap<>();
-        ((AccessorTextureManager) Minecraft.getInstance().getTextureManager()).atlasviewer$getByPath().forEach((loc, tex) ->
+        Minecraft.getInstance().getTextureManager().atlasviewer$getByPath().forEach((loc, tex) ->
         {
             if (tex instanceof TextureAtlas atlas)
             {
@@ -415,7 +414,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
             atlasScale = (float) maxAtlasHeight / atlasSize.height;
         }
 
-        sprites = ((AccessorTextureAtlas) currentAtlas).atlasviewer$getTexturesByName().values();
+        sprites = currentAtlas.atlasviewer$getTexturesByName().values();
 
         Rect2i treeRect = new Rect2i(0, 0, atlasSize.width, atlasSize.height);
         int minSize = sprites.stream()
@@ -434,7 +433,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
                 minSize, minSize
         );
 
-        int mipLevels = ((AccessorTextureAtlas) currentAtlas).atlasviewer$getMipLevel();
+        int mipLevels = currentAtlas.atlasviewer$getMipLevel();
         mipLevelSlider.setStep(0, true);
         mipLevelSlider.setMaxStep(mipLevels);
         mipLevelSlider.active = mipLevels > 0;
@@ -466,7 +465,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
     {
         animatedLocations.clear();
         sprites.stream()
-                .filter(sprite -> ((AccessorSpriteContents) sprite.contents()).atlasviewer$getAnimatedTexture() != null)
+                .filter(sprite -> sprite.contents().atlasviewer$getAnimatedTexture() != null)
                 .forEach(sprite -> animatedLocations.add(getSpriteSize(sprite)));
     }
 

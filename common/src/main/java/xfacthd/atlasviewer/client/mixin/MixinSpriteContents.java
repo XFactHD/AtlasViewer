@@ -44,13 +44,12 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     @Override
     public void atlasviewer$captureMetaFromResource(Resource resource)
     {
-        ISpriteSourcePackAwareResource awareResource = (ISpriteSourcePackAwareResource) resource;
         atlasviewer$setSpriteSourceSourcePack(
-                awareResource.atlasviewer$getSpriteSourceSourcePack(),
-                awareResource.atlasviewer$getSpriteSource(),
-                awareResource.atlasviewer$getSourceAwareness(),
+                resource.atlasviewer$getSpriteSourceSourcePack(),
+                resource.atlasviewer$getSpriteSource(),
+                resource.atlasviewer$getSourceAwareness(),
                 resource.sourcePackId(),
-                awareResource.atlasviewer$getOriginalPath()
+                resource.atlasviewer$getOriginalPath()
         );
     }
 
@@ -63,7 +62,7 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
                 meta.getSpriteSource(),
                 meta.getSourceAwareness(),
                 sourceImage.sourcePackId(),
-                ((ISpriteSourcePackAwareResource) sourceImage).atlasviewer$getOriginalPath()
+                sourceImage.atlasviewer$getOriginalPath()
         );
     }
 

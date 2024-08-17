@@ -6,7 +6,8 @@ plugins {
 neoForge {
     version = neoforge_version
 
-    accessTransformers.add(project(':common').file('src/main/resources/META-INF/accesstransformer.cfg').absolutePath)
+    accessTransformers = ['../common/src/main/resources/META-INF/accesstransformer.cfg']
+    interfaceInjectionData = files('../common/src/main/resources/interfaces.json')
 
     parchment {
         minecraftVersion = parchment_minecraft_version

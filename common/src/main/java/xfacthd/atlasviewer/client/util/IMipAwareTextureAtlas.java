@@ -2,7 +2,7 @@ package xfacthd.atlasviewer.client.util;
 
 public interface IMipAwareTextureAtlas
 {
-    void atlasviewer$setMipMapEnabled(boolean enabled);
+    default void atlasviewer$setMipMapEnabled(boolean enabled) { throw new UnsupportedOperationException("Not injected"); }
 
-    boolean atlasviewer$isMipMapEnabled();
+    default boolean atlasviewer$isMipMapEnabled() { throw new UnsupportedOperationException("Not injected"); }
 }

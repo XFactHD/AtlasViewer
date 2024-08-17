@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import xfacthd.atlasviewer.AtlasViewer;
-import xfacthd.atlasviewer.client.api.*;
 import xfacthd.atlasviewer.client.util.*;
 
 import java.util.Collection;
@@ -53,7 +52,7 @@ public class MixinSpriteSourceList
                 .map(src ->
                 {
                     src = WrappedSpriteSource.of(src);
-                    ((IPackAwareSpriteSource) src).atlasviewer$getMeta().setSourcePack(packId);
+                    src.atlasviewer$getMeta().setSourcePack(packId);
                     return src;
                 })
                 .toList();
@@ -74,14 +73,14 @@ public class MixinSpriteSourceList
     )
     {
         long count = sources.stream()
-                .filter(src -> ((IPackAwareSpriteSource) src).atlasviewer$getMeta().isSourceUnaware())
+                .filter(src -> src.atlasviewer$getMeta().isSourceUnaware())
                 .peek(src ->
                 {
                     AtlasViewer.LOGGER.error(
                             "SpriteSource {} did not receive its source pack, the source is most likely injected through non-standard means",
                             SpriteSourceManager.stringifySpriteSource(src)
                     );
-                    ((IPackAwareSpriteSource) src).atlasviewer$getMeta().setForceInjected();
+                    src.atlasviewer$getMeta().setForceInjected();
                 }).count();
         if (count > 0L)
         {
