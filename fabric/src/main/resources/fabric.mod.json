@@ -33,11 +33,12 @@
     "suggests": {
     },
     "custom": {
+        "__comment:loom:injected_interfaces": "\\u0024 is used in place of a dollar sign for inner classes to work around Gradle resource processing",
         "loom:injected_interfaces": {
-            "net/minecraft/class_7764$class_5790": [
+            "net/minecraft/class_7764\u0024class_5790": [
                 "xfacthd/atlasviewer/client/duck/DefaultedAccessorAnimatedTexture"
             ],
-            "net/minecraft/class_7764$class_5791": [
+            "net/minecraft/class_7764\u0024class_5791": [
                 "xfacthd/atlasviewer/client/duck/DefaultedAccessorFrameInfo"
             ],
             "net/minecraft/class_7764": [
@@ -72,7 +73,7 @@
             "net/minecraft/class_7957": [
                 "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcher"
             ],
-            "net/minecraft/class_7957$class_7960": [
+            "net/minecraft/class_7957\u0024class_7960": [
                 "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcherRegionInstance"
             ],
             "net/minecraft/class_339": [

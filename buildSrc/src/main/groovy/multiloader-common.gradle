@@ -93,13 +93,7 @@ processResources {
             'mod_version'                  : mod_version,
             'neoforge_version'             : neoforge_version,
             'neoforge_version_range'       : neoforge_version_range,
-            'neoforge_loader_version_range': neoforge_loader_version_range,
-
-            // Gradle is stupid and considers $class_7960 a valid template and Fabric thought it would be a good idea
-            // to put toolchain data in the mod metadata...
-            'class_5790': '$class_5790',
-            'class_5791': '$class_5791',
-            'class_7960': '$class_7960'
+            'neoforge_loader_version_range': neoforge_loader_version_range
     ]
 
     filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml', '*.mixins.json']) {
