@@ -1,7 +1,7 @@
 accessWidener v1 named
 accessible class net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture
 accessible class net/minecraft/client/renderer/texture/SpriteContents$FrameInfo
-accessible method net/minecraft/client/gui/GuiGraphics renderTooltipInternal (Lnet/minecraft/client/gui/Font;Ljava/util/List;IILnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;)V
+accessible method net/minecraft/client/gui/GuiGraphics renderTooltipInternal (Lnet/minecraft/client/gui/Font;Ljava/util/List;IILnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;Lnet/minecraft/resources/ResourceLocation;)V
 extendable method net/minecraft/client/gui/components/EditBox onValueChange (Ljava/lang/String;)V
 accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$Region
 extendable method net/minecraft/client/gui/components/AbstractSliderButton getHandleSprite ()Lnet/minecraft/resources/ResourceLocation;
@@ -9,3 +9,10 @@ accessible field net/minecraft/client/gui/components/AbstractSliderButton SLIDER
 accessible class net/minecraft/client/resources/model/AtlasSet$AtlasEntry
 accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$RegionInstance
 accessible class net/minecraft/client/renderer/texture/atlas/sources/PalettedPermutations$PalettedSpriteSupplier
+accessible method net/minecraft/client/gui/GuiGraphics innerBlit (Ljava/util/function/Function;Lnet/minecraft/resources/ResourceLocation;IIIIFFFFI)V
+accessible class net/minecraft/client/renderer/RenderType$CompositeState
+accessible class net/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard
+accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;ILnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
+accessible field net/minecraft/client/renderer/RenderStateShard POSITION_TEXTURE_COLOR_SHADER Lnet/minecraft/client/renderer/RenderStateShard$ShaderStateShard
+accessible field net/minecraft/client/renderer/RenderStateShard TRANSLUCENT_TRANSPARENCY Lnet/minecraft/client/renderer/RenderStateShard$TransparencyStateShard
+accessible field net/minecraft/client/renderer/RenderStateShard LEQUAL_DEPTH_TEST Lnet/minecraft/client/renderer/RenderStateShard$DepthTestStateShard

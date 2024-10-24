@@ -5,6 +5,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -151,7 +152,7 @@ public final class AtlasLoadTable extends AbstractWidget
         graphics.pose().pushPose();
         graphics.pose().translate(colArrowX[sorting.ordinal()] - xOff, getY() + 4 - yOff, 0);
         graphics.pose().scale(ARROW_SCALE, ARROW_SCALE, 1F);
-        graphics.blitSprite(tex, 0, 0, 0, 32, 32);
+        graphics.blitSprite(RenderType::guiTextured, tex, 0, 0, 32, 32);
         graphics.pose().popPose();
     }
 

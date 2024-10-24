@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
@@ -259,10 +260,10 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderBackground(graphics, mouseX, mouseY, partialTick);
+        graphics.flush();
+        renderBlurredBackground();
 
-        RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(graphics.pose(), xLeft, yTop, 0, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
+        graphics.blitSprite(RenderType::guiTextured, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
 
         graphics.drawString(font, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0x404040, false);
 
@@ -298,30 +299,28 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
 
         float scale = (float) SPRITE_SIZE / Math.max(contents.width(), contents.height());
 
-        RenderSystem.setShaderTexture(0, AtlasScreen.CHECKER_LOC);
-        ClientUtils.drawNineSliceTexture(
-                graphics.pose(),
+        graphics.blitSprite(
+                RenderType::guiTextured,
+                AtlasScreen.CHECKER_LOC,
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
-                0,
                 (int)(contents.width() * scale),
-                (int)(contents.height() * scale),
-                AtlasScreen.CHECKER
+                (int)(contents.height() * scale)
         );
 
-        RenderSystem.setShaderTexture(0, sprite.atlasLocation());
-        RenderSystem.enableBlend();
-        AtlasScreen.setAtlasMipLevel(atlas, currentMipLevel);
-        graphics.blit(
+        graphics.innerBlit(
+                $ -> MippedAtlasGuiRenderType.get(atlas, currentMipLevel),
+                sprite.atlasLocation(),
                 xLeft + (PADDING * 2),
+                xLeft + (PADDING * 2) + (int)(contents.width() * scale),
                 yTop + SPRITE_Y,
-                0,
-                (int)(contents.width() * scale),
-                (int)(contents.height() * scale),
-                sprite
+                yTop + SPRITE_Y + (int)(contents.height() * scale),
+                sprite.getU0(),
+                sprite.getU1(),
+                sprite.getV0(),
+                sprite.getV1(),
+                0xFFFFFFFF
         );
-        AtlasScreen.setAtlasMipLevel(atlas, 0);
-        RenderSystem.disableBlend();
 
         if (btnExport.isHovered())
         {
@@ -410,7 +409,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     {
         int x = Math.min(xLeft + valueX, width - maxLen - PADDING);
         int y = yTop + SPRITE_Y + (LINE_HEIGHT * lineIdx);
-        graphics.renderTooltipInternal(font, components, x, y, PACK_LIST_POSITIONER);
+        graphics.renderTooltipInternal(font, components, x, y, PACK_LIST_POSITIONER, null);
     }
 
     private List<String> collectSourcePackNames()

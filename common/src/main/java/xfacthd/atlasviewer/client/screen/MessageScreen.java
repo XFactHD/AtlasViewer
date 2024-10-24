@@ -1,9 +1,9 @@
 package xfacthd.atlasviewer.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
@@ -11,7 +11,8 @@ import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.util.ClientUtils;
 import xfacthd.atlasviewer.platform.Services;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class MessageScreen extends Screen implements IStackedScreen
 {
@@ -68,10 +69,11 @@ public final class MessageScreen extends Screen implements IStackedScreen
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+        graphics.flush();
+        renderBlurredBackground();
 
-        RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(graphics.pose(), leftPos, topPos, 0, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
+        graphics.blitSprite(RenderType::guiTextured, AtlasScreen.BACKGROUND_LOC, leftPos, topPos, WIDTH, imageHeight);
+
         graphics.drawString(font, title, leftPos + TITLE_X, topPos + TITLE_Y, 0x404040, false);
 
         int y = topPos + TITLE_Y + font.lineHeight * 2;

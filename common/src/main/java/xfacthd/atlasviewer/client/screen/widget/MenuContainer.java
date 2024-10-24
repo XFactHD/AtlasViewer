@@ -1,10 +1,12 @@
 package xfacthd.atlasviewer.client.screen.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.layouts.*;
+import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.renderer.RenderType;
 import xfacthd.atlasviewer.client.util.ClientUtils;
-import xfacthd.atlasviewer.client.util.TextureDrawer;
 
 public final class MenuContainer extends GridLayout
 {
@@ -47,14 +49,12 @@ public final class MenuContainer extends GridLayout
         nextRow++;
     }
 
-    public void render(PoseStack poseStack)
+    public void render(GuiGraphics graphics)
     {
         if (open)
         {
-            TextureDrawer.startColored();
-            TextureDrawer.fillGuiColorBuffer(poseStack, getX(), getY(), 0, getWidth(), getHeight(), 0x666666FF);
-            ClientUtils.drawColoredBox(poseStack, getX(), getY(), 0, getWidth(), getHeight(), 0x333333FF);
-            TextureDrawer.end();
+            graphics.fill(RenderType.guiOverlay(), getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0xFF666666);
+            ClientUtils.drawColoredBox(graphics, getX(), getY(), getWidth(), getHeight(), 0xFF333333);
         }
     }
 

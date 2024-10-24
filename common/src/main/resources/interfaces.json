@@ -45,5 +45,8 @@
     ],
     "net/minecraft/server/packs/resources/Resource": [
         "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource"
+    ],
+    "net/minecraft/client/gui/GuiGraphics": [
+        "xfacthd/atlasviewer/client/util/IGuiGraphicsExtension"
     ]
 }

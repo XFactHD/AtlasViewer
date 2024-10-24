@@ -4,37 +4,52 @@ import com.google.common.base.Stopwatch;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.network.chat.*;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL13;
 import xfacthd.atlasviewer.AtlasViewer;
-import xfacthd.atlasviewer.client.screen.widget.*;
+import xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
+import xfacthd.atlasviewer.client.screen.widget.IndicatorButton;
+import xfacthd.atlasviewer.client.screen.widget.MenuContainer;
+import xfacthd.atlasviewer.client.screen.widget.SelectionWidget;
 import xfacthd.atlasviewer.client.screen.widget.search.SearchBox;
 import xfacthd.atlasviewer.client.screen.widget.search.SearchHandler;
-import xfacthd.atlasviewer.client.util.*;
+import xfacthd.atlasviewer.client.util.ClientUtils;
+import xfacthd.atlasviewer.client.util.MippedAtlasGuiRenderType;
+import xfacthd.atlasviewer.client.util.QuadTree;
 import xfacthd.atlasviewer.platform.Services;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 @SuppressWarnings("deprecation")
 public final class AtlasScreen extends Screen implements SearchHandler
 {
-    public static final ResourceLocation BACKGROUND_LOC = ResourceLocation.withDefaultNamespace("textures/gui/demo_background.png");
-    public static final ResourceLocation CHECKER_LOC = AtlasViewer.rl("textures/gui/checker.png");
-    public static final NineSlice BACKGROUND = new NineSlice(0, 0, 248, 166, 256, 256, 4);
-    public static final NineSlice CHECKER = new NineSlice(0, 0, 256, 256, 256, 256, 0);
+    public static final ResourceLocation BACKGROUND_LOC = AtlasViewer.rl("background");
+    public static final ResourceLocation CHECKER_LOC = AtlasViewer.rl("checker");
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final Component TITLE_HIGHLIGHT_ANIM = Component.translatable("btn.atlasviewer.highlight_animated");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
@@ -179,38 +194,29 @@ public final class AtlasScreen extends Screen implements SearchHandler
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderBackground(graphics, mouseX, mouseY, partialTick);
+        renderBlurredBackground();
 
-        RenderSystem.setShaderTexture(0, BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(graphics.pose(), PADDING, PADDING, 0, width - (PADDING * 2), height - (PADDING * 2), BACKGROUND);
+        graphics.blitSprite(RenderType::guiTextured, BACKGROUND_LOC, PADDING, PADDING, width - (PADDING * 2), height - (PADDING * 2));
 
         graphics.drawString(font, title, PADDING * 3, PADDING * 3, 0x404040, false);
 
         float scale = (float)(atlasScale * scrollScale);
 
-        RenderSystem.setShaderTexture(0, CHECKER_LOC);
         int bgWidth = (int)Math.min(maxAtlasWidth, atlasSize.width * scale);
         int bgHeight = (int)Math.min(maxAtlasHeight, atlasSize.height * scale);
-        ClientUtils.drawNineSliceTexture(graphics.pose(), atlasLeft, atlasTop, 0, bgWidth, bgHeight, CHECKER);
-
-        RenderSystem.setShaderTexture(0, currentAtlas.location());
+        graphics.blitSprite(RenderType::guiTextured, CHECKER_LOC, atlasLeft, atlasTop, bgWidth, bgHeight);
 
         graphics.enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
-
-        RenderSystem.enableBlend();
-        setAtlasMipLevel(currentAtlas, currentMipLevel);
-        TextureDrawer.drawGuiTexture(
-                graphics.pose(),
+        graphics.atlasviewer$innerBlit(
+                $ -> MippedAtlasGuiRenderType.get(currentAtlas, currentMipLevel),
+                currentAtlas.location(),
                 atlasLeft + offsetX,
+                atlasLeft + offsetX + atlasSize.width * scale,
                 atlasTop + offsetY,
-                0,
-                atlasSize.width * scale,
-                atlasSize.height * scale,
-                0F, 1F, 0F, 1F
+                atlasTop + offsetY + atlasSize.height * scale,
+                0F, 1F, 0F, 1F,
+                0xFFFFFFFF
         );
-        setAtlasMipLevel(currentAtlas, 0);
-        RenderSystem.disableBlend();
-
         graphics.disableScissor();
 
         graphics.enableScissor(atlasLeft - 1, atlasTop - 1, atlasLeft + maxAtlasWidth + 1, atlasTop + maxAtlasHeight + 1);
@@ -219,16 +225,11 @@ public final class AtlasScreen extends Screen implements SearchHandler
         boolean highlightAnimated = btnHighlightAnim.isChecked();
         boolean hasSearchResults = !searchResultLocations.isEmpty();
 
-        if (highlightAnimated || hasSearchResults || cursorOnAtlas)
-        {
-            TextureDrawer.startColored();
-        }
-
         if (highlightAnimated && !animatedLocations.isEmpty())
         {
             for (Rect2i rect : animatedLocations)
             {
-                drawColoredBox(graphics.pose(), rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0x00FF00FF);
+                drawColoredBox(graphics, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0xFF00FF00);
             }
         }
 
@@ -237,7 +238,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
             for (Rect2i rect : searchResultLocations)
             {
                 boolean focused = ((System.currentTimeMillis() / 200L) % 2L == 0L) && focusedSearchResultIdx == searchResultLocations.indexOf(rect);
-                drawColoredBox(graphics.pose(), rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, focused ? 0xCC00FFFF : 0xFFBB00FF);
+                drawColoredBox(graphics, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, focused ? 0xFFCC00FF : 0xFFFFBB00);
             }
         }
 
@@ -250,7 +251,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
             if (sprite != null)
             {
                 SpriteContents contents = sprite.contents();
-                drawColoredBox(graphics.pose(), sprite.getX(), sprite.getY(), contents.width(), contents.height(), scale, true, 0xFF0000FF);
+                drawColoredBox(graphics, sprite.getX(), sprite.getY(), contents.width(), contents.height(), scale, true, 0xFFFF0000);
             }
         }
         else
@@ -258,14 +259,9 @@ public final class AtlasScreen extends Screen implements SearchHandler
             hoveredSprite = null;
         }
 
-        if (highlightAnimated || hasSearchResults || cursorOnAtlas)
-        {
-            TextureDrawer.end();
-        }
-
         graphics.disableScissor();
 
-        menu.render(graphics.pose());
+        menu.render(graphics);
 
         if (btnExport.isHovered())
         {
@@ -284,14 +280,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
         return !menu.isOpen() || !menu.isMouseOver(mouseX, mouseY);
     }
 
-    public static void setAtlasMipLevel(TextureAtlas atlas, int level)
-    {
-        RenderSystem.activeTexture(GL13.GL_TEXTURE0);
-        RenderSystem.bindTexture(atlas.getId());
-        RenderSystem.texParameter(GL13.GL_TEXTURE_2D, GL13.GL_TEXTURE_BASE_LEVEL, level);
-    }
-
-    private void drawColoredBox(PoseStack poseStack, int x, int y, int width, int height, float scale, boolean expand, int color)
+    private void drawColoredBox(GuiGraphics graphics, int x, int y, int width, int height, float scale, boolean expand, int color)
     {
         float sx = x * scale + atlasLeft + offsetX;
         float sy = y * scale + atlasTop + offsetY;
@@ -314,7 +303,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
             sh += 2;
         }
 
-        ClientUtils.drawColoredBox(poseStack, sx, sy, 0, sw, sh, color);
+        ClientUtils.drawColoredBox(graphics, sx, sy, sw, sh, color);
     }
 
     @Override

@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -131,10 +132,10 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderBackground(graphics, mouseX, mouseY, partialTick);
+        graphics.flush();
+        renderBlurredBackground();
 
-        RenderSystem.setShaderTexture(0, AtlasScreen.BACKGROUND_LOC);
-        ClientUtils.drawNineSliceTexture(graphics.pose(), xLeft, yTop, 0, WIDTH, imageHeight, AtlasScreen.BACKGROUND);
+        graphics.blitSprite(RenderType::guiTextured, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
 
         graphics.drawString(font, title, xLeft + TEXT_X, yTop + (PADDING * 2), 0x404040, false);
 

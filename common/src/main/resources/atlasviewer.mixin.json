@@ -13,6 +13,7 @@
         "AccessorTextureManager",
         "MixinAbstractWidget",
         "MixinAtlasSet",
+        "MixinGuiGraphics",
         "MixinMissingTextureAtlasSprite",
         "MixinResource",
         "MixinSpriteContents",

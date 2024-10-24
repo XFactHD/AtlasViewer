@@ -81,6 +81,9 @@
             ],
             "net/minecraft/class_3298": [
                 "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource"
+            ],
+            "net/minecraft/class_332": [
+                "xfacthd/atlasviewer/client/util/IGuiGraphicsExtension"
             ]
         }
     }

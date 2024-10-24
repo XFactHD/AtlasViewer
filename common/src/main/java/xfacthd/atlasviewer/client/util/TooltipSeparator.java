@@ -20,13 +20,13 @@ public final class TooltipSeparator implements ClientTooltipComponent
     }
 
     @Override
-    public void renderImage(Font font, int mouseX, int mouseY, GuiGraphics graphics)
+    public void renderImage(Font font, int mouseX, int mouseY, int width, int height, GuiGraphics graphics)
     {
-        graphics.fill(mouseX, mouseY + yOff, mouseX + width + 1, mouseY + yOff + 1, color);
+        graphics.fill(mouseX, mouseY + yOff, mouseX + this.width + 1, mouseY + yOff + 1, color);
     }
 
     @Override
-    public int getHeight()
+    public int getHeight(Font font)
     {
         return height;
     }

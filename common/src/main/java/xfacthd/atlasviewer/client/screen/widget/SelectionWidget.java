@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.*;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
@@ -78,7 +79,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
             graphics.fill(getX(),     getY() + ENTRY_HEIGHT - 1, getX() + width,     getY() + ENTRY_HEIGHT + boxHeight - 1, 0xFFFFFFFF);
             graphics.fill(getX() + 1, getY() + ENTRY_HEIGHT,     getX() + width - 1, getY() + ENTRY_HEIGHT + boxHeight - 2, 0xFF000000);
 
-            graphics.blitSprite(ARROW_UP, getX() + width - 17 - ARROW_UP_OFF_X, getY() + 6 - ARROW_UP_OFF_Y, 0, 32, 32);
+            graphics.blitSprite(RenderType::guiTextured, ARROW_UP, getX() + width - 17 - ARROW_UP_OFF_X, getY() + 6 - ARROW_UP_OFF_Y, 32, 32);
 
             T hoverEntry = getEntryAtPosition(mouseX, mouseY);
 
@@ -109,7 +110,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         }
         else
         {
-            graphics.blitSprite(ARROW_DOWN, getX() + width - 17 - ARROW_DOWN_OFF_X, getY() + 6 - ARROW_DOWN_OFF_Y, 0, 32, 32);
+            graphics.blitSprite(RenderType::guiTextured, ARROW_DOWN, getX() + width - 17 - ARROW_DOWN_OFF_X, getY() + 6 - ARROW_DOWN_OFF_Y, 32, 32);
         }
     }
 
