@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.Tuple;
+import org.jetbrains.annotations.Nullable;
 import xfacthd.atlasviewer.client.AVClient;
 import xfacthd.atlasviewer.client.api.*;
 import xfacthd.atlasviewer.client.mixin.AccessorSpriteSources;
@@ -83,8 +84,11 @@ public final class SpriteSourceManager
         }
     }
 
-    public static void copySpriteSupplierMetaToSpriteContents(Function<SpriteResourceLoader, SpriteContents> function, SpriteContents contents)
+    public static void copySpriteSupplierMetaToSpriteContents(Function<SpriteResourceLoader, SpriteContents> function, @Nullable SpriteContents contents)
     {
+        // SpriteSource.SpriteSupplier#apply() may return null if the processing fails
+        if (contents == null) return;
+
         if (!(function instanceof SpriteSource.SpriteSupplier supplier))
         {
             contents.atlasviewer$setSpriteSourceSourcePack(null, null, SourceAwareness.SPRITESUPPLIER_UNSUPPORTED, null, null);
