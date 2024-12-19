@@ -2,7 +2,6 @@ package xfacthd.atlasviewer.client.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,27 +10,41 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.*;
+import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.util.*;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Tuple;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.api.SourceAwareness;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
+import xfacthd.atlasviewer.client.screen.widget.BackgroundSwitchButton;
 import xfacthd.atlasviewer.client.screen.widget.CloseButton;
 import xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
-import xfacthd.atlasviewer.client.util.*;
+import xfacthd.atlasviewer.client.util.FixedTooltipPositioner;
+import xfacthd.atlasviewer.client.util.MippedAtlasGuiRenderType;
+import xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import xfacthd.atlasviewer.client.util.TextLine;
+import xfacthd.atlasviewer.client.util.TooltipSeparator;
 import xfacthd.atlasviewer.platform.Services;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -119,6 +132,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private final SpriteContents.AnimatedTexture animation;
     private final int animFrameTime;
     private final GuiSpriteScaling guiScaling;
+    private final BackgroundSwitchButton.Type background;
     private int imageHeight;
     private int xLeft;
     private int yTop;
@@ -141,7 +155,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private Component guiSpriteNinesliceBorderText;
     private int currentMipLevel;
 
-    public SpriteInfoScreen(TextureAtlas atlas, TextureAtlasSprite sprite, int currentMipLevel)
+    public SpriteInfoScreen(TextureAtlas atlas, TextureAtlasSprite sprite, int currentMipLevel, BackgroundSwitchButton.Type background)
     {
         super(TITLE);
         this.atlas = atlas;
@@ -149,6 +163,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         this.contents = sprite.contents();
         this.mipped = atlas.atlasviewer$isMipMapEnabled();
         this.guiSprite = atlas == Minecraft.getInstance().getGuiSprites().atlasviewer$getAtlas();
+        this.background = background;
         this.sourceNames = collectSourcePackNames();
         this.primarySource = sourceNames.isEmpty() ? null : sourceNames.getFirst();
         this.animation = contents.atlasviewer$getAnimatedTexture();
@@ -301,7 +316,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
 
         graphics.blitSprite(
                 RenderType::guiTextured,
-                AtlasScreen.CHECKER_LOC,
+                background.getSprite(),
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
                 (int)(contents.width() * scale),

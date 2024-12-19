@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
+import xfacthd.atlasviewer.client.screen.widget.BackgroundSwitchButton;
 import xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
 import xfacthd.atlasviewer.client.screen.widget.IndicatorButton;
 import xfacthd.atlasviewer.client.screen.widget.MenuContainer;
@@ -49,7 +50,6 @@ import java.util.WeakHashMap;
 public final class AtlasScreen extends Screen implements SearchHandler
 {
     public static final ResourceLocation BACKGROUND_LOC = AtlasViewer.rl("background");
-    public static final ResourceLocation CHECKER_LOC = AtlasViewer.rl("checker");
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final Component TITLE_HIGHLIGHT_ANIM = Component.translatable("btn.atlasviewer.highlight_animated");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
@@ -73,6 +73,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
     private static final int DETAILS_HEIGHT = 20;
     private static final int MIP_LEVEL_WIDTH = 160;
     private static final int MIP_LEVEL_HEIGHT = 20;
+    private static final int BG_SWITCHER_WIDTH = 180;
     private static final int TOOL_MENU_Y = PADDING * 3;
     private static final Map<TextureAtlas, Size> ATLAS_SIZES = new WeakHashMap<>();
 
@@ -85,6 +86,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
     private Button btnExport;
     private Button btnExportMipped;
     private DiscreteSliderButton mipLevelSlider;
+    private BackgroundSwitchButton bgSwitchButton;
     private SearchBox searchBar;
     private Map<ResourceLocation, TextureAtlas> atlases;
     private TextureAtlas currentAtlas;
@@ -162,6 +164,11 @@ public final class AtlasScreen extends Screen implements SearchHandler
                         this::selectMipLevel
                 )
         ));
+        menu.addMenuEntry(bgSwitchButton = addRenderableWidget(new BackgroundSwitchButton(
+                0, 0,
+                BG_SWITCHER_WIDTH,
+                bgSwitchButton != null ? bgSwitchButton.getSelectedType() : null
+        )));
         menu.addMenuEntry(searchBar = new SearchBox(
                 0, 0, SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT, searchBar, this, this::addRenderableWidget
         ));
@@ -204,7 +211,8 @@ public final class AtlasScreen extends Screen implements SearchHandler
 
         int bgWidth = (int)Math.min(maxAtlasWidth, atlasSize.width * scale);
         int bgHeight = (int)Math.min(maxAtlasHeight, atlasSize.height * scale);
-        graphics.blitSprite(RenderType::guiTextured, CHECKER_LOC, atlasLeft, atlasTop, bgWidth, bgHeight);
+        ResourceLocation bgSprite = bgSwitchButton.getSelectedType().getSprite();
+        graphics.blitSprite(RenderType::guiTextured, bgSprite, atlasLeft, atlasTop, bgWidth, bgHeight);
 
         graphics.enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
         graphics.atlasviewer$innerBlit(
@@ -385,7 +393,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
 
         if (hoveredSprite != null && button == GLFW.GLFW_MOUSE_BUTTON_2 && (!menu.isOpen() || !menu.isMouseOver(mouseX, mouseY)))
         {
-            Services.PLATFORM.pushScreenLayer(new SpriteInfoScreen(currentAtlas, hoveredSprite, currentMipLevel));
+            Services.PLATFORM.pushScreenLayer(new SpriteInfoScreen(currentAtlas, hoveredSprite, currentMipLevel, bgSwitchButton.getSelectedType()));
             return true;
         }
 
