@@ -53,6 +53,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private static final Component TITLE = Component.translatable("title.atlasviewer.spriteinfo");
     private static final Component CHAR_INFO = Component.literal("i").withStyle(ChatFormatting.BLUE);
     private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.spriteinfo.name");
+    private static final Component LABEL_POSITION = Component.translatable("label.atlasviewer.spriteinfo.position");
     private static final Component LABEL_SIZE = Component.translatable("label.atlasviewer.spriteinfo.size");
     private static final Component LABEL_SOURCEPACK = Component.translatable("label.atlasviewer.spriteinfo.sourcepack");
     private static final Component LABEL_READERPACK = Component.translatable(
@@ -71,6 +72,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private static final Component LABEL_GUI_SPRITE_NINESLICE_BORDER = Component.translatable("label.atlasviewer.spriteinfo.gui_nineslice_border");
     private static final List<Label> LABELS = List.of(
             new Label(LABEL_NAME),
+            new Label(LABEL_POSITION),
             new Label(LABEL_SIZE),
             new Label(LABEL_SOURCEPACK),
             new Label(LABEL_READERPACK),
@@ -140,6 +142,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private Button btnExport;
     private Button btnExportMipped;
     private TextLine spriteName;
+    private Component spritePosText;
     private Component spriteSizeText;
     private TextLine primarySourceName;
     private SourcePackList sourceNameTooltip;
@@ -217,6 +220,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         int maxValueLen = WIDTH - (PADDING * 2) - valueX;
 
         spriteName = TextLine.of(contents.name().toString(), font, maxValueLen);
+        spritePosText = Component.translatable("value.atlasviewer.position", sprite.getX(), sprite.getY());
         spriteSizeText = Component.translatable("value.atlasviewer.size", contents.width(), contents.height());
         primarySourceName = primarySource != null && !primarySource.isEmpty() ? TextLine.of(primarySource, font, maxValueLen) : new TextLine(VALUE_UNKNOWN_PACK);
         sourceNameTooltip = makeTooltipList();
@@ -284,6 +288,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
 
         int y = yTop + SPRITE_Y;
         y = drawLine(graphics, LABEL_NAME, spriteName.text(), y);
+        y = drawLine(graphics, LABEL_POSITION, spritePosText, y);
         y = drawLine(graphics, LABEL_SIZE, spriteSizeText, y);
         y = drawLine(graphics, LABEL_SOURCEPACK, primarySourceName.text(), y);
         y = drawLine(graphics, LABEL_READERPACK, sourceInfo.sourcePack, y);
