@@ -92,7 +92,7 @@ public final class QuadTree<T>
                 if (childRects[i] != null && rectContains(childRects[i], size))
                 {
                     children.get(i).insert(item, size);
-                    break;
+                    return;
                 }
             }
         }
