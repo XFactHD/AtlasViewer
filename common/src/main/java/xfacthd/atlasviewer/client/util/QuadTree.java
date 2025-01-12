@@ -1,80 +1,62 @@
 package xfacthd.atlasviewer.client.util;
 
-import net.minecraft.client.renderer.Rect2i;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public final class QuadTree<T>
+public final class QuadTree<T> extends Rect2i
 {
     private static final int MAX_DEPTH = 12;
 
-    private final Rect2i rect;
-    private final List<QuadTree<T>> children;
-    private final Rect2i[] childRects;
+    private final @Nullable QuadTree<T> @Nullable[] children;
+    @Nullable
+    private List<Entry<T>> entries = null;
 
-    private final List<Entry<T>> entries = new ArrayList<>();
-
-    public QuadTree(Rect2i rect, int minSize)
+    public QuadTree(int width, int height, int minSize)
     {
-        this(rect, minSize, 0);
+        this(0, 0, width, height, minSize, 0);
     }
 
-    private QuadTree(Rect2i rect, int minSize, int depth)
+    @SuppressWarnings("unchecked")
+    private QuadTree(int x, int y, int width, int height, int minSize, int depth)
     {
-        this.rect = rect;
+        super(x, y, width, height);
         depth++;
 
-        if (depth < MAX_DEPTH && rect.getWidth() > minSize && rect.getWidth() % 2 == 0)
+        if (depth < MAX_DEPTH && width > minSize && width % 2 == 0)
         {
-            children = new ArrayList<>(4);
-            childRects = new Rect2i[4];
+            this.children = new QuadTree[4];
 
-            int childWidth = rect.getWidth() / 2;
-            int childHeight = rect.getHeight() / 2;
+            int childWidth = width / 2;
+            int childHeight = height / 2;
 
-            if (rect.getWidth() == rect.getHeight() / 2)
+            if (width == height / 2)
             {
-                childRects[0] = new Rect2i(rect.getX(), rect.getY(), rect.getWidth(), childHeight);
-                childRects[1] = null;
-                childRects[2] = null;
-                childRects[3] = new Rect2i(rect.getX(), rect.getY() + childHeight, rect.getWidth(), childHeight);
-
-                children.add(new QuadTree<>(childRects[0], minSize, depth));
-                children.add(null);
-                children.add(null);
-                children.add(new QuadTree<>(childRects[3], minSize, depth));
+                this.children[0] = new QuadTree<>(x, y, width, childHeight, minSize, depth);
+                this.children[1] = null;
+                this.children[2] = null;
+                this.children[3] = new QuadTree<>(x, y + childHeight, width, childHeight, minSize, depth);
             }
-            else if (rect.getHeight() == rect.getWidth() / 2)
+            else if (height == width / 2)
             {
-                childRects[0] = new Rect2i(rect.getX(), rect.getY(), childWidth, rect.getHeight());
-                childRects[1] = new Rect2i(rect.getX() + childWidth, rect.getY(), childWidth, rect.getHeight());
-                childRects[2] = null;
-                childRects[3] = null;
-
-                children.add(new QuadTree<>(childRects[0], minSize, depth));
-                children.add(new QuadTree<>(childRects[1], minSize, depth));
-                children.add(null);
-                children.add(null);
+                this.children[0] = new QuadTree<>(x, y, childWidth, height, minSize, depth);
+                this.children[1] = new QuadTree<>(x + childWidth, y, childWidth, height, minSize, depth);
+                this.children[2] = null;
+                this.children[3] = null;
             }
             else
             {
-                childRects[0] = new Rect2i(rect.getX(), rect.getY(), childWidth, childHeight);
-                childRects[1] = new Rect2i(rect.getX() + childWidth, rect.getY(), childWidth, childHeight);
-                childRects[2] = new Rect2i(rect.getX() + childWidth, rect.getY() + childHeight, childWidth, childHeight);
-                childRects[3] = new Rect2i(rect.getX(), rect.getY() + childHeight, childWidth, childHeight);
-
-                for (int i = 0; i < 4; i++)
-                {
-                    children.add(new QuadTree<>(childRects[i], minSize, depth));
-                }
+                this.children[0] = new QuadTree<>(x, y, childWidth, childHeight, minSize, depth);
+                this.children[1] = new QuadTree<>(x + childWidth, y, childWidth, childHeight, minSize, depth);
+                this.children[2] = new QuadTree<>(x + childWidth, y + childHeight, childWidth, childHeight, minSize, depth);
+                this.children[3] = new QuadTree<>(x, y + childHeight, childWidth, childHeight, minSize, depth);
             }
         }
         else
         {
-            children = null;
-            childRects = null;
+            this.children = null;
         }
     }
 
@@ -85,47 +67,66 @@ public final class QuadTree<T>
 
     private void insert(T item, Rect2i size)
     {
-        if (childRects != null)
+        if (children != null)
         {
             for (int i = 0; i < 4; i++)
             {
-                if (childRects[i] != null && rectContains(childRects[i], size))
+                QuadTree<T> child = children[i];
+                if (child != null && child.contains(size))
                 {
-                    children.get(i).insert(item, size);
+                    child.insert(item, size);
                     return;
                 }
             }
         }
 
+        if (entries == null)
+        {
+            entries = new ArrayList<>();
+        }
         entries.add(new Entry<>(item, size));
     }
 
-    public T find(int x, int y)
+    public void trim()
     {
-        Rect2i point = new Rect2i(x, y, 1, 1);
-        return find(point);
+        if (children != null)
+        {
+            for (int i = 0; i < children.length; i++)
+            {
+                QuadTree<T> child = children[i];
+                if (child == null) continue;
+
+                child.trim();
+                if (child.isEmpty())
+                {
+                    children[i] = null;
+                }
+            }
+        }
     }
 
-    private T find(Rect2i point)
+    @Nullable
+    public T find(int x, int y)
     {
-        if (!entries.isEmpty())
+        if (entries != null)
         {
             for (Entry<T> e : entries)
             {
-                if (rectContains(e.size, point))
+                if (e.contains(x, y))
                 {
                     return e.item;
                 }
             }
         }
 
-        if (childRects != null)
+        if (children != null)
         {
             for (int i = 0; i < 4; i++)
             {
-                if (childRects[i] != null && rectContains(childRects[i], point))
+                QuadTree<T> child = children[i];
+                if (child != null && child.contains(x, y))
                 {
-                    T item = children.get(i).find(point);
+                    T item = child.find(x, y);
                     if (item != null)
                     {
                         return item;
@@ -137,9 +138,19 @@ public final class QuadTree<T>
         return null;
     }
 
-    private static boolean rectContains(Rect2i r1, Rect2i r2)
+    public boolean isEmpty()
     {
-        return r1.contains(r2.getX(), r2.getY()) && r1.contains(r2.getX() + r2.getWidth(), r2.getY() + r2.getHeight());
+        if (children != null)
+        {
+            for (QuadTree<T> child : children)
+            {
+                if (child != null)
+                {
+                    return false;
+                }
+            }
+        }
+        return entries == null;
     }
 
     public int depth()
@@ -163,13 +174,13 @@ public final class QuadTree<T>
     {
         if (children != null)
         {
-            Rect2i minRect = rect;
+            Rect2i minRect = this;
             for (QuadTree<T> child : children)
             {
                 if (child != null)
                 {
                     Rect2i childRect = child.minSize();
-                    if (childRect.getWidth() < rect.getWidth() || childRect.getHeight() < rect.getHeight())
+                    if (childRect.width < width || childRect.height < height)
                     {
                         minRect = childRect;
                     }
@@ -177,11 +188,17 @@ public final class QuadTree<T>
             }
             return minRect;
         }
-        return rect;
+        return this;
     }
 
-    private record Entry<T>(T item, Rect2i size)
+    private static final class Entry<T> extends Rect2i
     {
+        private final T item;
 
+        private Entry(T item, Rect2i size)
+        {
+            super(size.x, size.y, size.width, size.height);
+            this.item = item;
+        }
     }
 }

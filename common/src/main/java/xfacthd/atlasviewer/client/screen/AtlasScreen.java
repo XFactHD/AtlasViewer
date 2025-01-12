@@ -9,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -32,6 +31,7 @@ import xfacthd.atlasviewer.client.screen.widget.search.SearchHandler;
 import xfacthd.atlasviewer.client.util.ClientUtils;
 import xfacthd.atlasviewer.client.util.MippedAtlasGuiRenderType;
 import xfacthd.atlasviewer.client.util.QuadTree;
+import xfacthd.atlasviewer.client.util.Rect2i;
 import xfacthd.atlasviewer.platform.Services;
 
 import java.io.IOException;
@@ -413,14 +413,14 @@ public final class AtlasScreen extends Screen implements SearchHandler
 
         sprites = currentAtlas.atlasviewer$getTexturesByName().values();
 
-        Rect2i treeRect = new Rect2i(0, 0, atlasSize.width, atlasSize.height);
         int minSize = sprites.stream()
                 .map(TextureAtlasSprite::contents)
                 .mapToInt(c -> Math.max(c.width(), c.height()))
                 .min()
                 .orElseThrow();
-        spriteTree = new QuadTree<>(treeRect, minSize);
+        spriteTree = new QuadTree<>(atlasSize.width, atlasSize.height, minSize);
         sprites.forEach(s -> spriteTree.insert(s, AtlasScreen::getSpriteSize));
+        spriteTree.trim();
         Rect2i minRect = spriteTree.minSize();
         AtlasViewer.LOGGER.debug(
                 "QuadTree for atlas '{}' has a depth of {}. Smallest sub-tree sized {}x{}, requested {}x{}",
