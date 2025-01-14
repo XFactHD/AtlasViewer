@@ -55,7 +55,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private static final Component LABEL_GUI_SPRITE_TYPE = Component.translatable("label.atlasviewer.spriteinfo.gui_type");
     private static final Component LABEL_GUI_SPRITE_SIZE = Component.translatable("label.atlasviewer.spriteinfo.gui_size");
     private static final Component LABEL_GUI_SPRITE_NINESLICE_BORDER = Component.translatable("label.atlasviewer.spriteinfo.gui_nineslice_border");
-    private static final Label[] LABELS = {
+    private static final List<Label> LABELS = List.of(
             new Label(LABEL_NAME),
             new Label(LABEL_SIZE),
             new Label(LABEL_SOURCEPACK),
@@ -69,7 +69,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
             new Label(LABEL_GUI_SPRITE_TYPE, screen -> screen.guiSprite),
             new Label(LABEL_GUI_SPRITE_SIZE, screen -> screen.guiSprite && screen.guiScaling.type() != GuiSpriteScaling.Type.STRETCH),
             new Label(LABEL_GUI_SPRITE_NINESLICE_BORDER, screen -> screen.guiSprite && screen.guiScaling.type() == GuiSpriteScaling.Type.NINE_SLICE)
-    };
+    );
     private static final Component VALUE_TRUE = Component.translatable("value.atlasviewer.true").withStyle(Style.EMPTY.withColor(0x00D000));
     private static final Component VALUE_FALSE = Component.translatable("value.atlasviewer.false").withStyle(Style.EMPTY.withColor(0xD00000));
     private static final Component VALUE_FRAMETIME_MIXED = Component.translatable("value.atlasviewer.frametime_mixed");

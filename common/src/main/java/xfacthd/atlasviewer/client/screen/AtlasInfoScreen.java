@@ -46,7 +46,7 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
             Component.literal("i").withStyle(ChatFormatting.BLUE)
     );
     private static final Component LABEL_PERCENT_FILLED = Component.translatable("label.atlasviewer.atlas_percent_filled");
-    private static final Label[] LABELS = {
+    private static final List<Label> LABELS = List.of(
             new Label(LABEL_NAME),
             new Label(LABEL_SIZE),
             new Label(LABEL_MAX_SIZE),
@@ -54,7 +54,7 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
             new Label(LABEL_SPRITES),
             new Label(LABEL_SPRITES_BY_MAX_MIP, screen -> screen.atlasInfo.mipped),
             new Label(LABEL_PERCENT_FILLED)
-    };
+    );
     private static final int WIDTH = 400;
     private static final int PADDING = 5;
     private static final int LINE_HEIGHT = 12;
