@@ -494,7 +494,12 @@ public final class AtlasScreen extends Screen implements SearchHandler
             int texId = currentAtlas.getId();
             RenderSystem.bindTexture(texId);
             image.downloadTexture(mipLevel, false);
-            exportNativeImage(image, currentAtlas.location(), "atlas", true, MSG_EXPORT_SUCCESS);
+            Path imgPath = exportNativeImage(image, currentAtlas.location(), "atlas", true, MSG_EXPORT_SUCCESS);
+            if (mipLevel == 0)
+            {
+                Map<ResourceLocation, TextureAtlasSprite> sprites = currentAtlas.atlasviewer$getTexturesByName();
+                TextureAtlas.dumpSpriteNames(imgPath.getParent(), imgPath.getFileName().toString(), sprites);
+            }
         }
         catch (IOException e)
         {
@@ -607,8 +612,9 @@ public final class AtlasScreen extends Screen implements SearchHandler
      * @param name The original name of the resource to export
      * @param prefix The type prefix of the image (i.e. "atlas" for a texture atlas or "sprite" for a single sprite)
      * @param shortenPath If true, only the part of the name after the last slash will be used as part of the file name
+     * @return The file path of the exported atlas image
      */
-    public static void exportNativeImage(NativeImage image, ResourceLocation name, String prefix, boolean shortenPath, Component msgSuccess) throws IOException
+    public static Path exportNativeImage(NativeImage image, ResourceLocation name, String prefix, boolean shortenPath, Component msgSuccess) throws IOException
     {
         Path folderPath = Services.PLATFORM.getGameDir().resolve("atlasviewer");
         Files.createDirectories(folderPath);
@@ -640,6 +646,8 @@ public final class AtlasScreen extends Screen implements SearchHandler
                 msgSuccess,
                 buildPathComponent(filePath)
         )));
+
+        return filePath;
     }
 
     private static Component buildPathComponent(Path path)

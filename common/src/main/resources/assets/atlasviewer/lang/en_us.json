@@ -74,7 +74,7 @@
     "msg.atlasviewer.export_sprite_error": "Encountered an error while exporting the sprite. An excerpt of the error is shown below. See the game log for more info.",
     "msg.atlasviewer.atlas_hw_dependent": "This value is hardware-dependent and may be different on other systems!",
     "msg.atlasviewer.atlas_sprites_by_max_mip": "The amount of sprites for whom the respective mip level is the maximum possible mip level",
-    "msg.atlasviewer.export_atlas.detail": "Exports the texture atlas at full resolution",
+    "msg.atlasviewer.export_atlas.detail": "Exports the texture atlas at full resolution and a text file containing a list of sprite IDs with their position and size",
     "msg.atlasviewer.export_mipped_atlas.detail": "Exports the texture atlas at the currently selected mip level %s",
     "msg.atlasviewer.export_sprite.detail": "Exports the sprite at full resolution",
     "msg.atlasviewer.export_mipped_sprite.detail": "Exports the sprite at the currently selected mip level %s",
