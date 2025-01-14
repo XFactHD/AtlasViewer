@@ -24,6 +24,7 @@ import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.api.SourceAwareness;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
+import xfacthd.atlasviewer.client.screen.widget.BackgroundSwitchButton;
 import xfacthd.atlasviewer.client.screen.widget.CloseButton;
 import xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
 import xfacthd.atlasviewer.client.util.*;
@@ -118,6 +119,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private final SpriteContents.AnimatedTexture animation;
     private final int animFrameTime;
     private final GuiSpriteScaling guiScaling;
+    private final BackgroundSwitchButton.Type background;
     private int imageHeight;
     private int xLeft;
     private int yTop;
@@ -140,7 +142,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private Component guiSpriteNinesliceBorderText;
     private int currentMipLevel;
 
-    public SpriteInfoScreen(TextureAtlas atlas, TextureAtlasSprite sprite, int currentMipLevel)
+    public SpriteInfoScreen(TextureAtlas atlas, TextureAtlasSprite sprite, int currentMipLevel, BackgroundSwitchButton.Type background)
     {
         super(TITLE);
         this.atlas = atlas;
@@ -148,6 +150,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         this.contents = sprite.contents();
         this.mipped = atlas.atlasviewer$isMipMapEnabled();
         this.guiSprite = atlas == Minecraft.getInstance().getGuiSprites().atlasviewer$getAtlas();
+        this.background = background;
         this.sourceNames = collectSourcePackNames();
         this.primarySource = sourceNames.isEmpty() ? null : sourceNames.getFirst();
         this.animation = contents.atlasviewer$getAnimatedTexture();
@@ -298,7 +301,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
 
         float scale = (float) SPRITE_SIZE / Math.max(contents.width(), contents.height());
 
-        RenderSystem.setShaderTexture(0, AtlasScreen.CHECKER_LOC);
+        RenderSystem.setShaderTexture(0, background.getLocation());
         ClientUtils.drawNineSliceTexture(
                 graphics.pose(),
                 xLeft + (PADDING * 2),
@@ -306,7 +309,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
                 0,
                 (int)(contents.width() * scale),
                 (int)(contents.height() * scale),
-                AtlasScreen.CHECKER
+                background.getNineSlice()
         );
 
         RenderSystem.setShaderTexture(0, sprite.atlasLocation());

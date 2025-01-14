@@ -60,6 +60,7 @@
     "btn.atlasviewer.search": "Search...",
     "btn.atlasviewer.details": "Atlas Details",
     "btn.atlasviewer.mip_level": "Mip Level: %s",
+    "btn.atlasviewer.switch_background": "Background",
     "btn.atlasviewer.menu": "Tools",
     "header.atlasviewer.atlasload.namespace": "Namespace",
     "header.atlasviewer.atlasload.count": "Count",

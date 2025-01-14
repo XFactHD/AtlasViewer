@@ -3,6 +3,7 @@ package xfacthd.atlasviewer.client.util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.FormattedText;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 
@@ -20,8 +21,14 @@ public final class ClientUtils
         return arbClearTextureSupported;
     }
 
-    public static void drawNineSliceTexture(PoseStack pstack, int elemX, int elemY, float z, int elemW, int elemH, NineSlice ns)
+    public static void drawNineSliceTexture(PoseStack pstack, int elemX, int elemY, float z, int elemW, int elemH, @Nullable NineSlice ns)
     {
+        if (ns == null)
+        {
+            // Stretch the texture if no nine-slice definition is provided
+            drawNineSliceTexture(pstack, elemX, elemY, z, elemW, elemH, 0, 0, elemW, elemH, elemW, elemH, 0);
+            return;
+        }
         drawNineSliceTexture(pstack, elemX, elemY, z, elemW, elemH, ns.uX(), ns.vY(), ns.uW(), ns.vH(), ns.texW(), ns.texH(), ns.border());
     }
 
