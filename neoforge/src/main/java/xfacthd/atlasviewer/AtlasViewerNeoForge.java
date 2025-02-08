@@ -4,7 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import xfacthd.atlasviewer.client.AVClient;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
@@ -25,7 +27,7 @@ public final class AtlasViewerNeoForge
         AVClient.onRegisterKeyMappings(event::register);
     }
 
-    private static void onRegisterReloadListeners(final RegisterClientReloadListenersEvent event)
+    private static void onRegisterReloadListeners(final AddClientReloadListenersEvent event)
     {
         SpriteSourceManager.registerDetails();
     }
