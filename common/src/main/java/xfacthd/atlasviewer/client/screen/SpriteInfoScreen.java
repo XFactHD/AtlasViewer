@@ -26,6 +26,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.api.SourceAwareness;
@@ -83,8 +84,14 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
             new Label(LABEL_INTERPOLATED, screen -> screen.animated),
             new Label(LABEL_FRAMETIME, screen -> screen.animated),
             new Label(LABEL_GUI_SPRITE_TYPE, screen -> screen.guiSprite),
-            new Label(LABEL_GUI_SPRITE_SIZE, screen -> screen.guiSprite && screen.guiScaling.type() != GuiSpriteScaling.Type.STRETCH),
-            new Label(LABEL_GUI_SPRITE_NINESLICE_BORDER, screen -> screen.guiSprite && screen.guiScaling.type() == GuiSpriteScaling.Type.NINE_SLICE)
+            new Label(
+                    LABEL_GUI_SPRITE_SIZE,
+                    screen -> screen.guiSprite && Objects.requireNonNull(screen.guiScaling).type() != GuiSpriteScaling.Type.STRETCH
+            ),
+            new Label(
+                    LABEL_GUI_SPRITE_NINESLICE_BORDER,
+                    screen -> screen.guiSprite && Objects.requireNonNull(screen.guiScaling).type() == GuiSpriteScaling.Type.NINE_SLICE
+            )
     );
     private static final Component VALUE_TRUE = Component.translatable("value.atlasviewer.true").withStyle(Style.EMPTY.withColor(0x00D000));
     private static final Component VALUE_FALSE = Component.translatable("value.atlasviewer.false").withStyle(Style.EMPTY.withColor(0xD00000));
@@ -118,10 +125,12 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private static final int FOOTER_HEIGHT = MIP_LEVEL_HEIGHT + PADDING * 4;
     private static final int MIN_HEIGHT = SPRITE_Y + SPRITE_SIZE + FOOTER_HEIGHT;
     private static final int LINE_NAME = 0;
-    private static final int LINE_SOURCEPACK = 2;
-    private static final int LINE_READERPACK = 3;
-    private static final int LINE_READERTYPE = 4;
-    private static final int LINE_MAX_MIP_LEVEL = 5;
+    private static final int LINE_POSITION = LINE_NAME + 1;
+    private static final int LINE_SIZE = LINE_POSITION + 1;
+    private static final int LINE_SOURCEPACK = LINE_SIZE + 1;
+    private static final int LINE_READERPACK = LINE_SOURCEPACK + 1;
+    private static final int LINE_READERTYPE = LINE_READERPACK + 1;
+    private static final int LINE_MAX_MIP_LEVEL = LINE_READERTYPE + 1;
 
     private final TextureAtlas atlas;
     private final TextureAtlasSprite sprite;
@@ -130,31 +139,51 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     private final boolean animated;
     private final boolean guiSprite;
     private final List<String> sourceNames;
+    @Nullable
     private final String primarySource;
+    @Nullable
     private final SpriteContents.AnimatedTexture animation;
     private final int animFrameTime;
+    @Nullable
     private final GuiSpriteScaling guiScaling;
     private final BackgroundSwitchButton.Type background;
     private int imageHeight;
     private int xLeft;
     private int yTop;
     private int valueX;
+    @UnknownNullability
     private Button btnExport;
+    @UnknownNullability
     private Button btnExportMipped;
+    @UnknownNullability
     private TextLine spriteName;
+    @UnknownNullability
     private Component spritePosText;
+    @UnknownNullability
     private Component spriteSizeText;
+    @UnknownNullability
     private TextLine primarySourceName;
+    @UnknownNullability
     private SourcePackList sourceNameTooltip;
+    @UnknownNullability
     private SpriteSourceInfo sourceInfo;
+    @UnknownNullability
     private Component maxMipLevel;
+    @UnknownNullability
     private Component maxMipLevelTooltip;
+    @UnknownNullability
     private Component animatedText;
+    @UnknownNullability
     private Component framesText;
+    @UnknownNullability
     private Component interpText;
+    @UnknownNullability
     private Component frameTimeText;
+    @UnknownNullability
     private Component guiSpriteTypeText;
+    @UnknownNullability
     private Component guiSpriteSizeText;
+    @UnknownNullability
     private Component guiSpriteNinesliceBorderText;
     private int currentMipLevel;
 
@@ -233,7 +262,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         {
             animatedText = VALUE_TRUE;
             framesText = Component.literal(String.valueOf(contents.atlasviewer$callGetFrameCount()));
-            boolean interp = animation.atlasviewer$getInterpolateFrames();
+            boolean interp = Objects.requireNonNull(animation).atlasviewer$getInterpolateFrames();
             interpText = interp ? VALUE_TRUE : VALUE_FALSE;
             if (animFrameTime == -1)
             {
@@ -250,7 +279,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         }
         if (guiSprite)
         {
-            guiSpriteTypeText = Component.translatable("value.atlasviewer.spriteinfo.gui_sprite_type." + guiScaling.type().getSerializedName());
+            guiSpriteTypeText = Component.translatable("value.atlasviewer.spriteinfo.gui_sprite_type." + Objects.requireNonNull(guiScaling).type().getSerializedName());
             switch (guiScaling)
             {
                 case GuiSpriteScaling.Tile tile ->
@@ -637,10 +666,10 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
 
         List<SpriteContents.FrameInfo> frames = animation.atlasviewer$getFrames();
 
-        int first = frames.getFirst().atlasviewer$getTime();
+        int first = frames.getFirst().time();
         for (SpriteContents.FrameInfo frame : frames)
         {
-            if (frame.atlasviewer$getTime() != first)
+            if (frame.time() != first)
             {
                 // No point in displaying a frame time when it's different for some frames
                 return -1;
@@ -671,7 +700,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         try
         {
             NativeImage image = contents.atlasviewer$getByMipLevel()[mipLevel];
-            AtlasScreen.exportNativeImage(image, contents.name(), "sprite", false, MSG_EXPORT_SUCCESS);
+            AtlasScreen.exportNativeImage(image, contents.name(), "sprite", mipLevel, false, MSG_EXPORT_SUCCESS);
         }
         catch (IOException e)
         {

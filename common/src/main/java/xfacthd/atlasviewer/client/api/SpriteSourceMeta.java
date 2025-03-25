@@ -1,10 +1,13 @@
 package xfacthd.atlasviewer.client.api;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Capture the pack ID of the resource pack where this sprite source was loaded from
  */
 public sealed class SpriteSourceMeta permits SpriteSourceMeta.Unsupported
 {
+    @Nullable
     private String sourcePackId;
     private SourceAwareness sourceAwareness = SourceAwareness.SPRITESOURCE_UNAWARE;
 
@@ -29,6 +32,7 @@ public sealed class SpriteSourceMeta permits SpriteSourceMeta.Unsupported
     /**
      * Get the pack ID of the resource pack where this sprite source was loaded from
      */
+    @Nullable
     public String getSourcePack()
     {
         return sourcePackId;

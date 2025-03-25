@@ -22,6 +22,7 @@ public class MixinTextureAtlas implements IMipAwareTextureAtlas
     )
     private void atlasviewer$onUpload(SpriteLoader.Preparations preps, CallbackInfo ci)
     {
+        //noinspection DataFlowIssue
         AtlasScreen.storeAtlasSize(
                 (TextureAtlas)(Object) this,
                 preps.width(),

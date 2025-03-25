@@ -1,9 +1,10 @@
 package xfacthd.atlasviewer.client.util;
 
+import com.mojang.blaze3d.opengl.GlTexture;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -16,14 +17,10 @@ public final class MippedAtlasGuiRenderType
     private static final BiFunction<TextureAtlas, Integer, RenderType> FACTORY = Util.memoize((atlas, mip) ->
             RenderType.create(
                     "mipped_atlas_gui",
-                    DefaultVertexFormat.POSITION_TEX_COLOR,
-                    VertexFormat.Mode.QUADS,
                     1536,
+                    RenderPipelines.GUI_TEXTURED,
                     RenderType.CompositeState.builder()
                             .setTextureState(new MippedAtlasTextureStateShard(atlas, mip))
-                            .setShaderState(RenderStateShard.POSITION_TEXTURE_COLOR_SHADER)
-                            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                            .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                             .createCompositeState(false)
             )
     );
@@ -39,16 +36,16 @@ public final class MippedAtlasGuiRenderType
         {
             super(() ->
             {
-                RenderSystem.activeTexture(GL13.GL_TEXTURE0);
-                RenderSystem.bindTexture(atlas.getId());
-                RenderSystem.texParameter(GL13.GL_TEXTURE_2D, GL13.GL_TEXTURE_BASE_LEVEL, mipLevel);
-                RenderSystem.setShaderTexture(0, atlas.getId());
-            }, () ->
-            {
-                RenderSystem.activeTexture(GL13.GL_TEXTURE0);
-                RenderSystem.bindTexture(atlas.getId());
-                RenderSystem.texParameter(GL13.GL_TEXTURE_2D, GL13.GL_TEXTURE_BASE_LEVEL, 0);
-            });
+                setMipBaseLevel(atlas, mipLevel);
+                RenderSystem.setShaderTexture(0, atlas.getTexture());
+            }, () -> setMipBaseLevel(atlas, 0));
+        }
+
+        private static void setMipBaseLevel(TextureAtlas atlas, int mipLevel)
+        {
+            GlStateManager._activeTexture(GL13.GL_TEXTURE0);
+            GlStateManager._bindTexture(((GlTexture) atlas.getTexture()).glId());
+            GlStateManager._texParameter(GL13.GL_TEXTURE_2D, GL13.GL_TEXTURE_BASE_LEVEL, mipLevel);
         }
     }
 

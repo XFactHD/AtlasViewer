@@ -2,6 +2,7 @@ package xfacthd.atlasviewer.client.mixin;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.SpriteContents;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
@@ -15,6 +16,7 @@ public interface AccessorSpriteContents
     @Accessor("byMipLevel")
     NativeImage[] atlasviewer$getByMipLevel();
 
+    @Nullable
     @Accessor("animatedTexture")
     SpriteContents.AnimatedTexture atlasviewer$getAnimatedTexture();
 }

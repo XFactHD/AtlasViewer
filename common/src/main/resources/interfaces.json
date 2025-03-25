@@ -2,9 +2,6 @@
     "net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture": [
         "xfacthd/atlasviewer/client/duck/DefaultedAccessorAnimatedTexture"
     ],
-    "net/minecraft/client/renderer/texture/SpriteContents$FrameInfo": [
-        "xfacthd/atlasviewer/client/duck/DefaultedAccessorFrameInfo"
-    ],
     "net/minecraft/client/renderer/texture/SpriteContents": [
         "xfacthd/atlasviewer/client/duck/DefaultedAccessorSpriteContents",
         "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareSpriteContents"
@@ -22,20 +19,8 @@
     "net/minecraft/client/renderer/texture/atlas/SpriteSource": [
         "xfacthd/atlasviewer/client/api/IPackAwareSpriteSource"
     ],
-    "net/minecraft/client/renderer/texture/atlas/sources/DirectoryLister": [
-        "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorDirectoryLister"
-    ],
     "net/minecraft/client/renderer/texture/atlas/sources/LazyLoadedImage": [
         "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorLazyLoadedImage"
-    ],
-    "net/minecraft/client/renderer/texture/atlas/sources/PalettedPermutations": [
-        "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorPalettedPermutations"
-    ],
-    "net/minecraft/client/renderer/texture/atlas/sources/SingleFile": [
-        "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorSingleFile"
-    ],
-    "net/minecraft/client/renderer/texture/atlas/sources/Unstitcher": [
-        "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcher"
     ],
     "net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$RegionInstance": [
         "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcherRegionInstance"
@@ -48,5 +33,8 @@
     ],
     "net/minecraft/client/gui/GuiGraphics": [
         "xfacthd/atlasviewer/client/util/IGuiGraphicsExtension"
+    ],
+    "net/minecraft/util/ExtraCodecs$LateBoundIdMapper": [
+        "xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<I, V>"
     ]
 }

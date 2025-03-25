@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -19,7 +20,8 @@ public interface MixinSpriteSourceOutput
                     target = "Lnet/minecraft/client/renderer/texture/atlas/SpriteResourceLoader;loadSprite(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/server/packs/resources/Resource;)Lnet/minecraft/client/renderer/texture/SpriteContents;"
             )
     )
-    private static SpriteContents atlasviewer$handleAddResource(SpriteContents contents, ResourceLocation name, Resource resource, SpriteResourceLoader loader)
+    @Nullable
+    private static SpriteContents atlasviewer$handleAddResource(@Nullable SpriteContents contents, ResourceLocation name, Resource resource, SpriteResourceLoader loader)
     {
         if (contents != null)
         {

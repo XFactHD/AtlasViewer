@@ -1,8 +1,10 @@
 package xfacthd.atlasviewer.client.util;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.client.renderer.texture.atlas.SpriteSourceType;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import xfacthd.atlasviewer.client.api.IPackAwareSpriteSource;
 import xfacthd.atlasviewer.client.api.SpriteSourceMeta;
 
@@ -23,9 +25,9 @@ public final class WrappedSpriteSource implements SpriteSource, IPackAwareSprite
     }
 
     @Override
-    public SpriteSourceType type()
+    public MapCodec<? extends SpriteSource> codec()
     {
-        return wrapped.type();
+        return wrapped.codec();
     }
 
     @Override
@@ -39,7 +41,7 @@ public final class WrappedSpriteSource implements SpriteSource, IPackAwareSprite
     public static SpriteSource of(SpriteSource wrapped)
     {
         SpriteSourceMeta meta = wrapped.atlasviewer$getMeta();
-        if (meta != null && meta != SpriteSourceMeta.Unsupported.INSTANCE)
+        if (meta != SpriteSourceMeta.Unsupported.INSTANCE)
         {
             // Don't wrap if the sprite source already implements the API
             return wrapped;
@@ -47,7 +49,9 @@ public final class WrappedSpriteSource implements SpriteSource, IPackAwareSprite
         return new WrappedSpriteSource(wrapped);
     }
 
-    public static SpriteSource resolve(SpriteSource source)
+    @Nullable
+    @Contract("!null->!null")
+    public static SpriteSource resolve(@Nullable SpriteSource source)
     {
         if (source instanceof WrappedSpriteSource wrapped)
         {

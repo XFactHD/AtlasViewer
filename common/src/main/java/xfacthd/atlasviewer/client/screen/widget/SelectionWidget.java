@@ -18,6 +18,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -34,14 +35,17 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     private static final int ENTRY_HEIGHT = 20;
     private final Screen owner;
     private final Component title;
+    @Nullable
     private final Consumer<T> selectCallback;
     private final List<T> entries = new ArrayList<>();
+    @Nullable
     private T focused = null;
+    @Nullable
     private T selected = null;
     private boolean extended = false;
     private int scrollOffset = 0;
 
-    public SelectionWidget(Screen owner, int x, int y, int width, Component title, Consumer<T> selectCallback)
+    public SelectionWidget(Screen owner, int x, int y, int width, Component title, @Nullable Consumer<T> selectCallback)
     {
         super(x, y, width, ENTRY_HEIGHT, Component.empty());
         this.owner = owner;
@@ -221,6 +225,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         return pMouseX >= getX() && pMouseY >= getY() && pMouseX < (getX() + width) && pMouseY < (getY() + getHeight());
     }
 
+    @Nullable
     private T getEntryAtPosition(double mouseX, double mouseY)
     {
         if (mouseX < getX() || mouseX > getX() + width || mouseY < (getY() + ENTRY_HEIGHT) || mouseY > (getY() + (ENTRY_HEIGHT * 5)))
@@ -260,15 +265,16 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         entry.captureOwner(this);
     }
 
-    public void setSelected(T selected, boolean notify)
+    public void setSelected(@Nullable T selected, boolean notify)
     {
         this.selected = selected;
-        if (notify && selectCallback != null)
+        if (notify && selectCallback != null && selected != null)
         {
             selectCallback.accept(selected);
         }
     }
 
+    @Nullable
     public T getSelected()
     {
         return selected;
@@ -310,6 +316,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         };
     }
 
+    @Nullable
     public T getFocusNeighbour(T entry, ScreenDirection dir)
     {
         int idx = entries.indexOf(entry);
@@ -340,7 +347,8 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     public static class SelectionEntry<T extends SelectionEntry<T>> implements GuiEventListener
     {
         private final Component message;
-        private SelectionWidget<T> owner;
+        @Nullable
+        private SelectionWidget<T> owner = null;
         boolean focused = false;
 
         public SelectionEntry(Component message) { this.message = message; }
@@ -362,7 +370,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         {
             if (isFocused())
             {
-                return owner.keyPressed(keyCode, scanCode, modifiers);
+                return Objects.requireNonNull(owner).keyPressed(keyCode, scanCode, modifiers);
             }
             return false;
         }
@@ -371,11 +379,10 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         @Override
         public ComponentPath nextFocusPath(FocusNavigationEvent event)
         {
-            if (isFocused() && event instanceof FocusNavigationEvent.ArrowNavigation arrowNav)
+            if (isFocused() && event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection dir))
             {
-                ScreenDirection dir = arrowNav.direction();
                 //noinspection unchecked
-                SelectionEntry<T> entry = owner.getFocusNeighbour((T) this, dir);
+                SelectionEntry<T> entry = Objects.requireNonNull(owner).getFocusNeighbour((T) this, dir);
                 if (entry != null)
                 {
                     return ComponentPath.leaf(entry);
@@ -391,7 +398,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
             if (focused)
             {
                 //noinspection unchecked
-                owner.focusAndScrollTo((T) this);
+                Objects.requireNonNull(owner).focusAndScrollTo((T) this);
             }
         }
 

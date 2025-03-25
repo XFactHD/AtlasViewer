@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import xfacthd.atlasviewer.client.api.*;
@@ -15,19 +16,27 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     @Unique
     private boolean atlasviewer$metaReceived = false;
     @Unique
+    @Nullable
     private String atlasviewer$spriteSourceSourcePack;
     @Unique
+    @Nullable
     private SpriteSource atlasviewer$spriteSource;
     @Unique
     private SourceAwareness atlasviewer$sourceAwareness = SourceAwareness.SPRITECONTENTS_UNAWARE;
     @Unique
+    @Nullable
     private String atlasviewer$textureSourcePack;
     @Unique
+    @Nullable
     private ResourceLocation atlasviewer$originalPath = null;
 
     @Override
     public void atlasviewer$setSpriteSourceSourcePack(
-            String packId, SpriteSource spriteSource, SourceAwareness awareness, String texSrcPackId, ResourceLocation path
+            @Nullable String packId,
+            @Nullable SpriteSource spriteSource,
+            SourceAwareness awareness,
+            @Nullable String texSrcPackId,
+            @Nullable ResourceLocation path
     )
     {
         // Prevent overwriting metadata already set for these contents
@@ -67,12 +76,14 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     }
 
     @Override
+    @Nullable
     public String atlasviewer$getSpriteSourceSourcePack()
     {
         return atlasviewer$spriteSourceSourcePack;
     }
 
     @Override
+    @Nullable
     public SpriteSource atlasviewer$getSpriteSource()
     {
         return atlasviewer$spriteSource;
@@ -85,12 +96,14 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     }
 
     @Override
+    @Nullable
     public String atlasviewer$getTextureSourcePack()
     {
         return atlasviewer$textureSourcePack;
     }
 
     @Override
+    @Nullable
     public ResourceLocation atlasviewer$getOriginalPath()
     {
         return atlasviewer$originalPath;

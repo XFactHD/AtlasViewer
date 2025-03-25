@@ -38,9 +38,6 @@
             "net/minecraft/class_7764\u0024class_5790": [
                 "xfacthd/atlasviewer/client/duck/DefaultedAccessorAnimatedTexture"
             ],
-            "net/minecraft/class_7764\u0024class_5791": [
-                "xfacthd/atlasviewer/client/duck/DefaultedAccessorFrameInfo"
-            ],
             "net/minecraft/class_7764": [
                 "xfacthd/atlasviewer/client/duck/DefaultedAccessorSpriteContents",
                 "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareSpriteContents"
@@ -58,20 +55,8 @@
             "net/minecraft/class_7948": [
                 "xfacthd/atlasviewer/client/api/IPackAwareSpriteSource"
             ],
-            "net/minecraft/class_7954": [
-                "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorDirectoryLister"
-            ],
             "net/minecraft/class_7958": [
                 "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorLazyLoadedImage"
-            ],
-            "net/minecraft/class_8066": [
-                "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorPalettedPermutations"
-            ],
-            "net/minecraft/class_7955": [
-                "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorSingleFile"
-            ],
-            "net/minecraft/class_7957": [
-                "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcher"
             ],
             "net/minecraft/class_7957\u0024class_7960": [
                 "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcherRegionInstance"
@@ -84,6 +69,9 @@
             ],
             "net/minecraft/class_332": [
                 "xfacthd/atlasviewer/client/util/IGuiGraphicsExtension"
+            ],
+            "net/minecraft/class_5699\u0024class_10388": [
+                "xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<TI;TV;>"
             ]
         }
     }

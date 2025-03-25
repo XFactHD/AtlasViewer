@@ -1,7 +1,7 @@
 package xfacthd.atlasviewer.client.util;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.client.renderer.texture.atlas.SpriteSourceType;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 public final class MissingTextureDummySpriteSource implements SpriteSource
@@ -17,7 +17,7 @@ public final class MissingTextureDummySpriteSource implements SpriteSource
     }
 
     @Override
-    public SpriteSourceType type()
+    public MapCodec<? extends SpriteSource> codec()
     {
         throw new UnsupportedOperationException("Dummy");
     }

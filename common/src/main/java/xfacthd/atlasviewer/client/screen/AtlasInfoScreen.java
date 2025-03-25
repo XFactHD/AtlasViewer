@@ -1,12 +1,15 @@
 package xfacthd.atlasviewer.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.*;
+import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -16,10 +19,13 @@ import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.screen.widget.AtlasLoadTable;
 import xfacthd.atlasviewer.client.screen.widget.CloseButton;
-import xfacthd.atlasviewer.client.util.ClientUtils;
 import xfacthd.atlasviewer.platform.Services;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -222,8 +228,8 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
             spritesByMaxMip[maxLevel]++;
         });
 
-        int width = atlas.atlasviewer$getWidth();
-        int height = atlas.atlasviewer$getHeight();
+        int width = atlas.getWidth();
+        int height = atlas.getHeight();
         int area = width * height;
         int areaFilled = areaByNamespace.values().stream().mapToInt(Integer::intValue).sum();
         float filled = (float) areaFilled / (float) area;

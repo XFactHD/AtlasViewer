@@ -21,18 +21,18 @@ public final class PalettedPermutationsTooltipAppender implements SourceTooltipA
     public void accept(PalettedPermutations source, LineConsumer lineConsumer)
     {
         lineConsumer.accept(LABEL_TEXTURES, Component.empty());
-        source.atlasviewer$getTextures().forEach(tex -> lineConsumer.accept(
+        source.textures().forEach(tex -> lineConsumer.accept(
                 null, Component.literal("  - ").append(Component.literal(tex.toString()))
         ));
 
         lineConsumer.accept(LABEL_PERMUTTATIONS, Component.empty());
-        source.atlasviewer$getPermutations().forEach((id, sprite) -> lineConsumer.accept(
+        source.permutations().forEach((id, sprite) -> lineConsumer.accept(
                 null, Component.literal("  - ")
                         .append(Component.literal(id).withStyle(ChatFormatting.ITALIC))
                         .append(": ")
                         .append(Component.literal(sprite.toString()))
         ));
 
-        lineConsumer.accept(LABEL_PALETTE_KEY, Component.literal(source.atlasviewer$getPaletteKey().toString()));
+        lineConsumer.accept(LABEL_PALETTE_KEY, Component.literal(source.paletteKey().toString()));
     }
 }

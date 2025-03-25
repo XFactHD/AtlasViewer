@@ -3,7 +3,6 @@ package xfacthd.atlasviewer.client.screen;
 import com.google.common.base.Stopwatch;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,6 +18,8 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.screen.widget.BackgroundSwitchButton;
@@ -44,6 +45,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 @SuppressWarnings("deprecation")
@@ -81,18 +83,29 @@ public final class AtlasScreen extends Screen implements SearchHandler
     private int atlasTop;
     private int maxAtlasWidth;
     private int maxAtlasHeight;
+    @UnknownNullability
     private MenuContainer menu;
+    @UnknownNullability
     private IndicatorButton btnHighlightAnim;
+    @UnknownNullability
     private Button btnExport;
+    @UnknownNullability
     private Button btnExportMipped;
+    @UnknownNullability
     private DiscreteSliderButton mipLevelSlider;
+    @UnknownNullability
     private BackgroundSwitchButton bgSwitchButton;
+    @UnknownNullability
     private SearchBox searchBar;
-    private Map<ResourceLocation, TextureAtlas> atlases;
+    private final Map<ResourceLocation, TextureAtlas> atlases = new HashMap<>();
+    @Nullable
     private TextureAtlas currentAtlas;
+    @Nullable
     private QuadTree<TextureAtlasSprite> spriteTree;
+    @Nullable
     private Collection<TextureAtlasSprite> sprites;
-    private Size atlasSize;
+    private Size atlasSize = new Size(0, 0);
+    @Nullable
     private AtlasInfoScreen.AtlasInfo cachedInfo;
     private double atlasScale = 1F;
     private double scrollScale = 1F;
@@ -100,6 +113,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
     private float offsetY = 0;
     private final List<Rect2i> animatedLocations = new ArrayList<>();
     private final List<Rect2i> searchResultLocations = new ArrayList<>();
+    @Nullable
     private TextureAtlasSprite hoveredSprite = null;
     private int currentMipLevel = 0;
     private int focusedSearchResultIdx = -1;
@@ -174,7 +188,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
         ));
         menu.arrangeElements();
 
-        atlases = new HashMap<>();
+        atlases.clear();
         Minecraft.getInstance().getTextureManager().atlasviewer$getByPath().forEach((loc, tex) ->
         {
             if (tex instanceof TextureAtlas atlas)
@@ -215,6 +229,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
         graphics.blitSprite(RenderType::guiTextured, bgSprite, atlasLeft, atlasTop, bgWidth, bgHeight);
 
         graphics.enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
+        Objects.requireNonNull(currentAtlas);
         graphics.atlasviewer$innerBlit(
                 $ -> MippedAtlasGuiRenderType.get(currentAtlas, currentMipLevel),
                 currentAtlas.location(),
@@ -254,7 +269,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
         {
             int mx = (int)((mouseX - atlasLeft - offsetX) * (1F / atlasScale) / scrollScale);
             int my = (int)((mouseY - atlasTop - offsetY) * (1F / atlasScale) / scrollScale);
-            TextureAtlasSprite sprite = spriteTree.find(mx, my);
+            TextureAtlasSprite sprite = Objects.requireNonNull(spriteTree).find(mx, my);
             hoveredSprite = sprite;
             if (sprite != null)
             {
@@ -393,7 +408,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
 
         if (hoveredSprite != null && button == GLFW.GLFW_MOUSE_BUTTON_2 && (!menu.isOpen() || !menu.isMouseOver(mouseX, mouseY)))
         {
-            Services.PLATFORM.pushScreenLayer(new SpriteInfoScreen(currentAtlas, hoveredSprite, currentMipLevel, bgSwitchButton.getSelectedType()));
+            Services.PLATFORM.pushScreenLayer(new SpriteInfoScreen(Objects.requireNonNull(currentAtlas), hoveredSprite, currentMipLevel, bgSwitchButton.getSelectedType()));
             return true;
         }
 
@@ -411,7 +426,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
             atlasScale = (float) maxAtlasHeight / atlasSize.height;
         }
 
-        sprites = currentAtlas.atlasviewer$getTexturesByName().values();
+        sprites = Objects.requireNonNull(currentAtlas).atlasviewer$getTexturesByName().values();
 
         int minSize = sprites.stream()
                 .map(TextureAtlasSprite::contents)
@@ -461,7 +476,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
     private void gatherAnimatedLocations()
     {
         animatedLocations.clear();
-        sprites.stream()
+        Objects.requireNonNull(sprites).stream()
                 .filter(sprite -> sprite.contents().atlasviewer$getAnimatedTexture() != null)
                 .forEach(sprite -> animatedLocations.add(getSpriteSize(sprite)));
     }
@@ -478,29 +493,26 @@ public final class AtlasScreen extends Screen implements SearchHandler
 
     private void exportAtlas(int mipLevel)
     {
-        Size size = ATLAS_SIZES.get(currentAtlas);
-        int width = size.width >> mipLevel;
-        int height = size.height >> mipLevel;
-        try (NativeImage image = new NativeImage(width, height, false))
+        ClientUtils.downloadTexture(Objects.requireNonNull(currentAtlas).getTexture(), mipLevel, image ->
         {
-            int texId = currentAtlas.getId();
-            RenderSystem.bindTexture(texId);
-            image.downloadTexture(mipLevel, false);
-            Path imgPath = exportNativeImage(image, currentAtlas.location(), "atlas", true, MSG_EXPORT_SUCCESS);
-            if (mipLevel == 0)
+            try
             {
-                Map<ResourceLocation, TextureAtlasSprite> sprites = currentAtlas.atlasviewer$getTexturesByName();
-                TextureAtlas.dumpSpriteNames(imgPath.getParent(), imgPath.getFileName().toString(), sprites);
+                Path imgPath = exportNativeImage(image, currentAtlas.location(), "atlas", mipLevel, true, MSG_EXPORT_SUCCESS);
+                if (mipLevel == 0)
+                {
+                    Map<ResourceLocation, TextureAtlasSprite> sprites = currentAtlas.atlasviewer$getTexturesByName();
+                    TextureAtlas.dumpSpriteNames(imgPath.getParent(), imgPath.getFileName().toString(), sprites);
+                }
             }
-        }
-        catch (IOException e)
-        {
-            AtlasViewer.LOGGER.error("Encountered an error while exporting selected texture atlas", e);
-            Services.PLATFORM.pushScreenLayer(MessageScreen.error(List.of(
-                    MSG_EXPORT_ERROR,
-                    Component.literal(e.toString()).withStyle(ChatFormatting.DARK_RED)
-            )));
-        }
+            catch (IOException e)
+            {
+                AtlasViewer.LOGGER.error("Encountered an error while exporting selected texture atlas", e);
+                Services.PLATFORM.pushScreenLayer(MessageScreen.error(List.of(
+                        MSG_EXPORT_ERROR,
+                        Component.literal(e.toString()).withStyle(ChatFormatting.DARK_RED)
+                )));
+            }
+        });
     }
 
     private void clampOffsetX(float offsetX) { this.offsetX = clampOffset(atlasSize.width, maxAtlasWidth, offsetX); }
@@ -524,7 +536,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
         if (cachedInfo == null)
         {
             Stopwatch stopwatch = Stopwatch.createStarted();
-            cachedInfo = AtlasInfoScreen.computeInfo(currentAtlas, sprites);
+            cachedInfo = AtlasInfoScreen.computeInfo(Objects.requireNonNull(currentAtlas), Objects.requireNonNull(sprites));
             stopwatch.stop();
             AtlasViewer.LOGGER.debug("Took {} to compute atlas info for atlas '{}'", stopwatch, currentAtlas.location());
         }
@@ -551,7 +563,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
 
         if (!text.isEmpty())
         {
-            sprites.forEach(sprite ->
+            Objects.requireNonNull(sprites).forEach(sprite ->
             {
                 if (sprite.contents().name().toString().contains(text))
                 {
@@ -606,7 +618,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
      * @param shortenPath If true, only the part of the name after the last slash will be used as part of the file name
      * @return The file path of the exported atlas image
      */
-    public static Path exportNativeImage(NativeImage image, ResourceLocation name, String prefix, boolean shortenPath, Component msgSuccess) throws IOException
+    public static Path exportNativeImage(NativeImage image, ResourceLocation name, String prefix, int mipLevel, boolean shortenPath, Component msgSuccess) throws IOException
     {
         Path folderPath = Services.PLATFORM.getGameDir().resolve("atlasviewer");
         Files.createDirectories(folderPath);
@@ -622,10 +634,15 @@ public final class AtlasScreen extends Screen implements SearchHandler
             texPath = texPath.replace('/', '-');
         }
         String fileName = prefix + "_" + name.getNamespace() + "_" + texPath;
-        if (!fileName.endsWith(".png")) //Texture atlas name already ends with .png
+        if (fileName.endsWith(".png")) //Texture atlas name already ends with .png
         {
-            fileName += ".png";
+            fileName = fileName.substring(0, fileName.length() - 4);
         }
+        if (mipLevel > 0)
+        {
+            fileName += "_" + mipLevel;
+        }
+        fileName += ".png";
 
         Path filePath = folderPath.resolve(fileName);
         if (Files.notExists(filePath, LinkOption.NOFOLLOW_LINKS))
@@ -648,8 +665,8 @@ public final class AtlasScreen extends Screen implements SearchHandler
         return Component.literal(path.toString())
                 .setStyle(Style.EMPTY
                         .withColor(ChatFormatting.DARK_GRAY)
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, HOVER_MSG_CLICK_TO_OPEN))
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, path.toString()))
+                        .withHoverEvent(new HoverEvent.ShowText(HOVER_MSG_CLICK_TO_OPEN))
+                        .withClickEvent(new ClickEvent.OpenFile(path.toString()))
                 );
     }
 

@@ -14,52 +14,18 @@ import java.util.function.Function;
  */
 public final class RegisterSpriteSourceDetailsEvent
 {
-    /**
-     * @deprecated Use {@link #EVENT_V2} instead
-     */
-    @Deprecated(forRemoval = true)
-    @SuppressWarnings("DeprecatedIsStillUsed")
     public static final Event<RegisterSpriteSourceDetails> EVENT = EventFactory.createArrayBacked(
             RegisterSpriteSourceDetails.class,
-            callbacks -> (stringifierRegistrar, simpleStringifierRegistrar, descriptionRegistrar, appenderRegistrar) ->
-                    Arrays.stream(callbacks).forEach(cb ->
-                            cb.accept(stringifierRegistrar, simpleStringifierRegistrar, descriptionRegistrar, appenderRegistrar)
-                    )
-    );
-    public static final Event<RegisterSpriteSourceDetailsV2> EVENT_V2 = EventFactory.createArrayBacked(
-            RegisterSpriteSourceDetailsV2.class,
             callbacks -> (resourceGetterRegistrar, stringifierRegistrar, simpleStringifierRegistrar, descriptionRegistrar, appenderRegistrar) ->
-            {
-                EVENT.invoker().accept(stringifierRegistrar, simpleStringifierRegistrar, descriptionRegistrar, appenderRegistrar);
-                Arrays.stream(callbacks).forEach(cb ->
-                        cb.accept(resourceGetterRegistrar, stringifierRegistrar, simpleStringifierRegistrar, descriptionRegistrar, appenderRegistrar)
-                );
-            }
+                    Arrays.stream(callbacks).forEach(cb ->
+                            cb.accept(resourceGetterRegistrar, stringifierRegistrar, simpleStringifierRegistrar, descriptionRegistrar, appenderRegistrar)
+                    )
     );
 
 
 
     @FunctionalInterface
     public interface RegisterSpriteSourceDetails
-    {
-        /**
-         * @param stringifierRegistrar Registrar for a fully custom stringifier for the given {@link SpriteSource} type.
-         * @param simpleStringifierRegistrar Registrar for a simple stringifier printing the {@link SpriteSource}'s
-         *                                   simple class name and the string returned by the provided stringifier function
-         * @param descriptionRegistrar Registrar for a special description string to be display instead of the source
-         *                             type's simple class name in the sprite details screen
-         * @param tooltipAppenderRegistrar Registrar for a tooltip appender to add
-         */
-        void accept(
-                StringifierRegistrar stringifierRegistrar,
-                StringifierRegistrar simpleStringifierRegistrar,
-                DescriptionRegistrar descriptionRegistrar,
-                TooltipAppenderRegistrar tooltipAppenderRegistrar
-        );
-    }
-
-    @FunctionalInterface
-    public interface RegisterSpriteSourceDetailsV2
     {
         /**
          * @param resourceGetterRegistrar Registrar for a function for retrieving the primary {@link Resource} from which

@@ -17,8 +17,8 @@ public final class SingleFileTooltipAppender implements SourceTooltipAppender<Si
     @Override
     public void accept(SingleFile source, LineConsumer lineConsumer)
     {
-        ResourceLocation resourceId = source.atlasviewer$getResourceId();
-        ResourceLocation spriteId = source.atlasviewer$getSpriteId().orElse(resourceId);
+        ResourceLocation resourceId = source.resourceId();
+        ResourceLocation spriteId = source.spriteId().orElse(resourceId);
 
         lineConsumer.accept(LABEL_RESOURCE_ID, Component.literal(resourceId.toString()));
         lineConsumer.accept(LABEL_SPRITE_ID, Component.literal(spriteId.toString()));

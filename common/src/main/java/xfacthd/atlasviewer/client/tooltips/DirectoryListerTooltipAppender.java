@@ -16,7 +16,7 @@ public final class DirectoryListerTooltipAppender implements SourceTooltipAppend
     @Override
     public void accept(DirectoryLister source, LineConsumer lineConsumer)
     {
-        lineConsumer.accept(LABEL_SOURCE_PATH, Component.literal(source.atlasviewer$getSourcePath()));
-        lineConsumer.accept(LABEL_ID_PREFIX, Component.literal(source.atlasviewer$getIdPrefix()));
+        lineConsumer.accept(LABEL_SOURCE_PATH, Component.literal(source.sourcePath()));
+        lineConsumer.accept(LABEL_ID_PREFIX, Component.literal(source.idPrefix()));
     }
 }

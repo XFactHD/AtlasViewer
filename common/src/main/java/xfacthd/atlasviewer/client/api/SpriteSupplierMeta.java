@@ -1,13 +1,15 @@
 package xfacthd.atlasviewer.client.api;
 
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
+import org.jetbrains.annotations.Nullable;
 import xfacthd.atlasviewer.client.util.WrappedSpriteSource;
 
 public final class SpriteSupplierMeta
 {
+    @Nullable
     private String sourcePackId = null;
+    @Nullable
     private SpriteSource spriteSource = null;
-    private Class<?> sourceType = null;
     private SourceAwareness sourceAwareness = SourceAwareness.SPRITESUPPLIER_UNAWARE;
 
     public void readFromSpriteSourceMeta(SpriteSource source)
@@ -15,24 +17,19 @@ public final class SpriteSupplierMeta
         SpriteSourceMeta srcMeta = source.atlasviewer$getMeta();
         sourcePackId = srcMeta.getSourcePack();
         spriteSource = WrappedSpriteSource.resolve(source);
-        sourceType = source.getClass();
         sourceAwareness = srcMeta.getSourceAwareness();
     }
 
+    @Nullable
     public String getSpriteSourceSourcePack()
     {
         return sourcePackId;
     }
 
+    @Nullable
     public SpriteSource getSpriteSource()
     {
         return spriteSource;
-    }
-
-    @Deprecated(forRemoval = true)
-    public Class<?> getSpriteSourceType()
-    {
-        return sourceType;
     }
 
     public SourceAwareness getSourceAwareness()

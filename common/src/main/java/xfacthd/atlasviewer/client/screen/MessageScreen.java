@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import org.jetbrains.annotations.Nullable;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.util.ClientUtils;
 import xfacthd.atlasviewer.platform.Services;
@@ -111,6 +112,7 @@ public final class MessageScreen extends Screen implements IStackedScreen
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
+    @Nullable
     private Style findTextLine(int mouseX, int mouseY)
     {
         int localX = mouseX - leftPos - TITLE_X;

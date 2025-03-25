@@ -113,6 +113,7 @@ public final class SpriteSourceManager
         return SOURCE_STRINGIFIERS.getOrDefault(source.getClass(), SpriteSource::toString).apply(source);
     }
 
+    @Nullable
     public static String getSpecialDescription(Class<?> sourceType)
     {
         return SPECIAL_SOURCE_DESCRIPTIONS.get(sourceType);
@@ -123,14 +124,13 @@ public final class SpriteSourceManager
         List<Tuple<Component, Component>> lines = new ArrayList<>();
         source = WrappedSpriteSource.resolve(source);
 
-        ResourceLocation regLoc = AccessorSpriteSources.atlasviewer$getTypes().inverse().get(source.type());
+        ResourceLocation regLoc = AccessorSpriteSources.atlasviewer$getTypes().atlasviewer$getKey(source.codec());
         Component regName = regLoc != null ? Component.literal(regLoc.toString()) : VALUE_UNREGISTERED;
         lines.add(new Tuple<>(LABEL_REG_NAME, regName));
 
         SourceTooltipAppender<SpriteSource> appender = SOURCE_TOOLTIP_APPENDERS.get(source.getClass());
         if (appender != null)
         {
-            //noinspection ConstantConditions
             appender.accept(source, (title, content) -> lines.add(new Tuple<>(title, content)));
         }
 

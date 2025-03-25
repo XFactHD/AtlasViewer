@@ -14,12 +14,6 @@ public interface AccessorTextureAtlas
     @Accessor("texturesByName")
     Map<ResourceLocation, TextureAtlasSprite> atlasviewer$getTexturesByName();
 
-    @Accessor("width")
-    int atlasviewer$getWidth();
-
-    @Accessor("height")
-    int atlasviewer$getHeight();
-
     @Accessor("mipLevel")
     int atlasviewer$getMipLevel();
 }

@@ -3,9 +3,11 @@ package xfacthd.atlasviewer.client;
 import com.google.common.base.Suppliers;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.atlas.sources.*;
+import net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister;
+import net.minecraft.client.renderer.texture.atlas.sources.PalettedPermutations;
+import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
+import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
 import org.lwjgl.glfw.GLFW;
-import xfacthd.atlasviewer.client.mixin.spritesources.AccessorDirectoryLister;
 import xfacthd.atlasviewer.client.screen.AtlasScreen;
 import xfacthd.atlasviewer.client.tooltips.*;
 import xfacthd.atlasviewer.client.util.MissingTextureDummySpriteSource;
@@ -38,19 +40,19 @@ public final class AVClient
 
         SpriteSourceManager.registerSimpleSourceStringifier(
                 DirectoryLister.class,
-                AccessorDirectoryLister::atlasviewer$getSourcePath
+                DirectoryLister::sourcePath
         );
         SpriteSourceManager.registerSimpleSourceStringifier(
                 SingleFile.class,
-                file -> file.atlasviewer$getResourceId().toString()
+                file -> file.resourceId().toString()
         );
         SpriteSourceManager.registerSimpleSourceStringifier(
                 PalettedPermutations.class,
-                permutations -> permutations.atlasviewer$getTextures().toString()
+                permutations -> permutations.textures().toString()
         );
         SpriteSourceManager.registerSimpleSourceStringifier(
                 Unstitcher.class,
-                unstitcher -> unstitcher.atlasviewer$getResource().toString()
+                unstitcher -> unstitcher.resource().toString()
         );
 
         SpriteSourceManager.registerSpecialSourceDescription(
