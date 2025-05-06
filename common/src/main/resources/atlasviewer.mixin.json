@@ -24,9 +24,7 @@
         "MixinSpriteSourceOutput",
         "MixinTextureAtlas",
         "spritesources.AccessorLazyLoadedImage",
-        "spritesources.AccessorUnstitcherRegionInstance",
-        "spritesources.MixinDirectoryLister",
-        "spritesources.MixinSingleFile"
+        "spritesources.AccessorUnstitcherRegionInstance"
     ],
     "injectors": {
         "defaultRequire": 1

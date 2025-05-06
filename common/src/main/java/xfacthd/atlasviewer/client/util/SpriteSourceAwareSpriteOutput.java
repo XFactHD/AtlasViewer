@@ -12,6 +12,7 @@ public record SpriteSourceAwareSpriteOutput(SpriteSource source, SpriteSource.Ou
     @Override
     public void add(ResourceLocation name, Resource resource)
     {
+        resource.atlasviewer$captureMetaFromSpriteSource(source.atlasviewer$getMeta(), source, name);
         wrapped.add(name, resource);
     }
 
