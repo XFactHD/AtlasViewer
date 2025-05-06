@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
+import xfacthd.atlasviewer.client.AVClientNeoForge;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 import xfacthd.atlasviewer.platform.services.IPlatformHelper;
@@ -60,5 +61,11 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
     public String getSpriteSourceSimpleName(SpriteSource source)
     {
         return source.getClass().getSimpleName();
+    }
+
+    @Override
+    public void registerPlatformSpecificBuiltInSpriteSourceDetails()
+    {
+        AVClientNeoForge.registerBuiltInSpriteSourceDetails();
     }
 }

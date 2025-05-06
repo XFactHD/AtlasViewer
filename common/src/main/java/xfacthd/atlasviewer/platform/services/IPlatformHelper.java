@@ -20,4 +20,6 @@ public interface IPlatformHelper
     String getSpriteSourceName(SpriteSource source);
 
     String getSpriteSourceSimpleName(SpriteSource source);
+
+    void registerPlatformSpecificBuiltInSpriteSourceDetails();
 }

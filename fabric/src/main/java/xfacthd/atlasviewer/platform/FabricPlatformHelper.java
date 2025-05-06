@@ -66,4 +66,7 @@ public final class FabricPlatformHelper implements IPlatformHelper
         }
         return name;
     }
+
+    @Override
+    public void registerPlatformSpecificBuiltInSpriteSourceDetails() { }
 }

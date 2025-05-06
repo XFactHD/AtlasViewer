@@ -37,6 +37,7 @@
     "value.atlasviewer.source_tooltip.unregistered": "[Unregistered]",
     "label.atlasviewer.source_tooltip.dir_lister.path": "Source path",
     "label.atlasviewer.source_tooltip.dir_lister.prefix": "ID prefix",
+    "label.atlasviewer.source_tooltip.namespaced_dir_lister.namespace": "Namespace",
     "label.atlasviewer.source_tooltip.single_file.resource": "Resource ID",
     "label.atlasviewer.source_tooltip.single_file.sprite": "Sprite ID",
     "label.atlasviewer.source_tooltip.palette.textures": "Textures",

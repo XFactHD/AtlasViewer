@@ -143,6 +143,7 @@ public final class SpriteSourceManager
     {
         locked = false;
         AVClient.registerBuiltInSpriteSourceDetails();
+        Services.PLATFORM.registerPlatformSpecificBuiltInSpriteSourceDetails();
         Services.PLATFORM.fireSpriteSourceDetailsEvent();
         locked = true;
     }
