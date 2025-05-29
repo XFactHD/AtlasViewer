@@ -7,7 +7,6 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.TextureFormat;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.ARBClearTexture;
-import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -39,9 +38,9 @@ public class MixinGlDevice
             @Local(ordinal = 4) int level
     )
     {
-        if (ClientUtils.isArbClearTextureSupported())
+        if (ClientUtils.isArbClearTextureSupported() && format.hasColorAspect())
         {
-            ARBClearTexture.glClearTexImage(texId, level, GlConst.toGlExternalId(format), GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+            ARBClearTexture.glClearTexImage(texId, level, GlConst.toGlExternalId(format), GlConst.toGlType(format), (ByteBuffer) null);
         }
     }
 }
