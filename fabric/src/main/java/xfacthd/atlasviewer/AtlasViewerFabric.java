@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import xfacthd.atlasviewer.client.AVClient;
 import xfacthd.atlasviewer.client.screen.stacking.ScreenStacker;
 
+@SuppressWarnings("unused") // Referenced from fabric.mod.json
 public final class AtlasViewerFabric implements ClientModInitializer
 {
     @Override

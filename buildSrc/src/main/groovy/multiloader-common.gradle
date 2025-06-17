@@ -92,8 +92,7 @@ processResources {
             'mod_author'                   : mod_author,
             'mod_version'                  : mod_version,
             'neoforge_version'             : neoforge_version,
-            'neoforge_version_range'       : neoforge_version_range,
-            'neoforge_loader_version_range': neoforge_loader_version_range
+            'neoforge_version_range'       : neoforge_version_range
     ]
 
     filesMatching(['fabric.mod.json', 'META-INF/neoforge.mods.toml', '*.mixins.json']) {
@@ -104,6 +103,7 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xmaxerrs" << "10000"
 }
 
 publishing {

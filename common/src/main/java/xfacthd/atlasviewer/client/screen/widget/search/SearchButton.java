@@ -26,19 +26,19 @@ public final class SearchButton extends Button
             int focusedIdx = handler.getFocusedResultIndex();
             String text = focusedIdx > -1 ? "%d/%d".formatted((focusedIdx + 1), count) : Integer.toString(count);
 
-            graphics.pose().pushPose();
+            graphics.pose().pushMatrix();
             Font font = Minecraft.getInstance().font;
             int length = font.width(text);
             boolean scale = length > (width - 9);
             float x = getX() + width - 3 - (font.width(text) * (scale ? .5F : 1F));
             float y = getY() + 5F + (scale ? 2F : 0F);
-            graphics.pose().translate(x, y, 0);
+            graphics.pose().translate(x, y);
             if (scale)
             {
-                graphics.pose().scale(.5F, .5F, 1);
+                graphics.pose().scale(.5F, .5F);
             }
             graphics.drawString(font, text, 0, 0, count > 0 ? 0xFFFFFFFF : 0xFF0000);
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
         }
     }
 

@@ -1,8 +1,7 @@
 package xfacthd.atlasviewer.client.util;
 
-import com.mojang.blaze3d.buffers.BufferType;
-import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.GpuDevice;
@@ -10,11 +9,18 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3x2f;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
+import xfacthd.atlasviewer.client.screen.state.FloatBlitRenderState;
+import xfacthd.atlasviewer.client.screen.state.FloatColoredRectangleRenderState;
+import xfacthd.atlasviewer.platform.Services;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
@@ -41,10 +47,59 @@ public final class ClientUtils
 
     public static void drawColoredBox(GuiGraphics graphics, float x, float y, float w, float h, int color)
     {
-        graphics.atlasviewer$fill(RenderType.guiOverlay(), x,          y,          x + 1F, y + h,  0, color);
-        graphics.atlasviewer$fill(RenderType.guiOverlay(), x + w - 1F, y,          x + w,  y + h,  0, color);
-        graphics.atlasviewer$fill(RenderType.guiOverlay(), x,          y,          x + w,  y + 1F, 0, color);
-        graphics.atlasviewer$fill(RenderType.guiOverlay(), x,          y + h - 1F, x + w,  y + h,  0, color);
+        fill(graphics, RenderPipelines.GUI, x,          y,          x + 1F, y + h,  color);
+        fill(graphics, RenderPipelines.GUI, x + w - 1F, y,          x + w,  y + h,  color);
+        fill(graphics, RenderPipelines.GUI, x,          y,          x + w,  y + 1F, color);
+        fill(graphics, RenderPipelines.GUI, x,          y + h - 1F, x + w,  y + h,  color);
+    }
+
+    public static void fill(GuiGraphics graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int color)
+    {
+        fill(graphics, pipeline, minX, minY, maxX, maxY, color, color);
+    }
+
+    public static void fill(GuiGraphics graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int colorOne, int colorTwo)
+    {
+        Matrix3x2f pose = new Matrix3x2f(graphics.pose());
+        ScreenRectangle scissorRect = Services.PLATFORM.peekScissorState(graphics);
+        ScreenRectangle bounds = getBounds(minX, minY, maxX, maxY, pose, scissorRect);
+        Services.PLATFORM.submitCustomGuiRenderState(graphics, new FloatColoredRectangleRenderState(
+                pipeline, pose, minX, minY, maxX, maxY, colorOne, colorTwo, scissorRect, bounds
+        ));
+    }
+
+    public static void blitSpecial(
+            GuiGraphics graphics,
+            RenderPipeline pipeline,
+            TextureSetup textureSetup,
+            float minX,
+            float minY,
+            float maxX,
+            float maxY,
+            float minU,
+            float maxU,
+            float minV,
+            float maxV,
+            int color
+    )
+    {
+        Matrix3x2f pose = new Matrix3x2f(graphics.pose());
+        ScreenRectangle scissorRect = Services.PLATFORM.peekScissorState(graphics);
+        ScreenRectangle bounds = getBounds(minX, minY, maxX, maxY, pose, scissorRect);
+        Services.PLATFORM.submitCustomGuiRenderState(graphics, new FloatBlitRenderState(
+                pipeline, textureSetup, pose, minX, minY, maxX, maxY, minU, maxU, minV, maxV, color, scissorRect, bounds
+        ));
+    }
+
+    @Nullable
+    public static ScreenRectangle getBounds(float x0, float y0, float x1, float y1, Matrix3x2f pose, @javax.annotation.Nullable ScreenRectangle scissorRect)
+    {
+        int x0i = Mth.floor(x0);
+        int y0i = Mth.floor(y0);
+        int x1i = Mth.ceil(x1);
+        int y1i = Mth.ceil(y1);
+        ScreenRectangle rect = new ScreenRectangle(x0i, y0i, x1i - x0i, y1i - y0i).transformMaxBounds(pose);
+        return scissorRect != null ? scissorRect.intersection(rect) : rect;
     }
 
     public static void downloadTexture(GpuTexture srcTexture, int mipLevel, Consumer<NativeImage> imageConsumer)
@@ -56,10 +111,10 @@ public final class ClientUtils
         int height = srcTexture.getHeight(mipLevel);
         int pixSize = srcTexture.getFormat().pixelSize();
         int bufSize = width * height * pixSize;
-        GpuBuffer buffer = device.createBuffer(() -> "Texture output buffer", BufferType.PIXEL_PACK, BufferUsage.STATIC_READ, bufSize);
+        GpuBuffer buffer = device.createBuffer(() -> "Texture output buffer", GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_MAP_READ, bufSize);
         cmdEncoder.copyTextureToBuffer(srcTexture, buffer, 0, () ->
         {
-            try (GpuBuffer.ReadView bufView = cmdEncoder.readBuffer(buffer); NativeImage destImage = new NativeImage(width, height, false))
+            try (GpuBuffer.MappedView bufView = cmdEncoder.mapBuffer(buffer, true, false); NativeImage destImage = new NativeImage(width, height, false))
             {
                 ByteBuffer data = bufView.data();
                 for (int y = 0; y < height; y++)

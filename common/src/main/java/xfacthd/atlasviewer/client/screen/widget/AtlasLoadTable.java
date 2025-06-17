@@ -5,7 +5,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -149,11 +149,11 @@ public final class AtlasLoadTable extends AbstractWidget
         ResourceLocation tex = reverse ? ARROW_UP : ARROW_DOWN;
         float xOff = reverse ? ARROW_UP_OFF_X : ARROW_DOWN_OFF_X;
         float yOff = reverse ? ARROW_UP_OFF_Y : ARROW_DOWN_OFF_Y;
-        graphics.pose().pushPose();
-        graphics.pose().translate(colArrowX[sorting.ordinal()] - xOff, getY() + 4 - yOff, 0);
-        graphics.pose().scale(ARROW_SCALE, ARROW_SCALE, 1F);
-        graphics.blitSprite(RenderType::guiTextured, tex, 0, 0, 32, 32);
-        graphics.pose().popPose();
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(colArrowX[sorting.ordinal()] - xOff, getY() + 4 - yOff);
+        graphics.pose().scale(ARROW_SCALE, ARROW_SCALE);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, tex, 0, 0, 32, 32);
+        graphics.pose().popMatrix();
     }
 
     @Override

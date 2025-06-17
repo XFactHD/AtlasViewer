@@ -3,12 +3,13 @@ package xfacthd.atlasviewer.client.screen;
 import com.google.common.base.Stopwatch;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -30,7 +31,6 @@ import xfacthd.atlasviewer.client.screen.widget.SelectionWidget;
 import xfacthd.atlasviewer.client.screen.widget.search.SearchBox;
 import xfacthd.atlasviewer.client.screen.widget.search.SearchHandler;
 import xfacthd.atlasviewer.client.util.ClientUtils;
-import xfacthd.atlasviewer.client.util.MippedAtlasGuiRenderType;
 import xfacthd.atlasviewer.client.util.QuadTree;
 import xfacthd.atlasviewer.client.util.Rect2i;
 import xfacthd.atlasviewer.platform.Services;
@@ -49,7 +49,7 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 
 @SuppressWarnings("deprecation")
-public final class AtlasScreen extends Screen implements SearchHandler
+public final class AtlasScreen extends AtlasViewerScreen implements SearchHandler
 {
     public static final ResourceLocation BACKGROUND_LOC = AtlasViewer.rl("background");
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
@@ -215,27 +215,29 @@ public final class AtlasScreen extends Screen implements SearchHandler
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        renderBlurredBackground();
+        renderBlurredBackground(graphics);
 
-        graphics.blitSprite(RenderType::guiTextured, BACKGROUND_LOC, PADDING, PADDING, width - (PADDING * 2), height - (PADDING * 2));
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_LOC, PADDING, PADDING, width - (PADDING * 2), height - (PADDING * 2));
 
-        graphics.drawString(font, title, PADDING * 3, PADDING * 3, 0x404040, false);
+        graphics.drawString(font, title, PADDING * 3, PADDING * 3, 0xFF404040, false);
 
         float scale = (float)(atlasScale * scrollScale);
 
         int bgWidth = (int)Math.min(maxAtlasWidth, atlasSize.width * scale);
         int bgHeight = (int)Math.min(maxAtlasHeight, atlasSize.height * scale);
         ResourceLocation bgSprite = bgSwitchButton.getSelectedType().getSprite();
-        graphics.blitSprite(RenderType::guiTextured, bgSprite, atlasLeft, atlasTop, bgWidth, bgHeight);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, bgSprite, atlasLeft, atlasTop, bgWidth, bgHeight);
 
         graphics.enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
         Objects.requireNonNull(currentAtlas);
-        graphics.atlasviewer$innerBlit(
-                $ -> MippedAtlasGuiRenderType.get(currentAtlas, currentMipLevel),
-                currentAtlas.location(),
+        GpuTextureView atlasTexView = currentAtlas.atlasview$getMippedTextureView(currentMipLevel);
+        ClientUtils.blitSpecial(
+                graphics,
+                RenderPipelines.GUI_TEXTURED,
+                TextureSetup.singleTexture(atlasTexView),
                 atlasLeft + offsetX,
-                atlasLeft + offsetX + atlasSize.width * scale,
                 atlasTop + offsetY,
+                atlasLeft + offsetX + atlasSize.width * scale,
                 atlasTop + offsetY + atlasSize.height * scale,
                 0F, 1F, 0F, 1F,
                 0xFFFFFFFF
@@ -288,11 +290,11 @@ public final class AtlasScreen extends Screen implements SearchHandler
 
         if (btnExport.isHovered())
         {
-            setTooltipForNextRenderPass(MSG_EXPORT_DETAILS);
+            graphics.setTooltipForNextFrame(MSG_EXPORT_DETAILS, mouseX, mouseY);
         }
         else if (btnExportMipped.active && btnExportMipped.isHovered())
         {
-            setTooltipForNextRenderPass(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel));
+            graphics.setTooltipForNextFrame(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel), mouseX, mouseY);
         }
     }
 
@@ -670,7 +672,7 @@ public final class AtlasScreen extends Screen implements SearchHandler
                 );
     }
 
-    private record Size(int width, int height) { }
+    public record Size(int width, int height) { }
 
     private static class AtlasEntry extends SelectionWidget.SelectionEntry<AtlasEntry>
     {

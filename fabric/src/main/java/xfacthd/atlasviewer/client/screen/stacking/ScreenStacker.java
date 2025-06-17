@@ -21,7 +21,7 @@ public final class ScreenStacker
         }
         mc.screen = Objects.requireNonNull(screen);
         screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
-        mc.getNarrator().sayNow(screen.getNarrationMessage());
+        mc.getNarrator().saySystemNow(screen.getNarrationMessage());
     }
 
     public static void popScreenLayer()
@@ -37,7 +37,7 @@ public final class ScreenStacker
         popScreenLayer(mc);
         if (mc.screen != null)
         {
-            mc.getNarrator().sayNow(mc.screen.getNarrationMessage());
+            mc.getNarrator().saySystemNow(mc.screen.getNarrationMessage());
         }
     }
 
@@ -80,18 +80,13 @@ public final class ScreenStacker
         {
             ScreenEvents.beforeRender(screen).register((topScreen, guiGraphics, mouseX, mouseY, tickDelta) ->
             {
-                guiGraphics.pose().pushPose();
                 for (Iterator<Screen> it = LAYERS.descendingIterator(); it.hasNext();)
                 {
                     Screen layer = it.next();
                     layer.renderWithTooltip(guiGraphics, Integer.MAX_VALUE, Integer.MAX_VALUE, tickDelta);
-                    guiGraphics.pose().translate(0, 0, 10000);
+                    guiGraphics.nextStratum();
                 }
             });
-
-            ScreenEvents.afterRender(screen).register((topScreen, guiGraphics, mouseX, mouseY, tickDelta) ->
-                    guiGraphics.pose().popPose()
-            );
         }
     }
 

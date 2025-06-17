@@ -31,9 +31,6 @@
     "net/minecraft/server/packs/resources/Resource": [
         "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource"
     ],
-    "net/minecraft/client/gui/GuiGraphics": [
-        "xfacthd/atlasviewer/client/util/IGuiGraphicsExtension"
-    ],
     "net/minecraft/util/ExtraCodecs$LateBoundIdMapper": [
         "xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<I, V>"
     ]

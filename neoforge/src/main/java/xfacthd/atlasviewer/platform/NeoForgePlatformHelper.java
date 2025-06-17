@@ -1,11 +1,15 @@
 package xfacthd.atlasviewer.platform;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
+import org.jetbrains.annotations.Nullable;
 import xfacthd.atlasviewer.client.AVClientNeoForge;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
@@ -49,6 +53,19 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
     public void popScreenLayer()
     {
         Minecraft.getInstance().popGuiLayer();
+    }
+
+    @Override
+    @Nullable
+    public ScreenRectangle peekScissorState(GuiGraphics graphics)
+    {
+        return graphics.peekScissorStack();
+    }
+
+    @Override
+    public void submitCustomGuiRenderState(GuiGraphics graphics, GuiElementRenderState renderState)
+    {
+        graphics.submitGuiElementRenderState(renderState);
     }
 
     @Override

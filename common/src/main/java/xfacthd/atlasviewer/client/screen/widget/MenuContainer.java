@@ -5,7 +5,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.Layout;
 import net.minecraft.client.gui.layouts.LayoutElement;
-import net.minecraft.client.renderer.RenderType;
 import xfacthd.atlasviewer.client.util.ClientUtils;
 
 public final class MenuContainer extends GridLayout
@@ -53,7 +52,7 @@ public final class MenuContainer extends GridLayout
     {
         if (open)
         {
-            graphics.fill(RenderType.guiOverlay(), getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0xFF666666);
+            graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0xFF666666);
             ClientUtils.drawColoredBox(graphics, getX(), getY(), getWidth(), getHeight(), 0xFF333333);
         }
     }

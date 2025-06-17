@@ -4,7 +4,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -40,8 +40,8 @@ public final class BackgroundSwitchButton extends Button
             ResourceLocation tex = type.sprite;
             int x = getX() + getWidth() - 1 - (ICON_BG_SIZE + 1) * (Type.VALUES.length - i);
             int y = getY() + 4;
-            graphics.blitSprite(RenderType::guiTextured, bgTex, x - 1, y - 1, ICON_BG_SIZE, ICON_BG_SIZE);
-            graphics.blitSprite(RenderType::guiTextured, tex, x, y, ICON_SIZE, ICON_SIZE);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, bgTex, x - 1, y - 1, ICON_BG_SIZE, ICON_BG_SIZE);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, tex, x, y, ICON_SIZE, ICON_SIZE);
         }
     }
 

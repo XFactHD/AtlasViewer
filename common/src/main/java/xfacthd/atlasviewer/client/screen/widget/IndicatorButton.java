@@ -3,7 +3,7 @@ package xfacthd.atlasviewer.client.screen.widget;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +33,7 @@ public final class IndicatorButton extends Button
         int x = getX() + width - INDICATOR_SIZE - 3;
         int y = getY() + 3;
         ResourceLocation tex = checked ? INDICATOR_CHECKED_TEXTURE : INDICATOR_TEXTURE;
-        graphics.blitSprite(RenderType::guiTextured, tex, x, y, INDICATOR_SIZE, INDICATOR_SIZE);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, tex, x, y, INDICATOR_SIZE, INDICATOR_SIZE);
     }
 
     @Override

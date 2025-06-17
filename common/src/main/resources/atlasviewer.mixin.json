@@ -13,7 +13,6 @@
         "MixinAbstractWidget",
         "MixinAtlasSet",
         "MixinGlDevice",
-        "MixinGuiGraphics",
         "MixinLateBoundIdMapper",
         "MixinMissingTextureAtlasSprite",
         "MixinResource",

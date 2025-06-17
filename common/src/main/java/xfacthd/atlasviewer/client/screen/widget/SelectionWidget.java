@@ -1,15 +1,20 @@
 package xfacthd.atlasviewer.client.screen.widget;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.navigation.*;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.gui.navigation.ScreenAxis;
+import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.locale.Language;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -75,15 +80,12 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
 
         if (extended)
         {
-            graphics.pose().pushPose();
-            graphics.pose().translate(0, 0, 500);
-
             int boxHeight = Math.max(1, ENTRY_HEIGHT * Math.min(entries.size(), 4)) + 2;
 
             graphics.fill(getX(),     getY() + ENTRY_HEIGHT - 1, getX() + width,     getY() + ENTRY_HEIGHT + boxHeight - 1, 0xFFFFFFFF);
             graphics.fill(getX() + 1, getY() + ENTRY_HEIGHT,     getX() + width - 1, getY() + ENTRY_HEIGHT + boxHeight - 2, 0xFF000000);
 
-            graphics.blitSprite(RenderType::guiTextured, ARROW_UP, getX() + width - 17 - ARROW_UP_OFF_X, getY() + 6 - ARROW_UP_OFF_Y, 32, 32);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARROW_UP, getX() + width - 17 - ARROW_UP_OFF_X, getY() + 6 - ARROW_UP_OFF_Y, 32, 32);
 
             T hoverEntry = getEntryAtPosition(mouseX, mouseY);
 
@@ -109,12 +111,10 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
                 graphics.fill(getX() + width - 5, scrollY,     getX() + width - 1, scrollBotY,     0xFF666666);
                 graphics.fill(getX() + width - 4, scrollY + 1, getX() + width - 2, scrollBotY - 1, 0xFFAAAAAA);
             }
-
-            graphics.pose().popPose();
         }
         else
         {
-            graphics.blitSprite(RenderType::guiTextured, ARROW_DOWN, getX() + width - 17 - ARROW_DOWN_OFF_X, getY() + 6 - ARROW_DOWN_OFF_Y, 32, 32);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARROW_DOWN, getX() + width - 17 - ARROW_DOWN_OFF_X, getY() + 6 - ARROW_DOWN_OFF_Y, 32, 32);
         }
     }
 

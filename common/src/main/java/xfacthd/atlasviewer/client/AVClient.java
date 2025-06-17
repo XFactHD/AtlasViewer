@@ -9,7 +9,10 @@ import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.client.screen.AtlasScreen;
-import xfacthd.atlasviewer.client.tooltips.*;
+import xfacthd.atlasviewer.client.tooltips.DirectoryListerTooltipAppender;
+import xfacthd.atlasviewer.client.tooltips.PalettedPermutationsTooltipAppender;
+import xfacthd.atlasviewer.client.tooltips.SingleFileTooltipAppender;
+import xfacthd.atlasviewer.client.tooltips.UnstitcherTooltipAppender;
 import xfacthd.atlasviewer.client.util.MissingTextureDummySpriteSource;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 

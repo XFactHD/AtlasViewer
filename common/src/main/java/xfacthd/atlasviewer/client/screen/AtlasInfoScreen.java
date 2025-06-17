@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
@@ -26,10 +27,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class AtlasInfoScreen extends Screen implements IStackedScreen
+public final class AtlasInfoScreen extends AtlasViewerScreen implements IStackedScreen
 {
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasinfo");
     private static final Component MSG_HW_DEPEND = Component.translatable("msg.atlasviewer.atlas_hw_dependent");
@@ -76,6 +78,7 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
     private final Component atlasMaxSizeText;
     private final Component atlasMipLevelText;
     private final Component spriteCountText;
+    @Nullable
     private final Component countsByMip;
     private final Component percentFilledText;
     private final Component tableHeader;
@@ -138,12 +141,11 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        graphics.flush();
-        renderBlurredBackground();
+        renderBlurredBackground(graphics);
 
-        graphics.blitSprite(RenderType::guiTextured, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
 
-        graphics.drawString(font, title, xLeft + TEXT_X, yTop + (PADDING * 2), 0x404040, false);
+        graphics.drawString(font, title, xLeft + TEXT_X, yTop + (PADDING * 2), 0xFF404040, false);
 
         int y = yTop + FIRST_LINE_Y;
         y = drawLine(graphics, LABEL_NAME, Component.literal(atlasInfo.name), y);
@@ -156,17 +158,17 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
         y = drawLine(graphics, LABEL_SPRITES, spriteCountText, y);
         if (atlasInfo.mipped)
         {
-            y = drawLine(graphics, LABEL_SPRITES_BY_MAX_MIP, countsByMip, y);
+            y = drawLine(graphics, LABEL_SPRITES_BY_MAX_MIP, Objects.requireNonNull(countsByMip), y);
         }
         y = drawLine(graphics, LABEL_PERCENT_FILLED, percentFilledText, y);
 
-        graphics.drawString(font, tableHeader, xLeft + TEXT_X, tableTitleY, 0x404040, false);
+        graphics.drawString(font, tableHeader, xLeft + TEXT_X, tableTitleY, 0xFF404040, false);
 
         int len = font.width(LABEL_MAX_SIZE);
         int minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 2);
         if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= minY && mouseY <= minY + font.lineHeight)
         {
-            setTooltipForNextRenderPass(MSG_HW_DEPEND);
+            graphics.setTooltipForNextFrame(MSG_HW_DEPEND, mouseX, mouseY);
         }
         if (atlasInfo.mipped)
         {
@@ -174,15 +176,15 @@ public final class AtlasInfoScreen extends Screen implements IStackedScreen
             minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 5);
             if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= minY && mouseY <= minY + font.lineHeight)
             {
-                setTooltipForNextRenderPass(MSG_SPRITES_BY_MAX_MIP);
+                graphics.setTooltipForNextFrame(MSG_SPRITES_BY_MAX_MIP, mouseX, mouseY);
             }
         }
     }
 
     private int drawLine(GuiGraphics graphics, Component label, Component value, int y)
     {
-        graphics.drawString(font, label, xLeft + TEXT_X, y, 0x404040, false);
-        graphics.drawString(font, value, xLeft + valueX, y, 0x404040, false);
+        graphics.drawString(font, label, xLeft + TEXT_X, y, 0xFF404040, false);
+        graphics.drawString(font, value, xLeft + valueX, y, 0xFF404040, false);
         return y + LINE_HEIGHT;
     }
 

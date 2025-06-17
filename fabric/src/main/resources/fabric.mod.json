@@ -67,9 +67,6 @@
             "net/minecraft/class_3298": [
                 "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource"
             ],
-            "net/minecraft/class_332": [
-                "xfacthd/atlasviewer/client/util/IGuiGraphicsExtension"
-            ],
             "net/minecraft/class_5699\u0024class_10388": [
                 "xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<TI;TV;>"
             ]

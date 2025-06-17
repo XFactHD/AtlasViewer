@@ -1,5 +1,3 @@
-modLoader="javafml"
-loaderVersion="${neoforge_loader_version_range}"
 license="LGPL v2.1"
 issueTrackerURL="https://github.com/XFactHD/AtlasViewer/issues"
 

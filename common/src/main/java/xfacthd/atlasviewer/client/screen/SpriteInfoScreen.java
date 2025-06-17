@@ -2,14 +2,15 @@ package xfacthd.atlasviewer.client.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -34,8 +35,8 @@ import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.screen.widget.BackgroundSwitchButton;
 import xfacthd.atlasviewer.client.screen.widget.CloseButton;
 import xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
+import xfacthd.atlasviewer.client.util.ClientUtils;
 import xfacthd.atlasviewer.client.util.FixedTooltipPositioner;
-import xfacthd.atlasviewer.client.util.MippedAtlasGuiRenderType;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 import xfacthd.atlasviewer.client.util.TextLine;
 import xfacthd.atlasviewer.client.util.TooltipSeparator;
@@ -49,7 +50,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class SpriteInfoScreen extends Screen implements IStackedScreen
+public final class SpriteInfoScreen extends AtlasViewerScreen implements IStackedScreen
 {
     private static final Component TITLE = Component.translatable("title.atlasviewer.spriteinfo");
     private static final Component CHAR_INFO = Component.literal("i").withStyle(ChatFormatting.BLUE);
@@ -308,12 +309,11 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        graphics.flush();
-        renderBlurredBackground();
+        renderBlurredBackground(graphics);
 
-        graphics.blitSprite(RenderType::guiTextured, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
 
-        graphics.drawString(font, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0x404040, false);
+        graphics.drawString(font, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0xFF404040, false);
 
         int y = yTop + SPRITE_Y;
         y = drawLine(graphics, LABEL_NAME, spriteName.text(), y);
@@ -349,7 +349,7 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         float scale = (float) SPRITE_SIZE / Math.max(contents.width(), contents.height());
 
         graphics.blitSprite(
-                RenderType::guiTextured,
+                RenderPipelines.GUI_TEXTURED,
                 background.getSprite(),
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
@@ -357,12 +357,14 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
                 (int)(contents.height() * scale)
         );
 
-        graphics.innerBlit(
-                $ -> MippedAtlasGuiRenderType.get(atlas, currentMipLevel),
-                sprite.atlasLocation(),
+        GpuTextureView atlasTexView = atlas.atlasview$getMippedTextureView(currentMipLevel);
+        ClientUtils.blitSpecial(
+                graphics,
+                RenderPipelines.GUI_TEXTURED,
+                TextureSetup.singleTexture(atlasTexView),
                 xLeft + (PADDING * 2),
-                xLeft + (PADDING * 2) + (int)(contents.width() * scale),
                 yTop + SPRITE_Y,
+                xLeft + (PADDING * 2) + (int)(contents.width() * scale),
                 yTop + SPRITE_Y + (int)(contents.height() * scale),
                 sprite.getU0(),
                 sprite.getU1(),
@@ -373,18 +375,18 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
 
         if (btnExport.isHovered())
         {
-            setTooltipForNextRenderPass(MSG_EXPORT_DETAILS);
+            graphics.setTooltipForNextFrame(MSG_EXPORT_DETAILS, mouseX, mouseY);
         }
         else if (btnExportMipped.active && btnExportMipped.isHovered())
         {
-            setTooltipForNextRenderPass(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel));
+            graphics.setTooltipForNextFrame(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel), mouseX, mouseY);
         }
     }
 
     private int drawLine(GuiGraphics graphics, Component label, Component value, int y)
     {
-        graphics.drawString(font, label, xLeft + LABEL_X, y, 0x404040, false);
-        graphics.drawString(font, value, xLeft + valueX, y, 0x404040, false);
+        graphics.drawString(font, label, xLeft + LABEL_X, y, 0xFF404040, false);
+        graphics.drawString(font, value, xLeft + valueX, y, 0xFF404040, false);
         return y + LINE_HEIGHT;
     }
 
@@ -398,25 +400,25 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
         int lyMip = yTop + SPRITE_Y + (LINE_HEIGHT * LINE_MAX_MIP_LEVEL);
         if (mouseX >= lx && mouseX < lx + font.width(LABEL_READERPACK) && mouseY >= lyPack && mouseY < lyPack + font.lineHeight)
         {
-            setTooltipForNextRenderPass(TOOLTIP_READERPACK);
+            graphics.setTooltipForNextFrame(TOOLTIP_READERPACK, mouseX, mouseY);
         }
         else if (mipped && mouseX >= lx && mouseX < lx + font.width(LABEL_MAX_MIP_LEVEL) && mouseY >= lyMip && mouseY < lyMip + font.lineHeight)
         {
-            setTooltipForNextRenderPass(TOOLTIP_MAX_MIP_LEVEL);
+            graphics.setTooltipForNextFrame(TOOLTIP_MAX_MIP_LEVEL, mouseX, mouseY);
         }
         else if (spriteName.capped() && isHoveringLine(mouseX, mouseY, LINE_NAME, spriteName.text()))
         {
-            graphics.renderTooltip(font, spriteName.fullText(), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(spriteName.fullText(), mouseX, mouseY);
         }
         else if (sourceInfo.sourcePackTooltip != null && isHoveringLine(mouseX, mouseY, LINE_READERPACK, sourceInfo.sourcePack))
         {
             if (sourceInfo.hasSourcePack)
             {
-                renderFixedTooltip(graphics, LINE_READERPACK, sourceInfo.sourcePackTooltip);
+                setFixedTooltipForNextFrame(graphics, LINE_READERPACK, sourceInfo.sourcePackTooltip);
             }
             else
             {
-                graphics.renderTooltip(font, sourceInfo.sourcePackTooltip, mouseX, mouseY);
+                graphics.setTooltipForNextFrame(sourceInfo.sourcePackTooltip, mouseX, mouseY);
             }
         }
         else if (sourceInfo.sourceTypeTooltip != null && isHoveringLine(mouseX, mouseY, LINE_READERTYPE, sourceInfo.sourceType))
@@ -426,15 +428,15 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
             {
                 lines = Objects.requireNonNull(sourceInfo.sourceTypeTooltipNoFullType);
             }
-            graphics.renderTooltip(font, lines, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(font, lines, mouseX, mouseY);
         }
         else if ((sourceNames.size() > 1 || primarySourceName.capped()) && isHoveringLine(mouseX, mouseY, LINE_SOURCEPACK, primarySourceName.text()))
         {
-            renderFixedTooltip(graphics, LINE_SOURCEPACK, sourceNameTooltip.entries, sourceNameTooltip.maxLen);
+            setFixedTooltipForNextFrame(graphics, LINE_SOURCEPACK, sourceNameTooltip.entries, sourceNameTooltip.maxLen);
         }
         else if (mipped && isHoveringLine(mouseX, mouseY, LINE_MAX_MIP_LEVEL, maxMipLevel))
         {
-            graphics.renderTooltip(font, maxMipLevelTooltip, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(font, maxMipLevelTooltip, mouseX, mouseY);
         }
     }
 
@@ -446,19 +448,17 @@ public final class SpriteInfoScreen extends Screen implements IStackedScreen
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void renderFixedTooltip(GuiGraphics graphics, int lineIdx, Component text)
+    private void setFixedTooltipForNextFrame(GuiGraphics graphics, int lineIdx, Component text)
     {
         var tooltip = List.of(ClientTooltipComponent.create(text.getVisualOrderText()));
-        renderFixedTooltip(graphics, lineIdx, tooltip, font.width(text));
+        setFixedTooltipForNextFrame(graphics, lineIdx, tooltip, font.width(text));
     }
 
-    private void renderFixedTooltip(
-            GuiGraphics graphics, int lineIdx, List<ClientTooltipComponent> components, int maxLen
-    )
+    private void setFixedTooltipForNextFrame(GuiGraphics graphics, int lineIdx, List<ClientTooltipComponent> components, int maxLen)
     {
         int x = Math.min(xLeft + valueX, width - maxLen - PADDING);
         int y = yTop + SPRITE_Y + (LINE_HEIGHT * lineIdx);
-        graphics.renderTooltipInternal(font, components, x, y, PACK_LIST_POSITIONER, null);
+        graphics.setTooltipForNextFrameInternal(font, components, x, y, PACK_LIST_POSITIONER, null, true);
     }
 
     private List<String> collectSourcePackNames()
