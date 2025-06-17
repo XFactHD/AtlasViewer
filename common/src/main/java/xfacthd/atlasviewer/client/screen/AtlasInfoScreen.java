@@ -168,7 +168,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         int minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 2);
         if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= minY && mouseY <= minY + font.lineHeight)
         {
-            graphics.setTooltipForNextFrame(MSG_HW_DEPEND, mouseX, mouseY);
+            setTooltipForNextFrame(graphics, MSG_HW_DEPEND, mouseX, mouseY);
         }
         if (atlasInfo.mipped)
         {
@@ -176,7 +176,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
             minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 5);
             if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= minY && mouseY <= minY + font.lineHeight)
             {
-                graphics.setTooltipForNextFrame(MSG_SPRITES_BY_MAX_MIP, mouseX, mouseY);
+                setTooltipForNextFrame(graphics, MSG_SPRITES_BY_MAX_MIP, mouseX, mouseY);
             }
         }
     }

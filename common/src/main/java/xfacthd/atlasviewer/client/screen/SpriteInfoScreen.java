@@ -375,11 +375,11 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
 
         if (btnExport.isHovered())
         {
-            graphics.setTooltipForNextFrame(MSG_EXPORT_DETAILS, mouseX, mouseY);
+            setTooltipForNextFrame(graphics, MSG_EXPORT_DETAILS, mouseX, mouseY);
         }
         else if (btnExportMipped.active && btnExportMipped.isHovered())
         {
-            graphics.setTooltipForNextFrame(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel), mouseX, mouseY);
+            setTooltipForNextFrame(graphics, Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel), mouseX, mouseY);
         }
     }
 
@@ -400,15 +400,15 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         int lyMip = yTop + SPRITE_Y + (LINE_HEIGHT * LINE_MAX_MIP_LEVEL);
         if (mouseX >= lx && mouseX < lx + font.width(LABEL_READERPACK) && mouseY >= lyPack && mouseY < lyPack + font.lineHeight)
         {
-            graphics.setTooltipForNextFrame(TOOLTIP_READERPACK, mouseX, mouseY);
+            setTooltipForNextFrame(graphics, TOOLTIP_READERPACK, mouseX, mouseY);
         }
         else if (mipped && mouseX >= lx && mouseX < lx + font.width(LABEL_MAX_MIP_LEVEL) && mouseY >= lyMip && mouseY < lyMip + font.lineHeight)
         {
-            graphics.setTooltipForNextFrame(TOOLTIP_MAX_MIP_LEVEL, mouseX, mouseY);
+            setTooltipForNextFrame(graphics, TOOLTIP_MAX_MIP_LEVEL, mouseX, mouseY);
         }
         else if (spriteName.capped() && isHoveringLine(mouseX, mouseY, LINE_NAME, spriteName.text()))
         {
-            graphics.setTooltipForNextFrame(spriteName.fullText(), mouseX, mouseY);
+            setTooltipForNextFrame(graphics, spriteName.fullText(), mouseX, mouseY);
         }
         else if (sourceInfo.sourcePackTooltip != null && isHoveringLine(mouseX, mouseY, LINE_READERPACK, sourceInfo.sourcePack))
         {
@@ -418,7 +418,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
             }
             else
             {
-                graphics.setTooltipForNextFrame(sourceInfo.sourcePackTooltip, mouseX, mouseY);
+                setTooltipForNextFrame(graphics, sourceInfo.sourcePackTooltip, mouseX, mouseY);
             }
         }
         else if (sourceInfo.sourceTypeTooltip != null && isHoveringLine(mouseX, mouseY, LINE_READERTYPE, sourceInfo.sourceType))
@@ -436,7 +436,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         }
         else if (mipped && isHoveringLine(mouseX, mouseY, LINE_MAX_MIP_LEVEL, maxMipLevel))
         {
-            graphics.setTooltipForNextFrame(font, maxMipLevelTooltip, mouseX, mouseY);
+            setTooltipForNextFrame(graphics, maxMipLevelTooltip, mouseX, mouseY);
         }
     }
 

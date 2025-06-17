@@ -290,11 +290,11 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
         if (btnExport.isHovered())
         {
-            graphics.setTooltipForNextFrame(MSG_EXPORT_DETAILS, mouseX, mouseY);
+            setTooltipForNextFrame(graphics, MSG_EXPORT_DETAILS, mouseX, mouseY);
         }
         else if (btnExportMipped.active && btnExportMipped.isHovered())
         {
-            graphics.setTooltipForNextFrame(Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel), mouseX, mouseY);
+            setTooltipForNextFrame(graphics, Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel), mouseX, mouseY);
         }
     }
 

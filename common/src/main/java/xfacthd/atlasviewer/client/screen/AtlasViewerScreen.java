@@ -4,7 +4,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public abstract class AtlasViewerScreen extends Screen
 {
@@ -21,5 +23,10 @@ public abstract class AtlasViewerScreen extends Screen
             // Only render blur for the top-most screen
             super.renderBlurredBackground(graphics);
         }
+    }
+
+    protected void setTooltipForNextFrame(GuiGraphics graphics, Component component, int mouseX, int mouseY)
+    {
+        graphics.setTooltipForNextFrame(font, List.of(component), Optional.empty(), mouseX, mouseY);
     }
 }
