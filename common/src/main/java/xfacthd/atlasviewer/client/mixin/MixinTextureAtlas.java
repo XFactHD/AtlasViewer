@@ -2,7 +2,9 @@ package xfacthd.atlasviewer.client.mixin;
 
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +21,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Mixin(TextureAtlas.class)
-public class MixinTextureAtlas implements IMipAwareTextureAtlas
+public class MixinTextureAtlas extends AbstractTexture implements IMipAwareTextureAtlas
 {
     @Unique
     private boolean atlasviewer$mipMapEnabled = false;
@@ -52,13 +54,15 @@ public class MixinTextureAtlas implements IMipAwareTextureAtlas
     @Inject(method = "upload", at = @At("TAIL"))
     private void atlasviewer$onUploadTail(SpriteLoader.Preparations preps, CallbackInfo ci)
     {
-        //noinspection DataFlowIssue
-        TextureAtlas self = (TextureAtlas)(Object) this;
-        atlasviewer$mippedTextureViews[0] = self.getTextureView();
+        // This is safe as the texture and texture view were initialized before this injection
+        GpuTexture texture = Objects.requireNonNull(this.texture);
+        GpuTextureView textureView = Objects.requireNonNull(this.textureView);
+
+        atlasviewer$mippedTextureViews[0] = textureView;
         GpuDevice device = RenderSystem.getDevice();
         for (int i = 1; i <= mipLevel; i++)
         {
-            atlasviewer$mippedTextureViews[i] = device.createTextureView(self.getTexture(), i, 1);
+            atlasviewer$mippedTextureViews[i] = device.createTextureView(texture, i, 1);
         }
     }
 
