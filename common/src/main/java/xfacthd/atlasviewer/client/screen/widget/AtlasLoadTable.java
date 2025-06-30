@@ -101,10 +101,10 @@ public final class AtlasLoadTable extends AbstractWidget
         y++;
         graphics.hLine(x, x + width - 2, y + font.lineHeight, 0xFF000000);
 
-        graphics.drawString(font, HEADER_NAMESPACE, colTextX[0], y, 0x303030, false);
-        graphics.drawString(font, HEADER_COUNT, colTextX[1], y, 0x303030, false);
-        graphics.drawString(font, HEADER_OF_TOTAL, colTextX[2], y, 0x303030, false);
-        graphics.drawString(font, HEADER_OF_FILLED, colTextX[3], y, 0x303030, false);
+        graphics.drawString(font, HEADER_NAMESPACE, colTextX[0], y, 0xFF303030, false);
+        graphics.drawString(font, HEADER_COUNT, colTextX[1], y, 0xFF303030, false);
+        graphics.drawString(font, HEADER_OF_TOTAL, colTextX[2], y, 0xFF303030, false);
+        graphics.drawString(font, HEADER_OF_FILLED, colTextX[3], y, 0xFF303030, false);
 
         x = getX() + 3;
         y += entryHeight;
@@ -115,22 +115,22 @@ public final class AtlasLoadTable extends AbstractWidget
 
             int tx = colTextX[0];
             AtlasInfoScreen.FillStat stat = atlasInfo.fillStats().get(idx);
-            graphics.drawString(font, stat.namespace(), tx, y, 0x303030, false);
+            graphics.drawString(font, stat.namespace(), tx, y, 0xFF303030, false);
 
             String count = Integer.toString(stat.count());
             tx = colTextX[1];
             int tw = font.width(count);
-            graphics.drawString(font, count, tx + colWidth[1] - tw - 3, y, 0x303030, false);
+            graphics.drawString(font, count, tx + colWidth[1] - tw - 3, y, 0xFF303030, false);
 
             String percentOfTotal = "%.1f %%".formatted(stat.percentOfTotal() * 100F);
             tx = colTextX[2];
             tw = font.width(percentOfTotal);
-            graphics.drawString(font, percentOfTotal, tx + colWidth[2] - tw - 3, y, 0x303030, false);
+            graphics.drawString(font, percentOfTotal, tx + colWidth[2] - tw - 3, y, 0xFF303030, false);
 
             String percentOfFilled = "%.1f %%".formatted(stat.percentOfFilled() * 100F);
             tx = colTextX[3];
             tw = font.width(percentOfFilled);
-            graphics.drawString(font, percentOfFilled, tx + colWidth[3] - tw - 3, y, 0x303030, false);
+            graphics.drawString(font, percentOfFilled, tx + colWidth[3] - tw - 3, y, 0xFF303030, false);
 
             graphics.hLine(x - 3, x + contentWidth - 2, y + font.lineHeight, 0xFF000000);
             y += entryHeight;
