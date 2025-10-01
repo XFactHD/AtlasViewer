@@ -24,7 +24,7 @@ public final class AtlasViewerNeoForge
 
     private static void onRegisterKeyMappings(final RegisterKeyMappingsEvent event)
     {
-        AVClient.onRegisterKeyMappings(event::register);
+        AVClient.onRegisterKeyMappings(event::registerCategory, event::register);
     }
 
     private static void onRegisterReloadListeners(final AddClientReloadListenersEvent event)

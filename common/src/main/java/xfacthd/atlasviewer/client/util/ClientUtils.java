@@ -45,6 +45,14 @@ public final class ClientUtils
         return font.split(text, width).size() * font.lineHeight;
     }
 
+    public static void drawColoredBox(GuiGraphics graphics, int x, int y, int w, int h, int color)
+    {
+        graphics.fill(RenderPipelines.GUI, x,         y,         x + 1, y + h, color);
+        graphics.fill(RenderPipelines.GUI, x + w - 1, y,         x + w, y + h, color);
+        graphics.fill(RenderPipelines.GUI, x,         y,         x + w, y + 1, color);
+        graphics.fill(RenderPipelines.GUI, x,         y + h - 1, x + w, y + h, color);
+    }
+
     public static void drawColoredBox(GuiGraphics graphics, float x, float y, float w, float h, int color)
     {
         fill(graphics, RenderPipelines.GUI, x,          y,          x + 1F, y + h,  color);
@@ -112,6 +120,7 @@ public final class ClientUtils
         int pixSize = srcTexture.getFormat().pixelSize();
         int bufSize = width * height * pixSize;
         GpuBuffer buffer = device.createBuffer(() -> "Texture output buffer", GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_MAP_READ, bufSize);
+        Services.PLATFORM.fixMipLevelTexParams(srcTexture);
         cmdEncoder.copyTextureToBuffer(srcTexture, buffer, 0, () ->
         {
             try (GpuBuffer.MappedView bufView = cmdEncoder.mapBuffer(buffer, true, false); NativeImage destImage = new NativeImage(width, height, false))

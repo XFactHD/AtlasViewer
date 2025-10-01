@@ -62,18 +62,6 @@ public final class ScreenStacker
         }
     }
 
-    public static float getGuiFarPlane()
-    {
-        // 1000 units for the overlay background,
-        // and 10000 units for each layered Screen,
-        return 11000.0F + 10000.0F * (1 + LAYERS.size());
-    }
-
-    public static boolean isNonEmpty()
-    {
-        return !LAYERS.isEmpty();
-    }
-
     public static void onScreenInit(Screen screen)
     {
         if (screen instanceof IStackedScreen)
@@ -82,8 +70,7 @@ public final class ScreenStacker
             {
                 for (Iterator<Screen> it = LAYERS.descendingIterator(); it.hasNext();)
                 {
-                    Screen layer = it.next();
-                    layer.renderWithTooltip(guiGraphics, Integer.MAX_VALUE, Integer.MAX_VALUE, tickDelta);
+                    it.next().renderWithTooltipAndSubtitles(guiGraphics, Integer.MAX_VALUE, Integer.MAX_VALUE, tickDelta);
                     guiGraphics.nextStratum();
                 }
             });

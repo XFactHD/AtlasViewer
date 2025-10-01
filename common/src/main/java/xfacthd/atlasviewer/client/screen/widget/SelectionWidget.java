@@ -11,6 +11,9 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -19,7 +22,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,21 +131,21 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     }
 
     @Override
-    public void onPress() { }
+    public void onPress(InputWithModifiers input) { }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
     {
-        if (active && mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() && mouseY <= getY() + getHeight())
+        if (active && event.x() >= getX() && event.x() <= getX() + width && event.y() >= getY() && event.y() <= getY() + getHeight())
         {
             int maxX = getX() + width - (entries.size() > 4 ? 5 : 0);
             int maxY = getY() + ENTRY_HEIGHT * Math.min(entries.size() + 1, 5);
-            if (extended && mouseX < maxX && mouseY > (getY() + ENTRY_HEIGHT) && mouseY < maxY)
+            if (extended && event.x() < maxX && event.y() > (getY() + ENTRY_HEIGHT) && event.y() < maxY)
             {
-                setSelected(getEntryAtPosition(mouseX, mouseY), true);
+                setSelected(getEntryAtPosition(event.x(), event.y()), true);
             }
 
-            if ((mouseY < getY() + ENTRY_HEIGHT && mouseX < getX() + width) || mouseX < maxX)
+            if ((event.y() < getY() + ENTRY_HEIGHT && event.x() < getX() + width) || event.x() < maxX)
             {
                 toggleExtended();
             }
@@ -156,16 +158,16 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         extended = false;
         scrollOffset = 0;
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+    public boolean keyPressed(KeyEvent event)
     {
         boolean hasFocused = extended && focused != null;
         if (active && visible && (isFocused() || hasFocused))
         {
-            if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_SPACE || keyCode == GLFW.GLFW_KEY_KP_ENTER)
+            if (event.isSelection())
             {
                 if (isFocused())
                 {
@@ -366,11 +368,11 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         }
 
         @Override
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+        public boolean keyPressed(KeyEvent event)
         {
             if (isFocused())
             {
-                return Objects.requireNonNull(owner).keyPressed(keyCode, scanCode, modifiers);
+                return Objects.requireNonNull(owner).keyPressed(event);
             }
             return false;
         }

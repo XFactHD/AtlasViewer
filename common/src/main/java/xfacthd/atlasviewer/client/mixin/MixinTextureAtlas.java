@@ -24,8 +24,6 @@ import java.util.Objects;
 public class MixinTextureAtlas extends AbstractTexture implements IMipAwareTextureAtlas
 {
     @Unique
-    private boolean atlasviewer$mipMapEnabled = false;
-    @Unique
     private final @Nullable GpuTextureView[] atlasviewer$mippedTextureViews = new GpuTextureView[5];
     @Shadow
     private int mipLevel;
@@ -64,18 +62,6 @@ public class MixinTextureAtlas extends AbstractTexture implements IMipAwareTextu
         {
             atlasviewer$mippedTextureViews[i] = device.createTextureView(texture, i, 1);
         }
-    }
-
-    @Override
-    public void atlasviewer$setMipMapEnabled(boolean enabled)
-    {
-        atlasviewer$mipMapEnabled = enabled;
-    }
-
-    @Override
-    public boolean atlasviewer$isMipMapEnabled()
-    {
-        return atlasviewer$mipMapEnabled;
     }
 
     @Override

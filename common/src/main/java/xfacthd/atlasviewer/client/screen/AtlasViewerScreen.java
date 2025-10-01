@@ -1,5 +1,6 @@
 package xfacthd.atlasviewer.client.screen;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -18,7 +19,7 @@ public abstract class AtlasViewerScreen extends Screen
     @Override
     protected void renderBlurredBackground(GuiGraphics graphics)
     {
-        if (this == Objects.requireNonNull(minecraft).screen)
+        if (this == minecraft().screen)
         {
             // Only render blur for the top-most screen
             super.renderBlurredBackground(graphics);
@@ -28,5 +29,10 @@ public abstract class AtlasViewerScreen extends Screen
     protected void setTooltipForNextFrame(GuiGraphics graphics, Component component, int mouseX, int mouseY)
     {
         graphics.setTooltipForNextFrame(font, List.of(component), Optional.empty(), mouseX, mouseY);
+    }
+
+    protected final Minecraft minecraft()
+    {
+        return Objects.requireNonNull(minecraft);
     }
 }

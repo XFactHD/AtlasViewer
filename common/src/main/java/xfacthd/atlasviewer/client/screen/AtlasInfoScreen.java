@@ -5,11 +5,14 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.AtlasManager;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -37,7 +40,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     private static final Component MSG_SPRITES_BY_MAX_MIP = Component.translatable("msg.atlasviewer.atlas_sprites_by_max_mip");
     @SuppressWarnings("UnnecessaryUnicodeEscape")
     private static final Component CHAR_ARROW = Component.literal("\u21B3").withStyle(s ->
-            s.withFont(AtlasViewer.rl("arrow"))
+            s.withFont(new FontDescription.Resource(AtlasViewer.rl("arrow")))
     );
     private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.atlas_name");
     private static final Component LABEL_SIZE = Component.translatable("label.atlasviewer.atlas_size");
@@ -188,14 +191,14 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
     {
-        if (button == GLFW.GLFW_MOUSE_BUTTON_1 && (mouseX < xLeft || mouseY < yTop || mouseX > (xLeft + WIDTH) || mouseY > (yTop + imageHeight)))
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_1 && (event.x() < xLeft || event.y() < yTop || event.x() > (xLeft + WIDTH) || event.y() > (yTop + imageHeight)))
         {
             onClose();
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
@@ -206,7 +209,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
 
 
 
-    public static AtlasInfo computeInfo(TextureAtlas atlas, Collection<TextureAtlasSprite> sprites)
+    public static AtlasInfo computeInfo(AtlasManager.AtlasEntry atlasEntry, Collection<TextureAtlasSprite> sprites)
     {
         Map<String, Integer> areaByNamespace = sprites.stream()
                 .map(TextureAtlasSprite::contents)
@@ -229,6 +232,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
             spritesByMaxMip[maxLevel]++;
         });
 
+        TextureAtlas atlas = atlasEntry.atlas();
         int width = atlas.getWidth();
         int height = atlas.getHeight();
         int area = width * height;
@@ -247,8 +251,8 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         });
 
         return new AtlasInfo(
-                atlas.location().toString(),
-                atlas.atlasviewer$isMipMapEnabled(),
+                atlasEntry.config().textureId().toString(),
+                atlasEntry.config().createMipmaps(),
                 atlas.maxSupportedTextureSize(),
                 width,
                 height,

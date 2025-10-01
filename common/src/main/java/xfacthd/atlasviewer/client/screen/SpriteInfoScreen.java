@@ -10,12 +10,16 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.SpriteContents;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
+import net.minecraft.client.resources.metadata.gui.GuiMetadataSection;
 import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
+import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -109,7 +113,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     private static final Component TOOLTIP_MIPMAP_FULL = Component.translatable("tooltip.atlasviewer.sprite.mipmap_full");
     private static final Component FULL_TYPE_PLACEHOLDER = Component.translatable(
             "value.atlasviewer.source_tooltip.hold_to_show",
-            InputConstants.getKey(GLFW.GLFW_KEY_LEFT_SHIFT, -1).getDisplayName()
+            InputConstants.getKey(new KeyEvent(GLFW.GLFW_KEY_LEFT_SHIFT, -1, 0)).getDisplayName()
     ).withStyle(ChatFormatting.GOLD);
     private static final ClientTooltipPositioner PACK_LIST_POSITIONER = new FixedTooltipPositioner();
     private static final int WIDTH = 400;
@@ -133,7 +137,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     private static final int LINE_READERTYPE = LINE_READERPACK + 1;
     private static final int LINE_MAX_MIP_LEVEL = LINE_READERTYPE + 1;
 
-    private final TextureAtlas atlas;
+    private final AtlasManager.AtlasEntry atlas;
     private final TextureAtlasSprite sprite;
     private final SpriteContents contents;
     private final boolean mipped;
@@ -188,21 +192,21 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     private Component guiSpriteNinesliceBorderText;
     private int currentMipLevel;
 
-    public SpriteInfoScreen(TextureAtlas atlas, TextureAtlasSprite sprite, int currentMipLevel, BackgroundSwitchButton.Type background)
+    public SpriteInfoScreen(AtlasManager.AtlasEntry atlas, TextureAtlasSprite sprite, int currentMipLevel, BackgroundSwitchButton.Type background)
     {
         super(TITLE);
         this.atlas = atlas;
         this.sprite = sprite;
         this.contents = sprite.contents();
-        this.mipped = atlas.atlasviewer$isMipMapEnabled();
-        this.guiSprite = atlas == Minecraft.getInstance().getGuiSprites().atlasviewer$getAtlas();
+        this.mipped = atlas.config().createMipmaps();
+        this.guiSprite = atlas.config().definitionLocation().equals(AtlasIds.GUI);
         this.background = background;
         this.sourceNames = collectSourcePackNames();
         this.primarySource = sourceNames.isEmpty() ? null : sourceNames.getFirst();
         this.animation = contents.atlasviewer$getAnimatedTexture();
         this.animated = animation != null;
         this.animFrameTime = getAnimationFrameTime();
-        this.guiScaling = guiSprite ? Minecraft.getInstance().getGuiSprites().getSpriteScaling(sprite) : null;
+        this.guiScaling = guiSprite ? getGuiScaling(sprite) : null;
         this.currentMipLevel = currentMipLevel;
     }
 
@@ -228,7 +232,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 MIP_LEVEL_WIDTH, MIP_LEVEL_HEIGHT,
                 "btn.atlasviewer.mip_level",
                 currentMipLevel,
-                atlas.atlasviewer$getMipLevel(),
+                atlas.atlas().atlasviewer$getMipLevel(),
                 this::selectMipLevel
         ));
         addRenderableWidget(btnExport = Button.builder(TITLE_EXPORT, this::exportSprite)
@@ -242,7 +246,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 .build()
         );
 
-        mipLevelSlider.active = atlas.atlasviewer$getMipLevel() > 0;
+        mipLevelSlider.active = atlas.atlas().atlasviewer$getMipLevel() > 0;
         btnExportMipped.active = currentMipLevel > 0;
 
         addRenderableWidget(new CloseButton(xLeft + WIDTH - PADDING - CLOSE_SIZE, yTop + PADDING, this));
@@ -357,7 +361,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 (int)(contents.height() * scale)
         );
 
-        GpuTextureView atlasTexView = atlas.atlasview$getMippedTextureView(currentMipLevel);
+        GpuTextureView atlasTexView = atlas.atlas().atlasview$getMippedTextureView(currentMipLevel);
         ClientUtils.blitSpecial(
                 graphics,
                 RenderPipelines.GUI_TEXTURED,
@@ -424,7 +428,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         else if (sourceInfo.sourceTypeTooltip != null && isHoveringLine(mouseX, mouseY, LINE_READERTYPE, sourceInfo.sourceType))
         {
             List<FormattedCharSequence> lines = sourceInfo.sourceTypeTooltip;
-            if (sourceInfo.hasConcreteSourceType && !hasShiftDown())
+            if (sourceInfo.hasConcreteSourceType && !minecraft().hasShiftDown())
             {
                 lines = Objects.requireNonNull(sourceInfo.sourceTypeTooltipNoFullType);
             }
@@ -483,6 +487,11 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         }
         Collections.reverse(sources);
         return sources;
+    }
+
+    private static GuiSpriteScaling getGuiScaling(TextureAtlasSprite sprite)
+    {
+        return sprite.contents().getAdditionalMetadata(GuiMetadataSection.TYPE).orElse(GuiMetadataSection.DEFAULT).scaling();
     }
 
     private SourcePackList makeTooltipList()
@@ -713,14 +722,14 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
     {
-        if (button == GLFW.GLFW_MOUSE_BUTTON_1 && (mouseX < xLeft || mouseY < yTop || mouseX > (xLeft + WIDTH) || mouseY > (yTop + imageHeight)))
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_1 && (event.x() < xLeft || event.y() < yTop || event.x() > (xLeft + WIDTH) || event.y() > (yTop + imageHeight)))
         {
             onClose();
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override

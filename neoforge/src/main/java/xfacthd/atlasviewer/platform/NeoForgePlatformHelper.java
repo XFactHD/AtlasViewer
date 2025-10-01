@@ -1,5 +1,6 @@
 package xfacthd.atlasviewer.platform;
 
+import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -9,6 +10,7 @@ import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuTexture;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.atlasviewer.client.AVClientNeoForge;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
@@ -22,7 +24,7 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
     @Override
     public boolean isDevelopmentEnvironment()
     {
-        return !FMLLoader.isProduction();
+        return !FMLLoader.getCurrent().isProduction();
     }
 
     @Override
@@ -84,5 +86,16 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
     public void registerPlatformSpecificBuiltInSpriteSourceDetails()
     {
         AVClientNeoForge.registerBuiltInSpriteSourceDetails();
+    }
+
+    @Override
+    @SuppressWarnings("UnstableApiUsage")
+    public void fixMipLevelTexParams(GpuTexture srcTexture)
+    {
+        if (srcTexture instanceof ValidationGpuTexture validationTex)
+        {
+            srcTexture = validationTex.getRealTexture();
+        }
+        IPlatformHelper.super.fixMipLevelTexParams(srcTexture);
     }
 }

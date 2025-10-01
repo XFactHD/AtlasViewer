@@ -5,12 +5,14 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.client.screen.AtlasInfoScreen;
+import xfacthd.atlasviewer.client.util.ClientUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -82,7 +84,7 @@ public final class AtlasLoadTable extends AbstractWidget
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        graphics.renderOutline(getX(), getY(), width, height, 0xFF000000);
+        ClientUtils.drawColoredBox(graphics, getX(), getY(), width, height, 0xFF000000);
 
         int x = getX() + 1;
         int y = getY() + 1;
@@ -157,16 +159,16 @@ public final class AtlasLoadTable extends AbstractWidget
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int btn)
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
     {
-        if (btn == GLFW.GLFW_MOUSE_BUTTON_LEFT && mouseY >= getY() + 1 && mouseY <= getY() + font.lineHeight + 2)
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && event.y() >= getY() + 1 && event.y() <= getY() + font.lineHeight + 2)
         {
             SortTarget newTarget = null;
             int x = getX() + 1;
             for (int i = 0; i < 4; i++)
             {
                 int w = colWidth[i];
-                if (mouseX >= x && mouseX <= x + w)
+                if (event.x() >= x && event.x() <= x + w)
                 {
                     newTarget = SortTarget.VALUES[i];
                     break;
@@ -189,7 +191,7 @@ public final class AtlasLoadTable extends AbstractWidget
                 return true;
             }
         }
-        return super.mouseClicked(mouseX, mouseY, btn);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override

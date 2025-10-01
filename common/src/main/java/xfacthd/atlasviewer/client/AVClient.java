@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.texture.atlas.sources.PalettedPermutations;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
 import org.lwjgl.glfw.GLFW;
+import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.screen.AtlasScreen;
 import xfacthd.atlasviewer.client.tooltips.DirectoryListerTooltipAppender;
 import xfacthd.atlasviewer.client.tooltips.PalettedPermutationsTooltipAppender;
@@ -21,12 +22,14 @@ import java.util.function.Supplier;
 
 public final class AVClient
 {
+    private static final KeyMapping.Category CATEGORY = new KeyMapping.Category(AtlasViewer.rl("main"));
     private static final Supplier<KeyMapping> KEY_MAPPING_OPEN_VIEWER = Suppliers.memoize(() ->
-            new KeyMapping("key.atlasviewer.open_viewer", GLFW.GLFW_KEY_V, "key.categories.atlasviewer")
+            new KeyMapping("key.atlasviewer.open_viewer", GLFW.GLFW_KEY_V, CATEGORY)
     );
 
-    public static void onRegisterKeyMappings(Consumer<KeyMapping> registrar)
+    public static void onRegisterKeyMappings(Consumer<KeyMapping.Category> categoryRegistrar, Consumer<KeyMapping> registrar)
     {
+        categoryRegistrar.accept(CATEGORY);
         registrar.accept(KEY_MAPPING_OPEN_VIEWER.get());
     }
 

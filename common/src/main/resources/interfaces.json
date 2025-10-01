@@ -10,11 +10,8 @@
         "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlas",
         "xfacthd/atlasviewer/client/util/IMipAwareTextureAtlas"
     ],
-    "net/minecraft/client/resources/TextureAtlasHolder": [
-        "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlasHolder"
-    ],
-    "net/minecraft/client/renderer/texture/TextureManager": [
-        "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureManager"
+    "net/minecraft/client/resources/model/AtlasManager": [
+        "xfacthd/atlasviewer/client/duck/DefaultedAccessorAtlasManager"
     ],
     "net/minecraft/client/renderer/texture/atlas/SpriteSource": [
         "xfacthd/atlasviewer/client/api/IPackAwareSpriteSource"

@@ -9,10 +9,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.AtlasManager;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -97,9 +99,9 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     private BackgroundSwitchButton bgSwitchButton;
     @UnknownNullability
     private SearchBox searchBar;
-    private final Map<ResourceLocation, TextureAtlas> atlases = new HashMap<>();
+    private final Map<ResourceLocation, AtlasManager.AtlasEntry> atlases = new HashMap<>();
     @Nullable
-    private TextureAtlas currentAtlas;
+    private AtlasManager.AtlasEntry currentAtlas;
     @Nullable
     private QuadTree<TextureAtlasSprite> spriteTree;
     @Nullable
@@ -189,21 +191,15 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         menu.arrangeElements();
 
         atlases.clear();
-        Minecraft.getInstance().getTextureManager().atlasviewer$getByPath().forEach((loc, tex) ->
-        {
-            if (tex instanceof TextureAtlas atlas)
-            {
-                atlases.put(loc, atlas);
-            }
-        });
+        atlases.putAll(minecraft().getAtlasManager().atlasviewer$getAtlasesByTexture());
 
         for (ResourceLocation loc : atlases.keySet())
         {
             atlasSelection.addEntry(new AtlasEntry(loc));
         }
 
-        ResourceLocation currLoc = currentAtlas != null && atlases.containsKey(currentAtlas.location())
-                ? currentAtlas.location()
+        ResourceLocation currLoc = currentAtlas != null && atlases.containsKey(currentAtlas.config().textureId())
+                ? currentAtlas.config().textureId()
                 : TextureAtlas.LOCATION_BLOCKS;
         AtlasEntry current = atlasSelection.stream()
                 .filter(entry -> entry.atlas.equals(currLoc))
@@ -230,7 +226,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
         graphics.enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
         Objects.requireNonNull(currentAtlas);
-        GpuTextureView atlasTexView = currentAtlas.atlasview$getMippedTextureView(currentMipLevel);
+        GpuTextureView atlasTexView = currentAtlas.atlas().atlasview$getMippedTextureView(currentMipLevel);
         ClientUtils.blitSpecial(
                 graphics,
                 RenderPipelines.GUI_TEXTURED,
@@ -338,14 +334,14 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY)
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY)
     {
-        if (super.mouseDragged(mouseX, mouseY, button, dragX, dragY))
+        if (super.mouseDragged(event, dragX, dragY))
         {
             return true;
         }
 
-        if (button == GLFW.GLFW_MOUSE_BUTTON_1 && mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight))
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_1 && event.x() >= atlasLeft && event.x() <= (atlasLeft + maxAtlasWidth) && event.y() >= atlasTop && event.y() <= (atlasTop + maxAtlasHeight))
         {
             Window window = Minecraft.getInstance().getWindow();
             float scaleX = window.getGuiScaledWidth() / (float)window.getScreenWidth();
@@ -386,13 +382,13 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button)
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
     {
-        if (menu.isOpen() && !menu.isMouseOver(mouseX, mouseY))
+        if (menu.isOpen() && !menu.isMouseOver(event.x(), event.y()))
         {
             menu.setOpen(false);
         }
-        if (!super.mouseClicked(mouseX, mouseY, button))
+        if (!super.mouseClicked(event, doubleClick))
         {
             setFocused(null);
             return false;
@@ -401,14 +397,14 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button)
+    public boolean mouseReleased(MouseButtonEvent event)
     {
-        if (super.mouseReleased(mouseX, mouseY, button))
+        if (super.mouseReleased(event))
         {
             return true;
         }
 
-        if (hoveredSprite != null && button == GLFW.GLFW_MOUSE_BUTTON_2 && (!menu.isOpen() || !menu.isMouseOver(mouseX, mouseY)))
+        if (hoveredSprite != null && event.button() == GLFW.GLFW_MOUSE_BUTTON_2 && (!menu.isOpen() || !menu.isMouseOver(event.x(), event.y())))
         {
             Services.PLATFORM.pushScreenLayer(new SpriteInfoScreen(Objects.requireNonNull(currentAtlas), hoveredSprite, currentMipLevel, bgSwitchButton.getSelectedType()));
             return true;
@@ -421,14 +417,14 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     {
         currentAtlas = atlases.get(entry.atlas);
 
-        atlasSize = ATLAS_SIZES.get(currentAtlas);
+        atlasSize = ATLAS_SIZES.get(currentAtlas.atlas());
         atlasScale = (float) maxAtlasWidth / atlasSize.width;
         if (atlasSize.height * atlasScale > maxAtlasHeight)
         {
             atlasScale = (float) maxAtlasHeight / atlasSize.height;
         }
 
-        sprites = Objects.requireNonNull(currentAtlas).atlasviewer$getTexturesByName().values();
+        sprites = Objects.requireNonNull(currentAtlas).atlas().atlasviewer$getTexturesByName().values();
 
         int minSize = sprites.stream()
                 .map(TextureAtlasSprite::contents)
@@ -441,13 +437,13 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         Rect2i minRect = spriteTree.minSize();
         AtlasViewer.LOGGER.debug(
                 "QuadTree for atlas '{}' has a depth of {}. Smallest sub-tree sized {}x{}, requested {}x{}",
-                currentAtlas.location(),
+                currentAtlas.config().textureId(),
                 spriteTree.depth(),
                 minRect.getWidth(), minRect.getHeight(),
                 minSize, minSize
         );
 
-        int mipLevels = currentAtlas.atlasviewer$getMipLevel();
+        int mipLevels = currentAtlas.atlas().atlasviewer$getMipLevel();
         mipLevelSlider.setStep(0, true);
         mipLevelSlider.setMaxStep(mipLevels);
         mipLevelSlider.active = mipLevels > 0;
@@ -495,14 +491,14 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
     private void exportAtlas(int mipLevel)
     {
-        ClientUtils.downloadTexture(Objects.requireNonNull(currentAtlas).getTexture(), mipLevel, image ->
+        ClientUtils.downloadTexture(Objects.requireNonNull(currentAtlas).atlas().getTexture(), mipLevel, image ->
         {
             try
             {
-                Path imgPath = exportNativeImage(image, currentAtlas.location(), "atlas", mipLevel, true, MSG_EXPORT_SUCCESS);
+                Path imgPath = exportNativeImage(image, currentAtlas.config().textureId(), "atlas", mipLevel, true, MSG_EXPORT_SUCCESS);
                 if (mipLevel == 0)
                 {
-                    Map<ResourceLocation, TextureAtlasSprite> sprites = currentAtlas.atlasviewer$getTexturesByName();
+                    Map<ResourceLocation, TextureAtlasSprite> sprites = currentAtlas.atlas().atlasviewer$getTexturesByName();
                     TextureAtlas.dumpSpriteNames(imgPath.getParent(), imgPath.getFileName().toString(), sprites);
                 }
             }
@@ -540,7 +536,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
             Stopwatch stopwatch = Stopwatch.createStarted();
             cachedInfo = AtlasInfoScreen.computeInfo(Objects.requireNonNull(currentAtlas), Objects.requireNonNull(sprites));
             stopwatch.stop();
-            AtlasViewer.LOGGER.debug("Took {} to compute atlas info for atlas '{}'", stopwatch, currentAtlas.location());
+            AtlasViewer.LOGGER.debug("Took {} to compute atlas info for atlas '{}'", stopwatch, currentAtlas.config().textureId());
         }
         Services.PLATFORM.pushScreenLayer(new AtlasInfoScreen(cachedInfo));
     }

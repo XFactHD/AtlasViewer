@@ -3,6 +3,7 @@ package xfacthd.atlasviewer.client.screen.widget.search;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
 public final class SearchButton extends Button
@@ -49,7 +50,7 @@ public final class SearchButton extends Button
     }
 
     @Override
-    public void onPress()
+    public void onPress(InputWithModifiers input)
     {
         handler.jumpToNextResult();
     }

@@ -23,12 +23,12 @@ public record FloatColoredRectangleRenderState(
 ) implements GuiElementRenderState
 {
     @Override
-    public void buildVertices(VertexConsumer consumer, float z)
+    public void buildVertices(VertexConsumer consumer)
     {
-        consumer.addVertexWith2DPose(pose(), x0(), y0(), z).setColor(col1());
-        consumer.addVertexWith2DPose(pose(), x0(), y1(), z).setColor(col2());
-        consumer.addVertexWith2DPose(pose(), x1(), y1(), z).setColor(col2());
-        consumer.addVertexWith2DPose(pose(), x1(), y0(), z).setColor(col1());
+        consumer.addVertexWith2DPose(pose(), x0(), y0()).setColor(col1());
+        consumer.addVertexWith2DPose(pose(), x0(), y1()).setColor(col2());
+        consumer.addVertexWith2DPose(pose(), x1(), y1()).setColor(col2());
+        consumer.addVertexWith2DPose(pose(), x1(), y0()).setColor(col1());
     }
 
     @Override

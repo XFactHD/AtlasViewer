@@ -46,11 +46,8 @@
                 "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlas",
                 "xfacthd/atlasviewer/client/util/IMipAwareTextureAtlas"
             ],
-            "net/minecraft/class_4075": [
-                "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlasHolder"
-            ],
-            "net/minecraft/class_1060": [
-                "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureManager"
+            "net/minecraft/class_11697": [
+                "xfacthd/atlasviewer/client/duck/DefaultedAccessorAtlasManager"
             ],
             "net/minecraft/class_7948": [
                 "xfacthd/atlasviewer/client/api/IPackAwareSpriteSource"
