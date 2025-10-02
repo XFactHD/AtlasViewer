@@ -3,7 +3,7 @@
     "title.atlasviewer.spriteinfo": "Sprite Details",
     "title.atlasviewer.atlasinfo": "Atlas Details",
     "key.atlasviewer.open_viewer": "Open Atlas Viewer",
-    "key.categories.atlasviewer": "Atlas Viewer",
+    "key.category.atlasviewer.main": "Atlas Viewer",
     "label.atlasviewer.spriteinfo.name": "Name:",
     "label.atlasviewer.spriteinfo.position": "Position:",
     "label.atlasviewer.spriteinfo.size": "Size:",
