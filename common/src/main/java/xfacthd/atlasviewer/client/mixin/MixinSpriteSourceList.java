@@ -5,10 +5,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.texture.atlas.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
@@ -17,6 +19,7 @@ import xfacthd.atlasviewer.client.util.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 // Use higher priority to make reasonably sure that we are injected after weirdos who forcefully inject sprite sources
 @Mixin(value = SpriteSourceList.class, priority = 2000)
@@ -29,11 +32,27 @@ public class MixinSpriteSourceList
                     target = "Lnet/minecraft/client/renderer/texture/atlas/SpriteSource;run(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/client/renderer/texture/atlas/SpriteSource$Output;)V"
             )
     )
+    @Group(name = "SpriteSourceList#list() - source execute lambda", min = 1, max = 1)
     private static void atlasviewer$makeOutputSourceAware(
             SpriteSource source, ResourceManager resMgr, SpriteSource.Output output, Operation<Void> operation
     )
     {
         operation.call(source, resMgr, new SpriteSourceAwareSpriteOutput(source, output));
+    }
+
+    @WrapOperation(
+            method = "*",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/texture/atlas/SpriteSource;run(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/client/renderer/texture/atlas/SpriteSource$Output;Ljava/util/Set;)V"
+            )
+    )
+    @Group(name = "SpriteSourceList#list() - source execute lambda", min = 1, max = 1)
+    private static void atlasviewer$makeOutputSourceAwareNeoForge(
+            SpriteSource source, ResourceManager resMgr, SpriteSource.Output output, Set<MetadataSectionType<?>> additionalMetadata, Operation<Void> operation
+    )
+    {
+        operation.call(source, resMgr, new SpriteSourceAwareSpriteOutput(source, output), additionalMetadata);
     }
 
     @WrapOperation(

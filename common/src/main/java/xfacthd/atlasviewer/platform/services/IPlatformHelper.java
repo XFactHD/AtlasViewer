@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import xfacthd.atlasviewer.client.util.WrappedSpriteSource;
 
 import java.nio.file.Path;
 
@@ -49,5 +50,10 @@ public interface IPlatformHelper
             GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, srcTexture.getMipLevels() - 1);
             GlStateManager._bindTexture(0);
         }
+    }
+
+    default SpriteSource wrapSpriteSource(SpriteSource original)
+    {
+        return new WrappedSpriteSource(original);
     }
 }

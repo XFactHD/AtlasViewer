@@ -7,13 +7,14 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.atlasviewer.client.api.IPackAwareSpriteSource;
 import xfacthd.atlasviewer.client.api.SpriteSourceMeta;
+import xfacthd.atlasviewer.platform.Services;
 
-public final class WrappedSpriteSource implements SpriteSource, IPackAwareSpriteSource
+public class WrappedSpriteSource implements SpriteSource, IPackAwareSpriteSource
 {
-    private final SpriteSource wrapped;
+    protected final SpriteSource wrapped;
     private final SpriteSourceMeta meta = new SpriteSourceMeta();
 
-    private WrappedSpriteSource(SpriteSource wrapped)
+    public WrappedSpriteSource(SpriteSource wrapped)
     {
         this.wrapped = wrapped;
     }
@@ -36,8 +37,6 @@ public final class WrappedSpriteSource implements SpriteSource, IPackAwareSprite
         return meta;
     }
 
-
-
     public static SpriteSource of(SpriteSource wrapped)
     {
         SpriteSourceMeta meta = wrapped.atlasviewer$getMeta();
@@ -46,7 +45,7 @@ public final class WrappedSpriteSource implements SpriteSource, IPackAwareSprite
             // Don't wrap if the sprite source already implements the API
             return wrapped;
         }
-        return new WrappedSpriteSource(wrapped);
+        return Services.PLATFORM.wrapSpriteSource(wrapped);
     }
 
     @Nullable

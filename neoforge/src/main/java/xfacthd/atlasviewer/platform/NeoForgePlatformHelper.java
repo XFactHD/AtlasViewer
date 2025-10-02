@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import xfacthd.atlasviewer.client.AVClientNeoForge;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import xfacthd.atlasviewer.client.util.WrappedSpriteSourceNeoForge;
 import xfacthd.atlasviewer.platform.services.IPlatformHelper;
 
 import java.nio.file.Path;
@@ -97,5 +98,11 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
             srcTexture = validationTex.getRealTexture();
         }
         IPlatformHelper.super.fixMipLevelTexParams(srcTexture);
+    }
+
+    @Override
+    public SpriteSource wrapSpriteSource(SpriteSource original)
+    {
+        return new WrappedSpriteSourceNeoForge(original);
     }
 }
