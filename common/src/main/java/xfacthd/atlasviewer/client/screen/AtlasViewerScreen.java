@@ -4,10 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import xfacthd.atlasviewer.platform.Services;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public abstract class AtlasViewerScreen extends Screen
 {
@@ -28,7 +27,7 @@ public abstract class AtlasViewerScreen extends Screen
 
     protected void setTooltipForNextFrame(GuiGraphics graphics, Component component, int mouseX, int mouseY)
     {
-        graphics.setTooltipForNextFrame(font, List.of(component), Optional.empty(), mouseX, mouseY);
+        Services.PLATFORM.setTooltip(font, graphics, component, mouseX, mouseY);
     }
 
     protected final Minecraft minecraft()

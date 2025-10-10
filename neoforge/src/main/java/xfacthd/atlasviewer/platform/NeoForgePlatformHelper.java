@@ -2,11 +2,13 @@ package xfacthd.atlasviewer.platform;
 
 import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
+import net.minecraft.network.chat.Component;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
@@ -19,6 +21,8 @@ import xfacthd.atlasviewer.client.util.WrappedSpriteSourceNeoForge;
 import xfacthd.atlasviewer.platform.services.IPlatformHelper;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 public final class NeoForgePlatformHelper implements IPlatformHelper
 {
@@ -104,5 +108,11 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
     public SpriteSource wrapSpriteSource(SpriteSource original)
     {
         return new WrappedSpriteSourceNeoForge(original);
+    }
+
+    @Override
+    public void setTooltip(Font font, GuiGraphics graphics, Component component, int mouseX, int mouseY)
+    {
+        graphics.setTooltipForNextFrame(font, List.of(component), Optional.empty(), mouseX, mouseY);
     }
 }

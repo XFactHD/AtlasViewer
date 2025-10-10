@@ -3,11 +3,13 @@ package xfacthd.atlasviewer.platform.services;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.opengl.GlTexture;
 import com.mojang.blaze3d.textures.GpuTexture;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -56,4 +58,6 @@ public interface IPlatformHelper
     {
         return new WrappedSpriteSource(original);
     }
+
+    void setTooltip(Font font, GuiGraphics graphics, Component component, int mouseX, int mouseY);
 }
