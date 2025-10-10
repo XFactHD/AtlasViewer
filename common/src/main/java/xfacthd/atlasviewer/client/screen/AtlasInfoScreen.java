@@ -122,8 +122,10 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     {
         int labelLen = 0;
         int labelHeight = 0;
-        for (Label label : LABELS)
+        //noinspection ForLoopReplaceableByForEach Using for-each breaks IDEA's static analysis
+        for (int i = 0; i < LABELS.length; i++)
         {
+            Label label = LABELS[i];
             if (!label.active.test(this)) continue;
             labelLen = Math.max(labelLen, font.width(label.text));
             labelHeight += LINE_HEIGHT;
