@@ -86,6 +86,8 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     private int maxAtlasWidth;
     private int maxAtlasHeight;
     @UnknownNullability
+    private SelectionWidget<AtlasEntry> atlasSelection;
+    @UnknownNullability
     private MenuContainer menu;
     @UnknownNullability
     private IndicatorButton btnHighlightAnim;
@@ -136,7 +138,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         int titleLen = font.width(TITLE);
         int selectWidth = Math.min(SELECT_WIDTH, width - (PADDING * 8) - titleLen - 40);
 
-        SelectionWidget<AtlasEntry> atlasSelection = new SelectionWidget<>(this, width - (PADDING * 4) - selectWidth - 40, (PADDING * 3), selectWidth, Component.empty(), this::selectAtlas);
+        atlasSelection = new SelectionWidget<>(this, width - (PADDING * 4) - selectWidth - 40, (PADDING * 3), selectWidth, Component.empty(), this::selectAtlas);
         addRenderableWidget(atlasSelection);
 
         Button menuButton = addRenderableWidget(Button.builder(TITLE_TOOLS, this::toggleMenu)
@@ -387,6 +389,10 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         if (menu.isOpen() && !menu.isMouseOver(event.x(), event.y()))
         {
             menu.setOpen(false);
+        }
+        if (atlasSelection.isExtended() && !atlasSelection.isMouseOver(event.x(), event.y()))
+        {
+            atlasSelection.setExtended(false);
         }
         if (!super.mouseClicked(event, doubleClick))
         {

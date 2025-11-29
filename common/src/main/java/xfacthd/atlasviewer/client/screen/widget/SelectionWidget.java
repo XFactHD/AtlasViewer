@@ -185,6 +185,19 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         return false;
     }
 
+    public boolean isExtended()
+    {
+        return extended;
+    }
+
+    public void setExtended(boolean extended)
+    {
+        if (this.extended != extended)
+        {
+            toggleExtended();
+        }
+    }
+
     private void toggleExtended()
     {
         extended = !extended;
