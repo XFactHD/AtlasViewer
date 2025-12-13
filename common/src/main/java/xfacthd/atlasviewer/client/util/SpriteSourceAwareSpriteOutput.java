@@ -1,31 +1,31 @@
 package xfacthd.atlasviewer.client.util;
 
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
-import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareSpriteSupplier;
+import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareLoader;
 
 import java.util.function.Predicate;
 
 public record SpriteSourceAwareSpriteOutput(SpriteSource source, SpriteSource.Output wrapped) implements SpriteSource.Output
 {
     @Override
-    public void add(ResourceLocation name, Resource resource)
+    public void add(Identifier name, Resource resource)
     {
         resource.atlasviewer$captureMetaFromSpriteSource(source.atlasviewer$getMeta(), source, name);
         wrapped.add(name, resource);
     }
 
     @Override
-    public void add(ResourceLocation name, SpriteSource.SpriteSupplier supplier)
+    public void add(Identifier name, SpriteSource.DiscardableLoader supplier)
     {
-        supplier = WrappedSpriteSupplier.of(supplier);
-        ((ISpriteSourcePackAwareSpriteSupplier) supplier).atlasviewer$getMeta().readFromSpriteSourceMeta(source);
+        supplier = WrappedDiscardableLoader.of(supplier);
+        ((ISpriteSourcePackAwareLoader) supplier).atlasviewer$getMeta().readFromSpriteSourceMeta(source);
         wrapped.add(name, supplier);
     }
 
     @Override
-    public void removeAll(Predicate<ResourceLocation> predicate)
+    public void removeAll(Predicate<Identifier> predicate)
     {
         wrapped.removeAll(predicate);
     }

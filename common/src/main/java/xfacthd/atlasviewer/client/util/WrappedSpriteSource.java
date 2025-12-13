@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.client.api.IPackAwareSpriteSource;
 import xfacthd.atlasviewer.client.api.SpriteSourceMeta;
 import xfacthd.atlasviewer.platform.Services;

@@ -13,7 +13,7 @@ import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuTexture;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.client.AVClientNeoForge;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;

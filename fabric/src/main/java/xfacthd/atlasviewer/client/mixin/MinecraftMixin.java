@@ -23,13 +23,13 @@ public final class MinecraftMixin
             method = "resizeDisplay",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screens/Screen;resize(Lnet/minecraft/client/Minecraft;II)V",
+                    target = "Lnet/minecraft/client/gui/screens/Screen;resize(II)V",
                     shift = At.Shift.AFTER
             )
     )
     private void atlasviewer$onScreenResized(CallbackInfo ci)
     {
-        ScreenStacker.onScreenResize((Minecraft)(Object) this, window.getGuiScaledWidth(), window.getGuiScaledHeight());
+        ScreenStacker.onScreenResize(window.getGuiScaledWidth(), window.getGuiScaledHeight());
     }
 
     @Inject(

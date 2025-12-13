@@ -20,7 +20,7 @@ public final class ScreenStacker
             LAYERS.push(mc.screen);
         }
         mc.screen = Objects.requireNonNull(screen);
-        screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+        screen.init(mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
         mc.getNarrator().saySystemNow(screen.getNarrationMessage());
     }
 
@@ -77,12 +77,10 @@ public final class ScreenStacker
         }
     }
 
-    public static void onScreenResize(Minecraft mc, int scaledWidth, int scaledHeight)
+    public static void onScreenResize(int scaledWidth, int scaledHeight)
     {
-        LAYERS.forEach(screen -> screen.resize(mc, scaledWidth, scaledHeight));
+        LAYERS.forEach(screen -> screen.resize(scaledWidth, scaledHeight));
     }
-
-
 
     private ScreenStacker() { }
 }

@@ -8,7 +8,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 import xfacthd.atlasviewer.client.screen.AtlasInfoScreen;
@@ -19,8 +19,8 @@ import java.util.List;
 
 public final class AtlasLoadTable extends AbstractWidget
 {
-    private static final ResourceLocation ARROW_UP = ResourceLocation.withDefaultNamespace("transferable_list/move_up");
-    private static final ResourceLocation ARROW_DOWN = ResourceLocation.withDefaultNamespace("transferable_list/move_down");
+    private static final Identifier ARROW_UP = Identifier.withDefaultNamespace("transferable_list/move_up");
+    private static final Identifier ARROW_DOWN = Identifier.withDefaultNamespace("transferable_list/move_down");
     // The arrow sprites have whitespace around the content, coordinates need to be offset accordingly
     private static final float ARROW_SCALE = .5F;
     private static final float ARROW_UP_OFF_X = 18F * ARROW_SCALE;
@@ -148,7 +148,7 @@ public final class AtlasLoadTable extends AbstractWidget
             graphics.fill(scrollBarX + 1, by + 1, scrollBarX + SCROLL_BAR_WIDTH - 1, by + scrollBarHeight - 1, 0xFFAAAAAA);
         }
 
-        ResourceLocation tex = reverse ? ARROW_UP : ARROW_DOWN;
+        Identifier tex = reverse ? ARROW_UP : ARROW_DOWN;
         float xOff = reverse ? ARROW_UP_OFF_X : ARROW_DOWN_OFF_X;
         float yOff = reverse ? ARROW_UP_OFF_Y : ARROW_DOWN_OFF_Y;
         graphics.pose().pushMatrix();

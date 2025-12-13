@@ -1,6 +1,6 @@
 package xfacthd.atlasviewer.client.util;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ public final class QuadTree<T> extends Rect2i
 {
     private static final int MAX_DEPTH = 12;
 
-    private final @Nullable QuadTree<T> @Nullable[] children;
+    private final @Nullable QuadTree<T> @Nullable [] children;
     @Nullable
     private List<Entry<T>> entries = null;
 

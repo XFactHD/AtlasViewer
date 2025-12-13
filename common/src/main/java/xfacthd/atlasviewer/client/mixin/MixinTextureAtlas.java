@@ -7,7 +7,7 @@ import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,7 +26,7 @@ public class MixinTextureAtlas extends AbstractTexture implements IMipAwareTextu
     @Unique
     private final @Nullable GpuTextureView[] atlasviewer$mippedTextureViews = new GpuTextureView[5];
     @Shadow
-    private int mipLevel;
+    private int maxMipLevel;
 
     @Inject(method = "upload", at = @At("HEAD"))
     private void atlasviewer$onUploadHead(SpriteLoader.Preparations preps, CallbackInfo ci)
@@ -58,7 +58,7 @@ public class MixinTextureAtlas extends AbstractTexture implements IMipAwareTextu
 
         atlasviewer$mippedTextureViews[0] = textureView;
         GpuDevice device = RenderSystem.getDevice();
-        for (int i = 1; i <= mipLevel; i++)
+        for (int i = 1; i <= maxMipLevel; i++)
         {
             atlasviewer$mippedTextureViews[i] = device.createTextureView(texture, i, 1);
         }

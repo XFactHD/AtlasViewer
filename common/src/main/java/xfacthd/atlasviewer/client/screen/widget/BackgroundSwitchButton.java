@@ -1,23 +1,23 @@
 package xfacthd.atlasviewer.client.screen.widget;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.AtlasViewer;
 
 import java.util.Objects;
 
-public final class BackgroundSwitchButton extends Button
+public final class BackgroundSwitchButton extends Button.Plain
 {
     public static final Component TITLE = Component.translatable("btn.atlasviewer.switch_background");
-    private static final ResourceLocation BG_SELECTED = AtlasViewer.rl("icon_background_selected");
-    private static final ResourceLocation BG_UNSELECTED = AtlasViewer.rl("icon_background_unselected");
+    private static final Identifier BG_SELECTED = AtlasViewer.rl("icon_background_selected");
+    private static final Identifier BG_UNSELECTED = AtlasViewer.rl("icon_background_unselected");
     private static final int ICON_BG_SIZE = 14;
     private static final int ICON_SIZE = 12;
     private static final int ICON_TOTAL_WIDTH = (ICON_BG_SIZE + 1) * Type.VALUES.length - 1;
@@ -31,14 +31,14 @@ public final class BackgroundSwitchButton extends Button
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        super.renderContents(graphics, mouseX, mouseY, partialTick);
         for (int i = 0; i < Type.VALUES.length; i++)
         {
             Type type = Type.VALUES[i];
-            ResourceLocation bgTex = this.type == type ? BG_SELECTED : BG_UNSELECTED;
-            ResourceLocation tex = type.sprite;
+            Identifier bgTex = this.type == type ? BG_SELECTED : BG_UNSELECTED;
+            Identifier tex = type.sprite;
             int x = getX() + getWidth() - 1 - (ICON_BG_SIZE + 1) * (Type.VALUES.length - i);
             int y = getY() + 4;
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, bgTex, x - 1, y - 1, ICON_BG_SIZE, ICON_BG_SIZE);
@@ -47,10 +47,10 @@ public final class BackgroundSwitchButton extends Button
     }
 
     @Override
-    public void renderString(GuiGraphics graphics, Font font, int color)
+    protected void renderDefaultLabel(ActiveTextCollector textCollector)
     {
         int maxX = getX() + (getWidth() - 3 - ICON_TOTAL_WIDTH) - 2;
-        renderScrollingString(graphics, font, getMessage(), getX() + 2, getY(), maxX, getY() + getHeight(), color);
+        textCollector.acceptScrollingWithDefaultCenter(getMessage(), getX() + 2, maxX, getY(), getY() + getHeight());
     }
 
     @Override
@@ -73,14 +73,14 @@ public final class BackgroundSwitchButton extends Button
 
         private static final Type[] VALUES = values();
 
-        private final ResourceLocation sprite;
+        private final Identifier sprite;
 
-        Type(ResourceLocation sprite)
+        Type(Identifier sprite)
         {
             this.sprite = sprite;
         }
 
-        public ResourceLocation getSprite()
+        public Identifier getSprite()
         {
             return sprite;
         }

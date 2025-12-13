@@ -5,11 +5,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
-
-import java.util.function.Function;
 
 @Mixin(SpriteLoader.class)
 public class MixinSpriteLoader
@@ -18,15 +17,15 @@ public class MixinSpriteLoader
             method = "*",
             at = @At(
                     value = "INVOKE",
-                    target = "Ljava/util/function/Function;apply(Ljava/lang/Object;)Ljava/lang/Object;"
+                    target = "Lnet/minecraft/client/renderer/texture/atlas/SpriteSource$Loader;get(Lnet/minecraft/client/renderer/texture/atlas/SpriteResourceLoader;)Lnet/minecraft/client/renderer/texture/SpriteContents;"
             )
     )
-    private static Object atlasviewer$wrapSpriteSupplierExecution(
-            Function<SpriteResourceLoader, SpriteContents> supplier, Object loader, Operation<Object> operation
+    private static SpriteContents atlasviewer$wrapSpriteSupplierExecution(
+            SpriteSource.Loader supplier, SpriteResourceLoader loader, Operation<SpriteContents> operation
     )
     {
-        Object contents = operation.call(supplier, loader);
-        SpriteSourceManager.copySpriteSupplierMetaToSpriteContents(supplier, (SpriteContents) contents);
+        SpriteContents contents = operation.call(supplier, loader);
+        SpriteSourceManager.copySpriteSupplierMetaToSpriteContents(supplier, contents);
         return contents;
     }
 }

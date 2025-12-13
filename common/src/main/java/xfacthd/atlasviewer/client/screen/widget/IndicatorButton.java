@@ -1,19 +1,19 @@
 package xfacthd.atlasviewer.client.screen.widget;
 
-import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.AtlasViewer;
 
-public final class IndicatorButton extends Button
+public final class IndicatorButton extends Button.Plain
 {
-    private static final ResourceLocation INDICATOR_TEXTURE = AtlasViewer.rl("indicator");
-    private static final ResourceLocation INDICATOR_CHECKED_TEXTURE = AtlasViewer.rl("indicator_checked");
+    private static final Identifier INDICATOR_TEXTURE = AtlasViewer.rl("indicator");
+    private static final Identifier INDICATOR_CHECKED_TEXTURE = AtlasViewer.rl("indicator_checked");
     private static final int INDICATOR_SIZE = 13;
 
     private boolean checked = false;
@@ -28,21 +28,21 @@ public final class IndicatorButton extends Button
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        super.renderContents(graphics, mouseX, mouseY, partialTick);
         int x = getX() + width - INDICATOR_SIZE - 3;
         int y = getY() + 3;
-        ResourceLocation tex = checked ? INDICATOR_CHECKED_TEXTURE : INDICATOR_TEXTURE;
+        Identifier tex = checked ? INDICATOR_CHECKED_TEXTURE : INDICATOR_TEXTURE;
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, tex, x, y, INDICATOR_SIZE, INDICATOR_SIZE);
     }
 
     @Override
-    public void renderString(GuiGraphics graphics, Font font, int color)
+    protected void renderDefaultLabel(ActiveTextCollector textCollector)
     {
         int minX = getX() + 2;
         int maxX = getX() + getWidth() - INDICATOR_SIZE - 6;
-        renderScrollingString(graphics, font, getMessage(), minX, getY(), maxX, getY() + getHeight(), color);
+        textCollector.acceptScrollingWithDefaultCenter(getMessage(), minX, maxX, getY(), getY() + getHeight());
     }
 
     @Override

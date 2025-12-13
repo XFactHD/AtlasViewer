@@ -1,6 +1,6 @@
 package xfacthd.atlasviewer.client.api;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Capture the pack ID of the resource pack where this sprite source was loaded from

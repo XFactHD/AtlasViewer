@@ -7,7 +7,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public final class CloseButton extends Button
+public final class CloseButton extends Button.Plain
 {
     private static final Component TITLE = Component.literal("x");
 
@@ -17,9 +17,9 @@ public final class CloseButton extends Button
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        super.renderContents(graphics, mouseX, mouseY, partialTick);
 
         Font font = Minecraft.getInstance().font;
         graphics.drawCenteredString(font, TITLE, getX() + width / 2, getY() + (height - 10) / 2, 0xFFFFFFFF);

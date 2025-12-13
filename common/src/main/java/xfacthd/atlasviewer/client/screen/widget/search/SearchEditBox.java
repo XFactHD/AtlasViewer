@@ -1,11 +1,11 @@
 package xfacthd.atlasviewer.client.screen.widget.search;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
+import org.jspecify.annotations.Nullable;
 
 public final class SearchEditBox extends EditBox
 {
@@ -20,7 +20,7 @@ public final class SearchEditBox extends EditBox
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
     {
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && isMouseOver(event.x(), event.y()))
+        if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT && isMouseOver(event.x(), event.y()))
         {
             setValue("");
             return true;

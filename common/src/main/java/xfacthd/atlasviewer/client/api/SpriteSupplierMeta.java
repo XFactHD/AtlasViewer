@@ -1,7 +1,7 @@
 package xfacthd.atlasviewer.client.api;
 
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.client.util.WrappedSpriteSource;
 
 public final class SpriteSupplierMeta

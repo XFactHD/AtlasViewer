@@ -18,10 +18,10 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +32,8 @@ import java.util.stream.Stream;
 //TODO: add drag scrolling
 public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extends AbstractButton
 {
-    private static final ResourceLocation ARROW_UP = ResourceLocation.withDefaultNamespace("transferable_list/move_up");
-    private static final ResourceLocation ARROW_DOWN = ResourceLocation.withDefaultNamespace("transferable_list/move_down");
+    private static final Identifier ARROW_UP = Identifier.withDefaultNamespace("transferable_list/move_up");
+    private static final Identifier ARROW_DOWN = Identifier.withDefaultNamespace("transferable_list/move_down");
     // The arrow sprites have whitespace around the content, coordinates need to be offset accordingly
     private static final int ARROW_UP_OFF_X = 18;
     private static final int ARROW_UP_OFF_Y = 5;
@@ -61,9 +61,9 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
+    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.renderWidget(graphics, mouseX, mouseY, partialTicks);
+        renderDefaultSprite(graphics);
 
         int fgColor = active ? 0xFFFFFF : 0xA0A0A0;
 

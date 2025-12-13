@@ -1,9 +1,13 @@
 package xfacthd.atlasviewer.client.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
+import net.minecraft.client.TextureFilteringMethod;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -14,10 +18,9 @@ import net.minecraft.client.resources.model.AtlasManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
+import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.screen.widget.AtlasLoadTable;
@@ -50,6 +53,8 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
             Component.literal("\u26A0").withStyle(s -> s.withColor(0xFF7700))
     );
     private static final Component LABEL_MIP_LEVELS = Component.translatable("label.atlasviewer.atlas_mip_levels");
+    private static final Component LABEL_FILTER_MODE = Component.translatable("label.atlasviewer.atlas_filter_mode");
+    private static final Component LABEL_ANISO_LEVELS = Component.translatable("label.atlasviewer.atlas_aniso_levels");
     private static final Component LABEL_SPRITES = Component.translatable("label.atlasviewer.atlas_sprite_count");
     private static final Component LABEL_SPRITES_BY_MAX_MIP = Component.translatable(
             "label.atlasviewer.atlas_sprite_count_by_max_mip",
@@ -62,6 +67,8 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
             new Label(LABEL_SIZE),
             new Label(LABEL_MAX_SIZE),
             new Label(LABEL_MIP_LEVELS, screen -> screen.atlasInfo.mipped),
+            new Label(LABEL_FILTER_MODE, screen -> screen.atlasInfo.mipped),
+            new Label(LABEL_ANISO_LEVELS, screen -> screen.atlasInfo.isUsingAF()),
             new Label(LABEL_SPRITES),
             new Label(LABEL_SPRITES_BY_MAX_MIP, screen -> screen.atlasInfo.mipped),
             new Label(LABEL_PERCENT_FILLED)
@@ -79,6 +86,9 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     private final Component atlasSizeText;
     private final Component atlasMaxSizeText;
     private final Component atlasMipLevelText;
+    private final Component filterModeText;
+    @Nullable
+    private final Component anisoLevelsText;
     private final Component spriteCountText;
     @Nullable
     private final Component countsByMip;
@@ -97,6 +107,8 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         this.atlasSizeText = Component.translatable("value.atlasviewer.size", atlasInfo.width, atlasInfo.height);
         this.atlasMaxSizeText = Component.translatable("value.atlasviewer.size", atlasInfo.maxSize, atlasInfo.maxSize);
         this.atlasMipLevelText = Component.literal(Integer.toString(atlasInfo.mipLevels));
+        this.filterModeText = atlasInfo.filterMode.caption();
+        this.anisoLevelsText = atlasInfo.isUsingAF() ? Component.literal(Integer.toString(atlasInfo.anisoLevels)) : null;
         this.spriteCountText = Component.literal(Integer.toString(atlasInfo.spriteCount));
         this.countsByMip = atlasInfo.mipped ? Component.translatable(
                 "value.atlasviewer.atlas_sprites_by_max_mip",
@@ -154,14 +166,22 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         int y = yTop + FIRST_LINE_Y;
         y = drawLine(graphics, LABEL_NAME, Component.literal(atlasInfo.name), y);
         y = drawLine(graphics, LABEL_SIZE, atlasSizeText, y);
+        int maxSizeY = y;
         y = drawLine(graphics, LABEL_MAX_SIZE, atlasMaxSizeText, y);
         if (atlasInfo.mipped)
         {
             y = drawLine(graphics, LABEL_MIP_LEVELS, atlasMipLevelText, y);
+            y = drawLine(graphics, LABEL_FILTER_MODE, filterModeText, y);
+            if (atlasInfo.isUsingAF())
+            {
+                y = drawLine(graphics, LABEL_ANISO_LEVELS, Objects.requireNonNull(anisoLevelsText), y);
+            }
         }
         y = drawLine(graphics, LABEL_SPRITES, spriteCountText, y);
+        int countByMipY = 0;
         if (atlasInfo.mipped)
         {
+            countByMipY = y;
             y = drawLine(graphics, LABEL_SPRITES_BY_MAX_MIP, Objects.requireNonNull(countsByMip), y);
         }
         y = drawLine(graphics, LABEL_PERCENT_FILLED, percentFilledText, y);
@@ -169,16 +189,14 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         graphics.drawString(font, tableHeader, xLeft + TEXT_X, tableTitleY, 0xFF404040, false);
 
         int len = font.width(LABEL_MAX_SIZE);
-        int minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 2);
-        if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= minY && mouseY <= minY + font.lineHeight)
+        if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= maxSizeY && mouseY <= maxSizeY + font.lineHeight)
         {
             setTooltipForNextFrame(graphics, MSG_HW_DEPEND, mouseX, mouseY);
         }
         if (atlasInfo.mipped)
         {
             len = font.width(LABEL_SPRITES_BY_MAX_MIP);
-            minY = yTop + FIRST_LINE_Y + (LINE_HEIGHT * 5);
-            if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= minY && mouseY <= minY + font.lineHeight)
+            if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= countByMipY && mouseY <= countByMipY + font.lineHeight)
             {
                 setTooltipForNextFrame(graphics, MSG_SPRITES_BY_MAX_MIP, mouseX, mouseY);
             }
@@ -195,7 +213,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
     {
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_1 && (event.x() < xLeft || event.y() < yTop || event.x() > (xLeft + WIDTH) || event.y() > (yTop + imageHeight)))
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && (event.x() < xLeft || event.y() < yTop || event.x() > (xLeft + WIDTH) || event.y() > (yTop + imageHeight)))
         {
             onClose();
             return true;
@@ -209,8 +227,6 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         Services.PLATFORM.popScreenLayer();
     }
 
-
-
     public static AtlasInfo computeInfo(AtlasManager.AtlasEntry atlasEntry, Collection<TextureAtlasSprite> sprites)
     {
         Map<String, Integer> areaByNamespace = sprites.stream()
@@ -222,7 +238,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         sprites.stream()
                 .map(TextureAtlasSprite::contents)
                 .map(SpriteContents::name)
-                .map(ResourceLocation::getNamespace)
+                .map(Identifier::getNamespace)
                 .forEach(s -> countByNamespace.computeInt(s, (ns, count) -> (count != null ? count : 0) + 1));
 
         int[] spritesByMaxMip = new int[5];
@@ -252,13 +268,20 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
             ));
         });
 
+        Options options = Minecraft.getInstance().options;
+        int mipLevels = atlas.atlasviewer$getMipLevel();
+        TextureFilteringMethod filterMode = mipLevels > 0 ? options.textureFiltering().get() : TextureFilteringMethod.NONE;
+        int anisoLevels = filterMode == TextureFilteringMethod.ANISOTROPIC ? options.maxAnisotropyValue() : -1;
+
         return new AtlasInfo(
                 atlasEntry.config().textureId().toString(),
                 atlasEntry.config().createMipmaps(),
                 atlas.maxSupportedTextureSize(),
                 width,
                 height,
-                atlas.atlasviewer$getMipLevel(),
+                mipLevels,
+                filterMode,
+                anisoLevels,
                 sprites.size(),
                 spritesByMaxMip,
                 filled,
@@ -273,11 +296,19 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
             int width,
             int height,
             int mipLevels,
+            TextureFilteringMethod filterMode,
+            int anisoLevels,
             int spriteCount,
             int[] spriteCountByMaxMipLevel,
             float percentFilled,
             List<FillStat> fillStats
-    ) { }
+    )
+    {
+        public boolean isUsingAF()
+        {
+            return filterMode == TextureFilteringMethod.ANISOTROPIC;
+        }
+    }
 
     public record FillStat(String namespace, int count, float percentOfTotal, float percentOfFilled) { }
 

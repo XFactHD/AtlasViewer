@@ -1,9 +1,9 @@
 package xfacthd.atlasviewer.client.api;
 
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implemented on {@link net.minecraft.client.renderer.texture.SpriteContents} to allow it to keep track of
@@ -21,7 +21,7 @@ public interface ISpriteSourcePackAwareSpriteContents
             @Nullable SpriteSource spriteSource,
             SourceAwareness awareness,
             @Nullable String texSrcPackId,
-            @Nullable ResourceLocation path
+            @Nullable Identifier path
     ) { }
 
     /**
@@ -30,10 +30,10 @@ public interface ISpriteSourcePackAwareSpriteContents
     void atlasviewer$captureMetaFromResource(Resource resource);
 
     /**
-     * Capture the source information from the given {@link SpriteSource.SpriteSupplier} and the given {@link Resource}
+     * Capture the source information from the given {@link SpriteSource.DiscardableLoader} and the given {@link Resource}
      * from which the supplier generated these sprite contents
      */
-    void atlasviewer$captureMetaFromSpriteSupplier(SpriteSource.SpriteSupplier supplier, Resource sourceImage);
+    void atlasviewer$captureMetaFromSpriteSupplier(SpriteSource.DiscardableLoader supplier, Resource sourceImage);
 
     /**
      * Get the pack ID of the resource pack where the sprite source creating these sprite contents was loaded from
@@ -65,5 +65,5 @@ public interface ISpriteSourcePackAwareSpriteContents
      * in the resource pack it was loaded from
      */
     @Nullable
-    ResourceLocation atlasviewer$getOriginalPath();
+    Identifier atlasviewer$getOriginalPath();
 }

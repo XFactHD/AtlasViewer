@@ -66,6 +66,9 @@
             ],
             "net/minecraft/class_5699\u0024class_10388": [
                 "xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<TI;TV;>"
+            ],
+            "net/minecraft/class_1058": [
+                "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlasSprite"
             ]
         }
     }

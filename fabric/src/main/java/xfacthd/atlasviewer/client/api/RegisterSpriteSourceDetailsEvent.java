@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -29,8 +30,8 @@ public final class RegisterSpriteSourceDetailsEvent
     {
         /**
          * @param resourceGetterRegistrar Registrar for a function for retrieving the primary {@link Resource} from which
-         *                                the {@link SpriteSource.SpriteSupplier} created the {@link SpriteContents} in
-         *                                {@link SpriteSource.SpriteSupplier#apply}
+         *                                the {@link SpriteSource.DiscardableLoader} created the {@link SpriteContents} in
+         *                                {@link SpriteSource.DiscardableLoader#run(ResourceManager, SpriteSource.Output)}
          * @param stringifierRegistrar Registrar for a fully custom stringifier for the given {@link SpriteSource} type.
          * @param simpleStringifierRegistrar Registrar for a simple stringifier printing the {@link SpriteSource}'s
          *                                   simple class name and the string returned by the provided stringifier function
@@ -50,7 +51,7 @@ public final class RegisterSpriteSourceDetailsEvent
     @FunctionalInterface
     public interface PrimaryResourceGetterRegistrar
     {
-        <T extends SpriteSource.SpriteSupplier> void register(Class<T> supplierType, Function<T, Resource> resourceGetter);
+        <T extends SpriteSource.DiscardableLoader> void register(Class<T> supplierType, Function<T, Resource> resourceGetter);
     }
 
     @FunctionalInterface

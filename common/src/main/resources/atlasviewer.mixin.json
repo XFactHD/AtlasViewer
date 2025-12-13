@@ -9,6 +9,7 @@
         "AccessorSpriteContents",
         "AccessorSpriteSources",
         "AccessorTextureAtlas",
+        "AccessorTextureAtlasSprite",
         "MixinAbstractWidget",
         "MixinGlDevice",
         "MixinLateBoundIdMapper",

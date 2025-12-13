@@ -1,8 +1,12 @@
 package xfacthd.atlasviewer.client.screen;
 
 import com.google.common.base.Stopwatch;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -19,11 +23,10 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
-import org.lwjgl.glfw.GLFW;
+import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.AtlasViewer;
 import xfacthd.atlasviewer.client.screen.widget.BackgroundSwitchButton;
 import xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
@@ -53,7 +56,7 @@ import java.util.WeakHashMap;
 @SuppressWarnings("deprecation")
 public final class AtlasScreen extends AtlasViewerScreen implements SearchHandler
 {
-    public static final ResourceLocation BACKGROUND_LOC = AtlasViewer.rl("background");
+    public static final Identifier BACKGROUND_LOC = AtlasViewer.rl("background");
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final Component TITLE_HIGHLIGHT_ANIM = Component.translatable("btn.atlasviewer.highlight_animated");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
@@ -101,16 +104,14 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     private BackgroundSwitchButton bgSwitchButton;
     @UnknownNullability
     private SearchBox searchBar;
-    private final Map<ResourceLocation, AtlasManager.AtlasEntry> atlases = new HashMap<>();
-    @Nullable
-    private AtlasManager.AtlasEntry currentAtlas;
+    private final Map<Identifier, AtlasManager.AtlasEntry> atlases = new HashMap<>();
+    private AtlasManager.@Nullable AtlasEntry currentAtlas;
     @Nullable
     private QuadTree<TextureAtlasSprite> spriteTree;
     @Nullable
     private Collection<TextureAtlasSprite> sprites;
     private Size atlasSize = new Size(0, 0);
-    @Nullable
-    private AtlasInfoScreen.AtlasInfo cachedInfo;
+    private AtlasInfoScreen.@Nullable AtlasInfo cachedInfo;
     private double atlasScale = 1F;
     private double scrollScale = 1F;
     private float offsetX = 0;
@@ -195,12 +196,12 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         atlases.clear();
         atlases.putAll(minecraft().getAtlasManager().atlasviewer$getAtlasesByTexture());
 
-        for (ResourceLocation loc : atlases.keySet())
+        for (Identifier loc : atlases.keySet())
         {
             atlasSelection.addEntry(new AtlasEntry(loc));
         }
 
-        ResourceLocation currLoc = currentAtlas != null && atlases.containsKey(currentAtlas.config().textureId())
+        Identifier currLoc = currentAtlas != null && atlases.containsKey(currentAtlas.config().textureId())
                 ? currentAtlas.config().textureId()
                 : TextureAtlas.LOCATION_BLOCKS;
         AtlasEntry current = atlasSelection.stream()
@@ -223,16 +224,17 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
         int bgWidth = (int)Math.min(maxAtlasWidth, atlasSize.width * scale);
         int bgHeight = (int)Math.min(maxAtlasHeight, atlasSize.height * scale);
-        ResourceLocation bgSprite = bgSwitchButton.getSelectedType().getSprite();
+        Identifier bgSprite = bgSwitchButton.getSelectedType().getSprite();
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, bgSprite, atlasLeft, atlasTop, bgWidth, bgHeight);
 
         graphics.enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
         Objects.requireNonNull(currentAtlas);
         GpuTextureView atlasTexView = currentAtlas.atlas().atlasview$getMippedTextureView(currentMipLevel);
+        GpuSampler sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
         ClientUtils.blitSpecial(
                 graphics,
                 RenderPipelines.GUI_TEXTURED,
-                TextureSetup.singleTexture(atlasTexView),
+                TextureSetup.singleTexture(atlasTexView, sampler),
                 atlasLeft + offsetX,
                 atlasTop + offsetY,
                 atlasLeft + offsetX + atlasSize.width * scale,
@@ -273,8 +275,8 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
             hoveredSprite = sprite;
             if (sprite != null)
             {
-                SpriteContents contents = sprite.contents();
-                drawColoredBox(graphics, sprite.getX(), sprite.getY(), contents.width(), contents.height(), scale, true, 0xFFFF0000);
+                Rect2i rect = getSpriteSize(sprite);
+                drawColoredBox(graphics, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, true, 0xFFFF0000);
             }
         }
         else
@@ -343,7 +345,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
             return true;
         }
 
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_1 && event.x() >= atlasLeft && event.x() <= (atlasLeft + maxAtlasWidth) && event.y() >= atlasTop && event.y() <= (atlasTop + maxAtlasHeight))
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && event.x() >= atlasLeft && event.x() <= (atlasLeft + maxAtlasWidth) && event.y() >= atlasTop && event.y() <= (atlasTop + maxAtlasHeight))
         {
             Window window = Minecraft.getInstance().getWindow();
             float scaleX = window.getGuiScaledWidth() / (float)window.getScreenWidth();
@@ -410,7 +412,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
             return true;
         }
 
-        if (hoveredSprite != null && event.button() == GLFW.GLFW_MOUSE_BUTTON_2 && (!menu.isOpen() || !menu.isMouseOver(event.x(), event.y())))
+        if (hoveredSprite != null && event.button() == InputConstants.MOUSE_BUTTON_RIGHT && (!menu.isOpen() || !menu.isMouseOver(event.x(), event.y())))
         {
             Services.PLATFORM.pushScreenLayer(new SpriteInfoScreen(Objects.requireNonNull(currentAtlas), hoveredSprite, currentMipLevel, bgSwitchButton.getSelectedType()));
             return true;
@@ -504,7 +506,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
                 Path imgPath = exportNativeImage(image, currentAtlas.config().textureId(), "atlas", mipLevel, true, MSG_EXPORT_SUCCESS);
                 if (mipLevel == 0)
                 {
-                    Map<ResourceLocation, TextureAtlasSprite> sprites = currentAtlas.atlas().atlasviewer$getTexturesByName();
+                    Map<Identifier, TextureAtlasSprite> sprites = currentAtlas.atlas().atlasviewer$getTexturesByName();
                     TextureAtlas.dumpSpriteNames(imgPath.getParent(), imgPath.getFileName().toString(), sprites);
                 }
             }
@@ -601,12 +603,11 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         return focusedSearchResultIdx;
     }
 
-
-
     private static Rect2i getSpriteSize(TextureAtlasSprite sprite)
     {
         SpriteContents contents = sprite.contents();
-        return new Rect2i(sprite.getX(), sprite.getY(), contents.width(), contents.height());
+        int padding = sprite.atlasviewer$getPadding() * 2;
+        return new Rect2i(sprite.getX(), sprite.getY(), contents.width() + padding, contents.height() + padding);
     }
 
     public static void storeAtlasSize(TextureAtlas atlas, int width, int height)
@@ -615,14 +616,14 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     /**
-     * Exports a {@link NativeImage} to a file according to the given {@link ResourceLocation}
+     * Exports a {@link NativeImage} to a file according to the given {@link Identifier}
      * @param image The image to export
      * @param name The original name of the resource to export
      * @param prefix The type prefix of the image (i.e. "atlas" for a texture atlas or "sprite" for a single sprite)
      * @param shortenPath If true, only the part of the name after the last slash will be used as part of the file name
      * @return The file path of the exported atlas image
      */
-    public static Path exportNativeImage(NativeImage image, ResourceLocation name, String prefix, int mipLevel, boolean shortenPath, Component msgSuccess) throws IOException
+    public static Path exportNativeImage(NativeImage image, Identifier name, String prefix, int mipLevel, boolean shortenPath, Component msgSuccess) throws IOException
     {
         Path folderPath = Services.PLATFORM.getGameDir().resolve("atlasviewer");
         Files.createDirectories(folderPath);
@@ -678,9 +679,9 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
     private static class AtlasEntry extends SelectionWidget.SelectionEntry<AtlasEntry>
     {
-        private final ResourceLocation atlas;
+        private final Identifier atlas;
 
-        public AtlasEntry(ResourceLocation atlas)
+        public AtlasEntry(Identifier atlas)
         {
             super(Component.literal(atlas.toString()));
             this.atlas = atlas;

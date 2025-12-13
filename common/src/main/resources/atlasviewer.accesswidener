@@ -3,21 +3,16 @@ accessible class net/minecraft/client/renderer/texture/SpriteContents$AnimatedTe
 accessible class net/minecraft/client/renderer/texture/SpriteContents$FrameInfo
 accessible method net/minecraft/client/renderer/texture/TextureAtlas getWidth ()I
 accessible method net/minecraft/client/renderer/texture/TextureAtlas getHeight ()I
-accessible method net/minecraft/client/gui/GuiGraphics setTooltipForNextFrameInternal (Lnet/minecraft/client/gui/Font;Ljava/util/List;IILnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;Lnet/minecraft/resources/ResourceLocation;Z)V
+accessible method net/minecraft/client/gui/GuiGraphics setTooltipForNextFrameInternal (Lnet/minecraft/client/gui/Font;Ljava/util/List;IILnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;Lnet/minecraft/resources/Identifier;Z)V
 extendable method net/minecraft/client/gui/components/EditBox onValueChange (Ljava/lang/String;)V
 accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$Region
-extendable method net/minecraft/client/gui/components/AbstractSliderButton getHandleSprite ()Lnet/minecraft/resources/ResourceLocation;
-accessible field net/minecraft/client/gui/components/AbstractSliderButton SLIDER_HANDLE_SPRITE Lnet/minecraft/resources/ResourceLocation;
+extendable method net/minecraft/client/gui/components/AbstractSliderButton getHandleSprite ()Lnet/minecraft/resources/Identifier;
+accessible field net/minecraft/client/gui/components/AbstractSliderButton SLIDER_HANDLE_SPRITE Lnet/minecraft/resources/Identifier;
 accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$RegionInstance
 accessible class net/minecraft/client/renderer/texture/atlas/sources/PalettedPermutations$PalettedSpriteSupplier
-accessible class net/minecraft/client/renderer/RenderType$CompositeState
-accessible class net/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard
-accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;ILcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
-accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder createCompositeState (Z)Lnet/minecraft/client/renderer/RenderType$CompositeState;
-accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setTextureState (Lnet/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
 accessible method net/minecraft/client/renderer/texture/TextureAtlas dumpSpriteNames (Ljava/nio/file/Path;Ljava/lang/String;Ljava/util/Map;)V
 accessible class net/minecraft/client/resources/model/AtlasManager$AtlasConfig
-accessible method net/minecraft/client/resources/model/AtlasManager$AtlasConfig <init> (Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;ZLjava/util/Set;)V
+accessible method net/minecraft/client/resources/model/AtlasManager$AtlasConfig <init> (Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;ZLjava/util/Set;)V
 accessible class net/minecraft/client/resources/model/AtlasManager$AtlasEntry
 accessible method net/minecraft/client/resources/model/AtlasManager$AtlasEntry <init> (Lnet/minecraft/client/renderer/texture/TextureAtlas;Lnet/minecraft/client/resources/model/AtlasManager$AtlasConfig;)V
 accessible field net/minecraft/client/KeyMapping$Category SORT_ORDER Ljava/util/List;

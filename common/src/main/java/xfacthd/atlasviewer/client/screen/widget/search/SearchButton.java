@@ -6,7 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
-public final class SearchButton extends Button
+public final class SearchButton extends Button.Plain
 {
     private final SearchHandler handler;
 
@@ -17,9 +17,9 @@ public final class SearchButton extends Button
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        super.renderContents(graphics, mouseX, mouseY, partialTick);
 
         if (active)
         {

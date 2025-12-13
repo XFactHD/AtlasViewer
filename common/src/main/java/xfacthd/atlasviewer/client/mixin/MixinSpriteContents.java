@@ -2,9 +2,9 @@ package xfacthd.atlasviewer.client.mixin;
 
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import xfacthd.atlasviewer.client.api.*;
@@ -28,7 +28,7 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     private String atlasviewer$textureSourcePack;
     @Unique
     @Nullable
-    private ResourceLocation atlasviewer$originalPath = null;
+    private Identifier atlasviewer$originalPath = null;
 
     @Override
     public void atlasviewer$setSpriteSourceSourcePack(
@@ -36,7 +36,7 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
             @Nullable SpriteSource spriteSource,
             SourceAwareness awareness,
             @Nullable String texSrcPackId,
-            @Nullable ResourceLocation path
+            @Nullable Identifier path
     )
     {
         // Prevent overwriting metadata already set for these contents
@@ -63,9 +63,9 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     }
 
     @Override
-    public void atlasviewer$captureMetaFromSpriteSupplier(SpriteSource.SpriteSupplier supplier, Resource sourceImage)
+    public void atlasviewer$captureMetaFromSpriteSupplier(SpriteSource.DiscardableLoader supplier, Resource sourceImage)
     {
-        SpriteSupplierMeta meta = ((ISpriteSourcePackAwareSpriteSupplier) supplier).atlasviewer$getMeta();
+        SpriteSupplierMeta meta = ((ISpriteSourcePackAwareLoader) supplier).atlasviewer$getMeta();
         atlasviewer$setSpriteSourceSourcePack(
                 meta.getSpriteSourceSourcePack(),
                 meta.getSpriteSource(),
@@ -104,7 +104,7 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
 
     @Override
     @Nullable
-    public ResourceLocation atlasviewer$getOriginalPath()
+    public Identifier atlasviewer$getOriginalPath()
     {
         return atlasviewer$originalPath;
     }

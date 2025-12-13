@@ -1,9 +1,9 @@
 package xfacthd.atlasviewer.client.mixin;
 
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import xfacthd.atlasviewer.client.api.*;
@@ -21,11 +21,11 @@ public class MixinResource implements ISpriteSourcePackAwareResource
     private SourceAwareness atlasviewer$sourceAwarenes = SourceAwareness.RESOURCE_UNAWARE;
     @Unique
     @Nullable
-    private ResourceLocation atlasviewer$originalPath = null;
+    private Identifier atlasviewer$originalPath = null;
 
     @Override
     public void atlasviewer$captureMetaFromSpriteSource(
-            SpriteSourceMeta srcMeta, SpriteSource spriteSource, ResourceLocation originalPath
+            SpriteSourceMeta srcMeta, SpriteSource spriteSource, Identifier originalPath
     )
     {
         atlasviewer$spriteSourceSourcePack = srcMeta.getSourcePack();
@@ -56,7 +56,7 @@ public class MixinResource implements ISpriteSourcePackAwareResource
 
     @Override
     @Nullable
-    public ResourceLocation atlasviewer$getOriginalPath()
+    public Identifier atlasviewer$getOriginalPath()
     {
         return atlasviewer$originalPath;
     }

@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.texture.atlas.sources.PalettedPermutations;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.client.renderer.texture.atlas.sources.SourceFilter;
 import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import xfacthd.atlasviewer.client.mixin.AccessorSpriteSources;
 
 import java.util.*;
@@ -47,7 +47,7 @@ public final class SpriteSourceTypeMapper
                     .filter(e -> e.getKey().getNamespace().equals("minecraft"))
                     .filter(e -> !NAMES.containsKey(e.getValue()))
                     .map(Map.Entry::getKey)
-                    .map(ResourceLocation::toString)
+                    .map(Identifier::toString)
                     .collect(Collectors.joining(", "));
 
             if (!missing.isEmpty())

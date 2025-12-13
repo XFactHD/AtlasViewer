@@ -4,10 +4,10 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.*;
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(SpriteSource.Output.class)
@@ -17,11 +17,11 @@ public interface MixinSpriteSourceOutput
             method = "*",
             at = @At(
                     value = "INVOKE_ASSIGN",
-                    target = "Lnet/minecraft/client/renderer/texture/atlas/SpriteResourceLoader;loadSprite(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/server/packs/resources/Resource;)Lnet/minecraft/client/renderer/texture/SpriteContents;"
+                    target = "Lnet/minecraft/client/renderer/texture/atlas/SpriteResourceLoader;loadSprite(Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/resources/Resource;)Lnet/minecraft/client/renderer/texture/SpriteContents;"
             )
     )
     @Nullable
-    private static SpriteContents atlasviewer$handleAddResource(@Nullable SpriteContents contents, ResourceLocation name, Resource resource, SpriteResourceLoader loader)
+    private static SpriteContents atlasviewer$handleAddResource(@Nullable SpriteContents contents, Identifier name, Resource resource, SpriteResourceLoader loader)
     {
         if (contents != null)
         {

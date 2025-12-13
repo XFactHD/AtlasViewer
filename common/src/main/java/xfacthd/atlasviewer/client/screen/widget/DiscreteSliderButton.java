@@ -3,7 +3,7 @@ package xfacthd.atlasviewer.client.screen.widget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.IntConsumer;
 
@@ -37,7 +37,7 @@ public final class DiscreteSliderButton extends AbstractSliderButton
     }
 
     @Override
-    protected ResourceLocation getHandleSprite()
+    protected Identifier getHandleSprite()
     {
         return active ? super.getHandleSprite() : SLIDER_HANDLE_SPRITE;
     }

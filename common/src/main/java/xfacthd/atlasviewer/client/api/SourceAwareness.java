@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.texture.atlas.SpriteSourceList;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
@@ -23,30 +23,30 @@ public enum SourceAwareness
     SOURCE_KNOWN,
     /**
      * The {@link SpriteContents} did not receive any data.
-     * This usually means that a custom {@link SpriteSource.SpriteSupplier} or {@link SpriteSource} which does
+     * This usually means that a custom {@link SpriteSource.DiscardableLoader} or {@link SpriteSource} which does
      * not implement the necessary APIs created these {@link SpriteContents}
      */
     SPRITECONTENTS_UNAWARE,
     /**
-     * The {@link SpriteSource.SpriteSupplier} did not receive any data.
+     * The {@link SpriteSource.DiscardableLoader} did not receive any data.
      * This usually means that a custom {@link SpriteSource} which does not implement the necessary
-     * APIs created this {@link SpriteSource.SpriteSupplier}
+     * APIs created this {@link SpriteSource.DiscardableLoader}
      */
     SPRITESUPPLIER_UNAWARE,
     /**
-     * The {@link SpriteSource.SpriteSupplier} does not implement the necessary APIs and also does not provide a getter
+     * The {@link SpriteSource.DiscardableLoader} does not implement the necessary APIs and also does not provide a getter
      * for the primary {@link Resource} it uses and therefore cannot keep track of its source pack
      */
     SPRITESUPPLIER_UNSUPPORTED,
     /**
      * The {@link Resource} did not receive any data.
-     * This usually means that a custom {@link SpriteSource.SpriteSupplier} which does not implement the
+     * This usually means that a custom {@link SpriteSource.DiscardableLoader} which does not implement the
      * necessary APIs touched this {@link Resource}
      */
     RESOURCE_UNAWARE,
     /**
      * The {@link SpriteSource} was forcefully inserted into the loading process (i.e. via mixin into
-     * {@link SpriteSourceList#load(ResourceManager, ResourceLocation)}) and therefore does not have a source pack
+     * {@link SpriteSourceList#load(ResourceManager, Identifier)}) and therefore does not have a source pack
      */
     SPRITESOURCE_FORCED,
     /**

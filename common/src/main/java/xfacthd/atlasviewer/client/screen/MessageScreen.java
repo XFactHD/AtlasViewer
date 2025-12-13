@@ -1,5 +1,6 @@
 package xfacthd.atlasviewer.client.screen;
 
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -7,7 +8,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.client.screen.stacking.IStackedScreen;
 import xfacthd.atlasviewer.client.util.ClientUtils;
 import xfacthd.atlasviewer.platform.Services;
@@ -104,8 +105,9 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
     {
         Style style = findTextLine((int) event.x(), (int) event.y());
-        if (style != null && handleComponentClicked(style))
+        if (style != null && style.getClickEvent() != null)
         {
+            defaultHandleClickEvent(style.getClickEvent(), minecraft, this);
             return true;
         }
         return super.mouseClicked(event, doubleClick);
@@ -114,23 +116,21 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
     @Nullable
     private Style findTextLine(int mouseX, int mouseY)
     {
-        int localX = mouseX - leftPos - TITLE_X;
-        if (localX < 0) { return null; }
+        int x = leftPos + TITLE_X;
+        if (mouseX < x) return null;
 
+        ActiveTextCollector.ClickableStyleFinder styleFinder = new ActiveTextCollector.ClickableStyleFinder(font, mouseX, mouseY);
         int y = topPos + TITLE_Y + font.lineHeight * 2;
         for (List<FormattedCharSequence> block : textBlocks)
         {
-            int height = block.size() * font.lineHeight;
-            if (mouseY >= y && mouseY <= y + height)
+            for (FormattedCharSequence line : block)
             {
-                int idx = (mouseY - y) / font.lineHeight;
-                if (idx >= block.size()) { return null; }
-                return font.getSplitter().componentStyleAtWidth(block.get(idx), localX);
+                styleFinder.accept(x, y, line);
+                y += font.lineHeight;
             }
-
-            y += height + font.lineHeight;
+            y += font.lineHeight;
         }
-        return null;
+        return styleFinder.result();
     }
 
     @Override

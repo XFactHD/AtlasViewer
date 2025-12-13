@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.texture.atlas.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -85,9 +85,9 @@ public class MixinSpriteSourceList
     )
     private static void atlasviewer$spriteSourceAttachSourcePackVerify(
             ResourceManager pResourceManager,
-            ResourceLocation pLocation,
+            Identifier pLocation,
             CallbackInfoReturnable<SpriteResourceLoader> cir,
-            ResourceLocation path,
+            Identifier path,
             List<SpriteSource> sources
     )
     {

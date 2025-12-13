@@ -10,7 +10,7 @@ import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import xfacthd.atlasviewer.client.util.WrappedSpriteSource;

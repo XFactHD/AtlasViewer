@@ -39,10 +39,10 @@ public final class RegisterSpriteSourceDetailsEvent extends Event implements IMo
     }
 
     /**
-     * Register a function for retrieving the primary {@link Resource} from which the {@link SpriteSource.SpriteSupplier}
-     * created the {@link SpriteContents} in {@link SpriteSource.SpriteSupplier#apply}
+     * Register a function for retrieving the primary {@link Resource} from which the {@link SpriteSource.DiscardableLoader}
+     * created the {@link SpriteContents} in {@link SpriteSource.DiscardableLoader#get}
      */
-    public <T extends SpriteSource.SpriteSupplier> void registerPrimaryResourceGetter(
+    public <T extends SpriteSource.DiscardableLoader> void registerPrimaryResourceGetter(
             Class<T> supplierType, Function<T, Resource> resourceGetter
     )
     {
@@ -90,13 +90,11 @@ public final class RegisterSpriteSourceDetailsEvent extends Event implements IMo
         tooltipAppenderRegistrar.register(sourceType, appender);
     }
 
-
-
     @ApiStatus.Internal
     @FunctionalInterface
     public interface PrimaryResourceGetterRegistrar
     {
-        <T extends SpriteSource.SpriteSupplier> void register(Class<T> supplierType, Function<T, Resource> resourceGetter);
+        <T extends SpriteSource.DiscardableLoader> void register(Class<T> supplierType, Function<T, Resource> resourceGetter);
     }
 
     @ApiStatus.Internal
