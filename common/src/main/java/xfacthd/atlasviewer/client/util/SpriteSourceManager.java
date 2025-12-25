@@ -61,7 +61,7 @@ public final class SpriteSourceManager
     )
     {
         registerSourceStringifier(sourceType, src ->
-                "'%s' ('%s')".formatted(Services.PLATFORM.getSpriteSourceSimpleName(src), stringifier.apply(src))
+                "'%s' ('%s')".formatted(src.getClass().getSimpleName(), stringifier.apply(src))
         );
     }
 
@@ -151,8 +151,6 @@ public final class SpriteSourceManager
         Services.PLATFORM.fireSpriteSourceDetailsEvent();
         locked = true;
     }
-
-
 
     private SpriteSourceManager() { }
 }

@@ -13,7 +13,7 @@
     "net/minecraft/client/renderer/texture/TextureAtlasSprite": [
         "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlasSprite"
     ],
-    "net/minecraft/client/resources/model/AtlasManager": [
+    "net/minecraft/client/resources/model/sprite/AtlasManager": [
         "xfacthd/atlasviewer/client/duck/DefaultedAccessorAtlasManager"
     ],
     "net/minecraft/client/renderer/texture/atlas/SpriteSource": [

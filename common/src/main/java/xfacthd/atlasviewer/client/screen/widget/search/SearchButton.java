@@ -12,14 +12,14 @@ public final class SearchButton extends Button.Plain
 
     public SearchButton(int x, int y, int width, int height, SearchHandler handler)
     {
-        super(x, y, width, height, Component.empty(), btn -> {}, Button.DEFAULT_NARRATION);
+        super(x, y, width, height, Component.empty(), _ -> {}, Button.DEFAULT_NARRATION);
         this.handler = handler;
     }
 
     @Override
-    protected void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderContents(graphics, mouseX, mouseY, partialTick);
+        super.extractContents(graphics, mouseX, mouseY, partialTick);
 
         if (active)
         {
@@ -38,7 +38,7 @@ public final class SearchButton extends Button.Plain
             {
                 graphics.pose().scale(.5F, .5F);
             }
-            graphics.drawString(font, text, 0, 0, count > 0 ? 0xFFFFFFFF : 0xFF0000);
+            graphics.text(font, text, 0, 0, count > 0 ? 0xFFFFFFFF : 0xFF0000);
             graphics.pose().popMatrix();
         }
     }

@@ -8,13 +8,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.TextureFilteringMethod;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
@@ -155,13 +155,13 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
     {
-        renderBlurredBackground(graphics);
+        extractBlurredBackground(graphics);
 
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
 
-        graphics.drawString(font, title, xLeft + TEXT_X, yTop + (PADDING * 2), 0xFF404040, false);
+        graphics.text(font, title, xLeft + TEXT_X, yTop + (PADDING * 2), 0xFF404040, false);
 
         int y = yTop + FIRST_LINE_Y;
         y = drawLine(graphics, LABEL_NAME, Component.literal(atlasInfo.name), y);
@@ -186,7 +186,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         }
         y = drawLine(graphics, LABEL_PERCENT_FILLED, percentFilledText, y);
 
-        graphics.drawString(font, tableHeader, xLeft + TEXT_X, tableTitleY, 0xFF404040, false);
+        graphics.text(font, tableHeader, xLeft + TEXT_X, tableTitleY, 0xFF404040, false);
 
         int len = font.width(LABEL_MAX_SIZE);
         if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= maxSizeY && mouseY <= maxSizeY + font.lineHeight)
@@ -203,10 +203,10 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         }
     }
 
-    private int drawLine(GuiGraphics graphics, Component label, Component value, int y)
+    private int drawLine(GuiGraphicsExtractor graphics, Component label, Component value, int y)
     {
-        graphics.drawString(font, label, xLeft + TEXT_X, y, 0xFF404040, false);
-        graphics.drawString(font, value, xLeft + valueX, y, 0xFF404040, false);
+        graphics.text(font, label, xLeft + TEXT_X, y, 0xFF404040, false);
+        graphics.text(font, value, xLeft + valueX, y, 0xFF404040, false);
         return y + LINE_HEIGHT;
     }
 
@@ -239,7 +239,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
                 .map(TextureAtlasSprite::contents)
                 .map(SpriteContents::name)
                 .map(Identifier::getNamespace)
-                .forEach(s -> countByNamespace.computeInt(s, (ns, count) -> (count != null ? count : 0) + 1));
+                .forEach(s -> countByNamespace.computeInt(s, (_, count) -> (count != null ? count : 0) + 1));
 
         int[] spritesByMaxMip = new int[5];
         sprites.forEach(sprite ->
@@ -316,7 +316,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     {
         public Label(Component text)
         {
-            this(text, screen -> true);
+            this(text, _ -> true);
         }
     }
 }

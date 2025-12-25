@@ -1,6 +1,6 @@
 package xfacthd.atlasviewer.client.duck;
 
-import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.resources.Identifier;
 import xfacthd.atlasviewer.client.mixin.AccessorAtlasManager;
 

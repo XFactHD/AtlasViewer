@@ -1,7 +1,7 @@
 package xfacthd.atlasviewer.client.screen;
 
 import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -61,7 +61,7 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
         leftPos = (this.width - WIDTH) / 2;
         topPos = (this.height - imageHeight) / 2;
 
-        addRenderableWidget(Button.builder(TITLE_BTN_OK, btn -> onClose())
+        addRenderableWidget(Button.builder(TITLE_BTN_OK, _ -> onClose())
                 .pos(leftPos + (WIDTH / 2) - 30, topPos + imageHeight - 30)
                 .size(60, 20)
                 .build()
@@ -69,20 +69,20 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
     {
-        renderBlurredBackground(graphics);
+        extractBlurredBackground(graphics);
 
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, AtlasScreen.BACKGROUND_LOC, leftPos, topPos, WIDTH, imageHeight);
 
-        graphics.drawString(font, title, leftPos + TITLE_X, topPos + TITLE_Y, 0xFF404040, false);
+        graphics.text(font, title, leftPos + TITLE_X, topPos + TITLE_Y, 0xFF404040, false);
 
         int y = topPos + TITLE_Y + font.lineHeight * 2;
         for (List<FormattedCharSequence> block : textBlocks)
         {
             for (FormattedCharSequence line : block)
             {
-                graphics.drawString(font, line, leftPos + TITLE_X, y, 0xFF000000, false);
+                graphics.text(font, line, leftPos + TITLE_X, y, 0xFF000000, false);
                 y += font.lineHeight;
             }
             y += font.lineHeight;
@@ -90,14 +90,14 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
         Style style = findTextLine(mouseX, mouseY);
         if (style != null)
         {
-            graphics.renderComponentHoverEffect(font, style, mouseX, mouseY);
+            graphics.componentHoverEffect(font, style, mouseX, mouseY);
         }
     }
 

@@ -1,6 +1,8 @@
 package xfacthd.atlasviewer.client.util;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.blaze3d.opengl.GlTexture;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.CommandEncoder;
@@ -8,7 +10,7 @@ import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -17,6 +19,8 @@ import net.minecraft.util.Mth;
 import org.joml.Matrix3x2f;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GLCapabilities;
 import xfacthd.atlasviewer.client.screen.state.FloatBlitRenderState;
 import xfacthd.atlasviewer.client.screen.state.FloatColoredRectangleRenderState;
@@ -45,7 +49,7 @@ public final class ClientUtils
         return font.split(text, width).size() * font.lineHeight;
     }
 
-    public static void drawColoredBox(GuiGraphics graphics, int x, int y, int w, int h, int color)
+    public static void drawColoredBox(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int color)
     {
         graphics.fill(RenderPipelines.GUI, x,         y,         x + 1, y + h, color);
         graphics.fill(RenderPipelines.GUI, x + w - 1, y,         x + w, y + h, color);
@@ -53,7 +57,7 @@ public final class ClientUtils
         graphics.fill(RenderPipelines.GUI, x,         y + h - 1, x + w, y + h, color);
     }
 
-    public static void drawColoredBox(GuiGraphics graphics, float x, float y, float w, float h, int color)
+    public static void drawColoredBox(GuiGraphicsExtractor graphics, float x, float y, float w, float h, int color)
     {
         fill(graphics, RenderPipelines.GUI, x,          y,          x + 1F, y + h,  color);
         fill(graphics, RenderPipelines.GUI, x + w - 1F, y,          x + w,  y + h,  color);
@@ -61,12 +65,12 @@ public final class ClientUtils
         fill(graphics, RenderPipelines.GUI, x,          y + h - 1F, x + w,  y + h,  color);
     }
 
-    public static void fill(GuiGraphics graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int color)
+    public static void fill(GuiGraphicsExtractor graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int color)
     {
         fill(graphics, pipeline, minX, minY, maxX, maxY, color, color);
     }
 
-    public static void fill(GuiGraphics graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int colorOne, int colorTwo)
+    public static void fill(GuiGraphicsExtractor graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int colorOne, int colorTwo)
     {
         Matrix3x2f pose = new Matrix3x2f(graphics.pose());
         ScreenRectangle scissorRect = Services.PLATFORM.peekScissorState(graphics);
@@ -77,7 +81,7 @@ public final class ClientUtils
     }
 
     public static void blitSpecial(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             RenderPipeline pipeline,
             TextureSetup textureSetup,
             float minX,
@@ -100,7 +104,7 @@ public final class ClientUtils
     }
 
     @Nullable
-    public static ScreenRectangle getBounds(float x0, float y0, float x1, float y1, Matrix3x2f pose, @javax.annotation.Nullable ScreenRectangle scissorRect)
+    public static ScreenRectangle getBounds(float x0, float y0, float x1, float y1, Matrix3x2f pose, @Nullable ScreenRectangle scissorRect)
     {
         int x0i = Mth.floor(x0);
         int y0i = Mth.floor(y0);
@@ -120,7 +124,7 @@ public final class ClientUtils
         int pixSize = srcTexture.getFormat().pixelSize();
         int bufSize = width * height * pixSize;
         GpuBuffer buffer = device.createBuffer(() -> "Texture output buffer", GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_MAP_READ, bufSize);
-        Services.PLATFORM.fixMipLevelTexParams(srcTexture);
+        fixMipLevelTexParams(srcTexture);
         cmdEncoder.copyTextureToBuffer(srcTexture, buffer, 0, () ->
         {
             try (GpuBuffer.MappedView bufView = cmdEncoder.mapBuffer(buffer, true, false); NativeImage destImage = new NativeImage(width, height, false))
@@ -140,7 +144,19 @@ public final class ClientUtils
         }, mipLevel);
     }
 
-
+    /**
+     * Resets the texture's mip level parameters to the default values to ensure texture dumping works properly
+     */
+    private static void fixMipLevelTexParams(GpuTexture srcTexture)
+    {
+        if (srcTexture instanceof GlTexture glTex)
+        {
+            GlStateManager._bindTexture(glTex.glId());
+            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_BASE_LEVEL, 0);
+            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, srcTexture.getMipLevels() - 1);
+            GlStateManager._bindTexture(0);
+        }
+    }
 
     private ClientUtils() { }
 }

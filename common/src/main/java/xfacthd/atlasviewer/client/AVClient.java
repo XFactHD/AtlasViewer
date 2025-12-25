@@ -97,7 +97,5 @@ public final class AVClient
         }
     }
 
-
-
     private AVClient() { }
 }

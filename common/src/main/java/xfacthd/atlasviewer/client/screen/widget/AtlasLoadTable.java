@@ -2,7 +2,7 @@ package xfacthd.atlasviewer.client.screen.widget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -82,7 +82,7 @@ public final class AtlasLoadTable extends AbstractWidget
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
     {
         ClientUtils.drawColoredBox(graphics, getX(), getY(), width, height, 0xFF000000);
 
@@ -95,18 +95,18 @@ public final class AtlasLoadTable extends AbstractWidget
             graphics.fill(x, y, x + w, y + height - 2, color);
             if (i != 3)
             {
-                graphics.vLine(x + w, getY(), getY() + height - 1, 0xFF000000);
+                graphics.verticalLine(x + w, getY(), getY() + height - 1, 0xFF000000);
             }
             x += w + 1;
         }
         x = getX() + 1;
         y++;
-        graphics.hLine(x, x + width - 2, y + font.lineHeight, 0xFF000000);
+        graphics.horizontalLine(x, x + width - 2, y + font.lineHeight, 0xFF000000);
 
-        graphics.drawString(font, HEADER_NAMESPACE, colTextX[0], y, 0xFF303030, false);
-        graphics.drawString(font, HEADER_COUNT, colTextX[1], y, 0xFF303030, false);
-        graphics.drawString(font, HEADER_OF_TOTAL, colTextX[2], y, 0xFF303030, false);
-        graphics.drawString(font, HEADER_OF_FILLED, colTextX[3], y, 0xFF303030, false);
+        graphics.text(font, HEADER_NAMESPACE, colTextX[0], y, 0xFF303030, false);
+        graphics.text(font, HEADER_COUNT, colTextX[1], y, 0xFF303030, false);
+        graphics.text(font, HEADER_OF_TOTAL, colTextX[2], y, 0xFF303030, false);
+        graphics.text(font, HEADER_OF_FILLED, colTextX[3], y, 0xFF303030, false);
 
         x = getX() + 3;
         y += entryHeight;
@@ -117,30 +117,30 @@ public final class AtlasLoadTable extends AbstractWidget
 
             int tx = colTextX[0];
             AtlasInfoScreen.FillStat stat = atlasInfo.fillStats().get(idx);
-            graphics.drawString(font, stat.namespace(), tx, y, 0xFF303030, false);
+            graphics.text(font, stat.namespace(), tx, y, 0xFF303030, false);
 
             String count = Integer.toString(stat.count());
             tx = colTextX[1];
             int tw = font.width(count);
-            graphics.drawString(font, count, tx + colWidth[1] - tw - 3, y, 0xFF303030, false);
+            graphics.text(font, count, tx + colWidth[1] - tw - 3, y, 0xFF303030, false);
 
             String percentOfTotal = "%.1f %%".formatted(stat.percentOfTotal() * 100F);
             tx = colTextX[2];
             tw = font.width(percentOfTotal);
-            graphics.drawString(font, percentOfTotal, tx + colWidth[2] - tw - 3, y, 0xFF303030, false);
+            graphics.text(font, percentOfTotal, tx + colWidth[2] - tw - 3, y, 0xFF303030, false);
 
             String percentOfFilled = "%.1f %%".formatted(stat.percentOfFilled() * 100F);
             tx = colTextX[3];
             tw = font.width(percentOfFilled);
-            graphics.drawString(font, percentOfFilled, tx + colWidth[3] - tw - 3, y, 0xFF303030, false);
+            graphics.text(font, percentOfFilled, tx + colWidth[3] - tw - 3, y, 0xFF303030, false);
 
-            graphics.hLine(x - 3, x + contentWidth - 2, y + font.lineHeight, 0xFF000000);
+            graphics.horizontalLine(x - 3, x + contentWidth - 2, y + font.lineHeight, 0xFF000000);
             y += entryHeight;
         }
 
         if (scrollBar)
         {
-            graphics.vLine(getX() + 1 + contentWidth, getY(), getY() + height - 1, 0xFF000000);
+            graphics.verticalLine(getX() + 1 + contentWidth, getY(), getY() + height - 1, 0xFF000000);
 
             int by = getY() + 1 + entryHeight + Math.round(scrollFactor * scrollOffset);
             by = Math.min(by, getY() + height - scrollBarHeight - 1);
@@ -214,8 +214,6 @@ public final class AtlasLoadTable extends AbstractWidget
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput out) { }
-
-
 
     private enum SortTarget
     {

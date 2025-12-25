@@ -1,7 +1,7 @@
 package xfacthd.atlasviewer.client.util;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 
 public final class TooltipSeparator implements ClientTooltipComponent
@@ -20,7 +20,7 @@ public final class TooltipSeparator implements ClientTooltipComponent
     }
 
     @Override
-    public void renderImage(Font font, int mouseX, int mouseY, int width, int height, GuiGraphics graphics)
+    public void extractImage(Font font, int mouseX, int mouseY, int width, int height, GuiGraphicsExtractor graphics)
     {
         graphics.fill(mouseX, mouseY + yOff, mouseX + this.width + 1, mouseY + yOff + 1, color);
     }

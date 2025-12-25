@@ -51,8 +51,6 @@ public sealed class SpriteSourceMeta permits SpriteSourceMeta.Unsupported
         return getSourceAwareness() == SourceAwareness.SPRITESOURCE_UNAWARE;
     }
 
-
-
     public static final class Unsupported extends SpriteSourceMeta
     {
         public static final Unsupported INSTANCE = new Unsupported();

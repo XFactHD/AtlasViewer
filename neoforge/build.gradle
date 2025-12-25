@@ -11,11 +11,6 @@ neoForge {
     accessTransformers = ['../common/src/main/resources/META-INF/accesstransformer.cfg']
     interfaceInjectionData = files('../common/src/main/resources/interfaces.json')
 
-    parchment {
-        minecraftVersion = parchment_minecraft_version
-        mappingsVersion = parchment_mappings_version
-    }
-
     runs {
         configureEach {
             systemProperty('neoforge.enabledGameTestNamespaces', mod_id)

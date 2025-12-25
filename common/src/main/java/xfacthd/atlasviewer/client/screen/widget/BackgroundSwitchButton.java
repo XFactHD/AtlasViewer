@@ -2,7 +2,7 @@ package xfacthd.atlasviewer.client.screen.widget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -26,14 +26,14 @@ public final class BackgroundSwitchButton extends Button.Plain
 
     public BackgroundSwitchButton(int x, int y, int width, @Nullable Type type)
     {
-        super(x, y, width, DEFAULT_HEIGHT, TITLE, btn -> {}, DEFAULT_NARRATION);
+        super(x, y, width, DEFAULT_HEIGHT, TITLE, _ -> {}, DEFAULT_NARRATION);
         this.type = Objects.requireNonNullElse(type, Type.CHECKER);
     }
 
     @Override
-    protected void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderContents(graphics, mouseX, mouseY, partialTick);
+        super.extractContents(graphics, mouseX, mouseY, partialTick);
         for (int i = 0; i < Type.VALUES.length; i++)
         {
             Type type = Type.VALUES[i];
@@ -47,7 +47,7 @@ public final class BackgroundSwitchButton extends Button.Plain
     }
 
     @Override
-    protected void renderDefaultLabel(ActiveTextCollector textCollector)
+    protected void extractDefaultLabel(ActiveTextCollector textCollector)
     {
         int maxX = getX() + (getWidth() - 3 - ICON_TOTAL_WIDTH) - 2;
         textCollector.acceptScrollingWithDefaultCenter(getMessage(), getX() + 2, maxX, getY(), getY() + getHeight());

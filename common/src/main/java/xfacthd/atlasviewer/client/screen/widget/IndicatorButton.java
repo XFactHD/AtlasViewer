@@ -1,7 +1,7 @@
 package xfacthd.atlasviewer.client.screen.widget;
 
 import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -28,9 +28,9 @@ public final class IndicatorButton extends Button.Plain
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
     {
-        super.renderContents(graphics, mouseX, mouseY, partialTick);
+        super.extractContents(graphics, mouseX, mouseY, partialTick);
         int x = getX() + width - INDICATOR_SIZE - 3;
         int y = getY() + 3;
         Identifier tex = checked ? INDICATOR_CHECKED_TEXTURE : INDICATOR_TEXTURE;
@@ -38,7 +38,7 @@ public final class IndicatorButton extends Button.Plain
     }
 
     @Override
-    protected void renderDefaultLabel(ActiveTextCollector textCollector)
+    protected void extractDefaultLabel(ActiveTextCollector textCollector)
     {
         int minX = getX() + 2;
         int maxX = getX() + getWidth() - INDICATOR_SIZE - 6;

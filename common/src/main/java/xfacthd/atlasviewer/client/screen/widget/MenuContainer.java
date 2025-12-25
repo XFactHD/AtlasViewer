@@ -1,6 +1,6 @@
 package xfacthd.atlasviewer.client.screen.widget;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.Layout;
@@ -48,7 +48,7 @@ public final class MenuContainer extends GridLayout
         nextRow++;
     }
 
-    public void render(GuiGraphics graphics)
+    public void render(GuiGraphicsExtractor graphics)
     {
         if (open)
         {

@@ -8,7 +8,7 @@ import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -21,7 +21,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.resources.metadata.gui.GuiMetadataSection;
 import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
-import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -324,13 +324,13 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
     {
-        renderBlurredBackground(graphics);
+        extractBlurredBackground(graphics);
 
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
 
-        graphics.drawString(font, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0xFF404040, false);
+        graphics.text(font, title, xLeft + (PADDING * 2), yTop + (PADDING * 2), 0xFF404040, false);
 
         int y = yTop + SPRITE_Y;
         lyName = y;
@@ -411,17 +411,17 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         }
     }
 
-    private int drawLine(GuiGraphics graphics, Component label, Component value, int y)
+    private int drawLine(GuiGraphicsExtractor graphics, Component label, Component value, int y)
     {
-        graphics.drawString(font, label, xLeft + LABEL_X, y, 0xFF404040, false);
-        graphics.drawString(font, value, xLeft + valueX, y, 0xFF404040, false);
+        graphics.text(font, label, xLeft + LABEL_X, y, 0xFF404040, false);
+        graphics.text(font, value, xLeft + valueX, y, 0xFF404040, false);
         return y + LINE_HEIGHT;
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
     {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
         int lx = xLeft + LABEL_X;
         if (padding > 0 && mouseX >= lx && mouseX < lx + font.width(LABEL_PADDING) && mouseY >= lyPadding && mouseY < lyPadding + font.lineHeight)
@@ -477,13 +477,13 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void setFixedTooltipForNextFrame(GuiGraphics graphics, int lineY, Component text)
+    private void setFixedTooltipForNextFrame(GuiGraphicsExtractor graphics, int lineY, Component text)
     {
         var tooltip = List.of(ClientTooltipComponent.create(text.getVisualOrderText()));
         setFixedTooltipForNextFrame(graphics, lineY, tooltip, font.width(text));
     }
 
-    private void setFixedTooltipForNextFrame(GuiGraphics graphics, int lineY, List<ClientTooltipComponent> components, int maxLen)
+    private void setFixedTooltipForNextFrame(GuiGraphicsExtractor graphics, int lineY, List<ClientTooltipComponent> components, int maxLen)
     {
         int x = Math.min(xLeft + valueX, width - maxLen - PADDING);
         graphics.setTooltipForNextFrameInternal(font, components, x, lineY, PACK_LIST_POSITIONER, null, true);
@@ -612,7 +612,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
             }
             else
             {
-                String typeName = Services.PLATFORM.getSpriteSourceName(source);
+                String typeName = source.getClass().getName();
                 String shortTypeName = typeName.substring(typeName.lastIndexOf('.') + 1);
                 sourceType = TextLine.of(shortTypeName, font, maxValueLen).text();
                 hasConcreteSourceType = true;
@@ -762,13 +762,11 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         Services.PLATFORM.popScreenLayer();
     }
 
-
-
     private record Label(Component text, Predicate<SpriteInfoScreen> active)
     {
         public Label(Component text)
         {
-            this(text, screen -> true);
+            this(text, _ -> true);
         }
     }
 

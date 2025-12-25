@@ -66,12 +66,12 @@ public final class ScreenStacker
     {
         if (screen instanceof IStackedScreen)
         {
-            ScreenEvents.beforeRender(screen).register((topScreen, guiGraphics, mouseX, mouseY, tickDelta) ->
+            ScreenEvents.beforeExtract(screen).register((_, graphics, _, _, tickDelta) ->
             {
                 for (Iterator<Screen> it = LAYERS.descendingIterator(); it.hasNext();)
                 {
-                    it.next().renderWithTooltipAndSubtitles(guiGraphics, Integer.MAX_VALUE, Integer.MAX_VALUE, tickDelta);
-                    guiGraphics.nextStratum();
+                    it.next().extractRenderStateWithTooltipAndSubtitles(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, tickDelta);
+                    graphics.nextStratum();
                 }
             });
         }

@@ -1,7 +1,6 @@
 package xfacthd.atlasviewer.client.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import com.mojang.blaze3d.opengl.GlDevice;
 import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlTexture;
 import com.mojang.blaze3d.textures.GpuTexture;
@@ -13,7 +12,7 @@ import xfacthd.atlasviewer.client.util.ClientUtils;
 
 import java.nio.ByteBuffer;
 
-@Mixin(GlDevice.class)
+@Mixin(targets = "com.mojang.blaze3d.opengl.GlDevice")
 public class MixinGlDevice
 {
     @ModifyReturnValue(
@@ -31,8 +30,6 @@ public class MixinGlDevice
         int type = GlConst.toGlType(format);
         for (int level = 0; level < texture.getMipLevels(); level++)
         {
-            // TODO: remove when vanilla fixes SpriteContents.AnimatedTexture#createAnimationState() passing a too high mip count to createTexture()
-            if (texture.getWidth(level) <= 0 || texture.getHeight(level) <= 0) continue;
             ARBClearTexture.glClearTexImage(texId, level, extFormat, type, (ByteBuffer) null);
         }
 

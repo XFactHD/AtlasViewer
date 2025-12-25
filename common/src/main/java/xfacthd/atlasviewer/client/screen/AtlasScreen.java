@@ -10,7 +10,7 @@ import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -18,7 +18,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -212,13 +212,13 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
     {
-        renderBlurredBackground(graphics);
+        extractBlurredBackground(graphics);
 
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_LOC, PADDING, PADDING, width - (PADDING * 2), height - (PADDING * 2));
 
-        graphics.drawString(font, title, PADDING * 3, PADDING * 3, 0xFF404040, false);
+        graphics.text(font, title, PADDING * 3, PADDING * 3, 0xFF404040, false);
 
         float scale = (float)(atlasScale * scrollScale);
 
@@ -305,7 +305,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         return !menu.isOpen() || !menu.isMouseOver(mouseX, mouseY);
     }
 
-    private void drawColoredBox(GuiGraphics graphics, int x, int y, int width, int height, float scale, boolean expand, int color)
+    private void drawColoredBox(GuiGraphicsExtractor graphics, int x, int y, int width, int height, float scale, boolean expand, int color)
     {
         float sx = x * scale + atlasLeft + offsetX;
         float sy = y * scale + atlasTop + offsetY;

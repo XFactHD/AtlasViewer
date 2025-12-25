@@ -19,57 +19,17 @@
             "xfacthd.atlasviewer.AtlasViewerFabric"
         ]
     },
-    "accessWidener" : "atlasviewer.accesswidener",
+    "accessWidener" : "atlasviewer.classtweaker",
     "mixins": [
         "atlasviewer.mixin.json",
         "atlasviewer.fabric.mixin.json"
     ],
     "depends": {
         "fabricloader": ">=${fabric_loader_version}",
-        "fabric": ">=${fabric_version}",
+        "fabric-api": ">=${fabric_version}",
         "minecraft": ">=${minecraft_version}",
-        "java": ">=17"
+        "java": ">=25"
     },
     "suggests": {
-    },
-    "custom": {
-        "__comment:loom:injected_interfaces": "\\u0024 is used in place of a dollar sign for inner classes to work around Gradle resource processing",
-        "loom:injected_interfaces": {
-            "net/minecraft/class_7764\u0024class_5790": [
-                "xfacthd/atlasviewer/client/duck/DefaultedAccessorAnimatedTexture"
-            ],
-            "net/minecraft/class_7764": [
-                "xfacthd/atlasviewer/client/duck/DefaultedAccessorSpriteContents",
-                "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareSpriteContents"
-            ],
-            "net/minecraft/class_1059": [
-                "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlas",
-                "xfacthd/atlasviewer/client/util/IMipAwareTextureAtlas"
-            ],
-            "net/minecraft/class_11697": [
-                "xfacthd/atlasviewer/client/duck/DefaultedAccessorAtlasManager"
-            ],
-            "net/minecraft/class_7948": [
-                "xfacthd/atlasviewer/client/api/IPackAwareSpriteSource"
-            ],
-            "net/minecraft/class_7958": [
-                "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorLazyLoadedImage"
-            ],
-            "net/minecraft/class_7957\u0024class_7960": [
-                "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcherRegionInstance"
-            ],
-            "net/minecraft/class_339": [
-                "xfacthd/atlasviewer/client/util/IVisibilitySetter"
-            ],
-            "net/minecraft/class_3298": [
-                "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource"
-            ],
-            "net/minecraft/class_5699\u0024class_10388": [
-                "xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<TI;TV;>"
-            ],
-            "net/minecraft/class_1058": [
-                "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlasSprite"
-            ]
-        }
     }
 }

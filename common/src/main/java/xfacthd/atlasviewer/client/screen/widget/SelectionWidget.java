@@ -3,7 +3,7 @@ package xfacthd.atlasviewer.client.screen.widget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -61,9 +61,9 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks)
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
     {
-        renderDefaultSprite(graphics);
+        extractDefaultSprite(graphics);
 
         int fgColor = active ? 0xFFFFFF : 0xA0A0A0;
 
@@ -77,7 +77,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         else
         {
             Font font = Minecraft.getInstance().font;
-            graphics.drawString(font, title, getX() + 6, getY() + (height - 8) / 2, fgColor | Mth.ceil(alpha * 255.0F) << 24);
+            graphics.text(font, title, getX() + 6, getY() + (height - 8) / 2, fgColor | Mth.ceil(alpha * 255.0F) << 24);
         }
 
         if (extended)
@@ -357,8 +357,6 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         };
     }
 
-
-
     public static class SelectionEntry<T extends SelectionEntry<T>> implements GuiEventListener
     {
         private final Component message;
@@ -368,7 +366,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
 
         public SelectionEntry(Component message) { this.message = message; }
 
-        public void render(GuiGraphics graphics, int x, int y, int width, boolean hovered, int fgColor, float alpha)
+        public void render(GuiGraphicsExtractor graphics, int x, int y, int width, boolean hovered, int fgColor, float alpha)
         {
             if (hovered || focused)
             {
@@ -377,7 +375,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
 
             Font font = Minecraft.getInstance().font;
             FormattedCharSequence text = Language.getInstance().getVisualOrder(FormattedText.composite(font.substrByWidth(message, width - 12)));
-            graphics.drawString(font, text, x + 6, y + 6, fgColor | Mth.ceil(alpha * 255.0F) << 24);
+            graphics.text(font, text, x + 6, y + 6, fgColor | Mth.ceil(alpha * 255.0F) << 24);
         }
 
         @Override
@@ -394,7 +392,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         @Override
         public ComponentPath nextFocusPath(FocusNavigationEvent event)
         {
-            if (isFocused() && event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection dir))
+            if (isFocused() && event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection dir, _))
             {
                 //noinspection unchecked
                 SelectionEntry<T> entry = Objects.requireNonNull(owner).getFocusNeighbour((T) this, dir);

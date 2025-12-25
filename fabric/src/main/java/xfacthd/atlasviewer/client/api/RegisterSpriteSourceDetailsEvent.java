@@ -23,8 +23,6 @@ public final class RegisterSpriteSourceDetailsEvent
                     )
     );
 
-
-
     @FunctionalInterface
     public interface RegisterSpriteSourceDetails
     {
@@ -71,8 +69,6 @@ public final class RegisterSpriteSourceDetailsEvent
     {
         <T extends SpriteSource> void register(Class<T> sourceType, SourceTooltipAppender<T> appender);
     }
-
-
 
     private RegisterSpriteSourceDetailsEvent() { }
 }

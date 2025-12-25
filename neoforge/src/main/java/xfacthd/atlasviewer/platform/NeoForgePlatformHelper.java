@@ -1,18 +1,16 @@
 package xfacthd.atlasviewer.platform;
 
-import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.network.chat.Component;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuTexture;
 import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.client.AVClientNeoForge;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
@@ -64,27 +62,15 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
 
     @Override
     @Nullable
-    public ScreenRectangle peekScissorState(GuiGraphics graphics)
+    public ScreenRectangle peekScissorState(GuiGraphicsExtractor graphics)
     {
         return graphics.peekScissorStack();
     }
 
     @Override
-    public void submitCustomGuiRenderState(GuiGraphics graphics, GuiElementRenderState renderState)
+    public void submitCustomGuiRenderState(GuiGraphicsExtractor graphics, GuiElementRenderState renderState)
     {
         graphics.submitGuiElementRenderState(renderState);
-    }
-
-    @Override
-    public String getSpriteSourceName(SpriteSource source)
-    {
-        return source.getClass().getName();
-    }
-
-    @Override
-    public String getSpriteSourceSimpleName(SpriteSource source)
-    {
-        return source.getClass().getSimpleName();
     }
 
     @Override
@@ -94,24 +80,13 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
-    public void fixMipLevelTexParams(GpuTexture srcTexture)
-    {
-        if (srcTexture instanceof ValidationGpuTexture validationTex)
-        {
-            srcTexture = validationTex.getRealTexture();
-        }
-        IPlatformHelper.super.fixMipLevelTexParams(srcTexture);
-    }
-
-    @Override
     public SpriteSource wrapSpriteSource(SpriteSource original)
     {
         return new WrappedSpriteSourceNeoForge(original);
     }
 
     @Override
-    public void setTooltip(Font font, GuiGraphics graphics, Component component, int mouseX, int mouseY)
+    public void setTooltip(Font font, GuiGraphicsExtractor graphics, Component component, int mouseX, int mouseY)
     {
         graphics.setTooltipForNextFrame(font, List.of(component), Optional.empty(), mouseX, mouseY);
     }

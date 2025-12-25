@@ -5,13 +5,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.main.GameConfig;
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xfacthd.atlasviewer.client.screen.stacking.ScreenStacker;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
-import xfacthd.atlasviewer.client.util.SpriteSourceTypeMapper;
 
 @Mixin(Minecraft.class)
 @SuppressWarnings({ "MethodMayBeStatic", "DataFlowIssue" })
@@ -20,7 +21,7 @@ public final class MinecraftMixin
     @Shadow @Final private Window window;
 
     @Inject(
-            method = "resizeDisplay",
+            method = "resizeGui",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/screens/Screen;resize(II)V",
@@ -54,6 +55,5 @@ public final class MinecraftMixin
     private void atlasviewer$handlePreResourceLoadInit(GameConfig gameConfig, CallbackInfo ci)
     {
         SpriteSourceManager.registerDetails();
-        SpriteSourceTypeMapper.init();
     }
 }

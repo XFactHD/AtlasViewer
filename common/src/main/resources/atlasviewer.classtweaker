@@ -1,0 +1,34 @@
+classTweaker v1 official
+
+accessible field net/minecraft/client/KeyMapping$Category SORT_ORDER Ljava/util/List;
+accessible method net/minecraft/client/gui/GuiGraphicsExtractor setTooltipForNextFrameInternal (Lnet/minecraft/client/gui/Font;Ljava/util/List;IILnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;Lnet/minecraft/resources/Identifier;Z)V
+accessible method net/minecraft/client/gui/GuiGraphicsExtractor componentHoverEffect (Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Style;II)V
+extendable method net/minecraft/client/gui/components/AbstractSliderButton getHandleSprite ()Lnet/minecraft/resources/Identifier;
+accessible field net/minecraft/client/gui/components/AbstractSliderButton SLIDER_HANDLE_SPRITE Lnet/minecraft/resources/Identifier;
+extendable method net/minecraft/client/gui/components/EditBox onValueChange (Ljava/lang/String;)V
+accessible class net/minecraft/client/resources/model/sprite/AtlasManager$AtlasConfig
+accessible method net/minecraft/client/resources/model/sprite/AtlasManager$AtlasConfig <init> (Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;ZLjava/util/Set;)V
+accessible class net/minecraft/client/resources/model/sprite/AtlasManager$AtlasEntry
+accessible method net/minecraft/client/resources/model/sprite/AtlasManager$AtlasEntry <init> (Lnet/minecraft/client/renderer/texture/TextureAtlas;Lnet/minecraft/client/resources/model/sprite/AtlasManager$AtlasConfig;)V
+accessible class net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture
+accessible class net/minecraft/client/renderer/texture/SpriteContents$FrameInfo
+accessible method net/minecraft/client/renderer/texture/TextureAtlas dumpSpriteNames (Ljava/nio/file/Path;Ljava/lang/String;Ljava/util/Map;)V
+accessible method net/minecraft/client/renderer/texture/TextureAtlas getWidth ()I
+accessible method net/minecraft/client/renderer/texture/TextureAtlas getHeight ()I
+accessible class net/minecraft/client/renderer/texture/atlas/sources/PalettedPermutations$PalettedSpriteSupplier
+accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$Region
+accessible class net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$RegionInstance
+
+inject-interface net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture xfacthd/atlasviewer/client/duck/DefaultedAccessorAnimatedTexture
+inject-interface net/minecraft/client/renderer/texture/SpriteContents xfacthd/atlasviewer/client/duck/DefaultedAccessorSpriteContents
+inject-interface net/minecraft/client/renderer/texture/SpriteContents xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareSpriteContents
+inject-interface net/minecraft/client/renderer/texture/TextureAtlas xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlas
+inject-interface net/minecraft/client/renderer/texture/TextureAtlas xfacthd/atlasviewer/client/util/IMipAwareTextureAtlas
+inject-interface net/minecraft/client/resources/model/sprite/AtlasManager xfacthd/atlasviewer/client/duck/DefaultedAccessorAtlasManager
+inject-interface net/minecraft/client/renderer/texture/atlas/SpriteSource xfacthd/atlasviewer/client/api/IPackAwareSpriteSource
+inject-interface net/minecraft/client/renderer/texture/atlas/sources/LazyLoadedImage xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorLazyLoadedImage
+inject-interface net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$RegionInstance xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcherRegionInstance
+inject-interface net/minecraft/client/gui/components/AbstractWidget xfacthd/atlasviewer/client/util/IVisibilitySetter
+inject-interface net/minecraft/server/packs/resources/Resource xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource
+inject-interface net/minecraft/util/ExtraCodecs$LateBoundIdMapper xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<TI;TV;>
+inject-interface net/minecraft/client/renderer/texture/TextureAtlasSprite xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlasSprite
