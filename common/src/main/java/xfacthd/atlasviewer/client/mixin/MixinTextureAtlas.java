@@ -1,32 +1,24 @@
 package xfacthd.atlasviewer.client.mixin;
 
-import com.mojang.blaze3d.systems.GpuDevice;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xfacthd.atlasviewer.client.screen.AtlasScreen;
 import xfacthd.atlasviewer.client.util.IMipAwareTextureAtlas;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 @Mixin(TextureAtlas.class)
 public class MixinTextureAtlas extends AbstractTexture implements IMipAwareTextureAtlas
 {
-    @Unique
-    private final @Nullable GpuTextureView[] atlasviewer$mippedTextureViews = new GpuTextureView[5];
     @Shadow
-    private int maxMipLevel;
+    private GpuTextureView[] mipViews;
 
     @Inject(method = "upload", at = @At("HEAD"))
     private void atlasviewer$onUploadHead(SpriteLoader.Preparations preps, CallbackInfo ci)
@@ -37,36 +29,11 @@ public class MixinTextureAtlas extends AbstractTexture implements IMipAwareTextu
                 preps.width(),
                 preps.height()
         );
-
-        for (int i = 1; i < atlasviewer$mippedTextureViews.length; i++)
-        {
-            GpuTextureView view = atlasviewer$mippedTextureViews[i];
-            if (view != null)
-            {
-                view.close();
-            }
-        }
-        Arrays.fill(atlasviewer$mippedTextureViews, null);
-    }
-
-    @Inject(method = "upload", at = @At("TAIL"))
-    private void atlasviewer$onUploadTail(SpriteLoader.Preparations preps, CallbackInfo ci)
-    {
-        // This is safe as the texture and texture view were initialized before this injection
-        GpuTexture texture = Objects.requireNonNull(this.texture);
-        GpuTextureView textureView = Objects.requireNonNull(this.textureView);
-
-        atlasviewer$mippedTextureViews[0] = textureView;
-        GpuDevice device = RenderSystem.getDevice();
-        for (int i = 1; i <= maxMipLevel; i++)
-        {
-            atlasviewer$mippedTextureViews[i] = device.createTextureView(texture, i, 1);
-        }
     }
 
     @Override
     public GpuTextureView atlasview$getMippedTextureView(int mipLevel)
     {
-        return Objects.requireNonNull(atlasviewer$mippedTextureViews[mipLevel], "Requested view for invalid mip level");
+        return Objects.requireNonNull(mipViews[mipLevel], "Requested view for invalid mip level");
     }
 }
