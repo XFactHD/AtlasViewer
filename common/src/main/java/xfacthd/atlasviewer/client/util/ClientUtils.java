@@ -27,6 +27,7 @@ import xfacthd.atlasviewer.client.screen.state.FloatColoredRectangleRenderState;
 import xfacthd.atlasviewer.platform.Services;
 
 import java.nio.ByteBuffer;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public final class ClientUtils
@@ -38,8 +39,16 @@ public final class ClientUtils
     {
         if (arbClearTextureSupported == null)
         {
-            GLCapabilities capabilities = GL.getCapabilities();
-            arbClearTextureSupported = capabilities.GL_ARB_clear_texture;
+            String renderer = RenderSystem.getDevice().getRenderer().toLowerCase(Locale.ROOT);
+            if (!renderer.contains("intel"))
+            {
+                GLCapabilities capabilities = GL.getCapabilities();
+                arbClearTextureSupported = capabilities.GL_ARB_clear_texture;
+            }
+            else
+            {
+                arbClearTextureSupported = false;
+            }
         }
         return arbClearTextureSupported;
     }
