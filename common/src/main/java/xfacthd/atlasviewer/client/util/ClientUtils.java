@@ -39,6 +39,7 @@ public final class ClientUtils
     {
         if (arbClearTextureSupported == null)
         {
+            // Certain Intel iGPUs appear to have issues with GL_ARB_clear_texture
             String renderer = RenderSystem.getDevice().getRenderer().toLowerCase(Locale.ROOT);
             if (!renderer.contains("intel"))
             {
