@@ -19,11 +19,9 @@ public record FloatColoredRectangleRenderState(
         int col2,
         @Nullable ScreenRectangle scissorArea,
         @Nullable ScreenRectangle bounds
-) implements GuiElementRenderState
-{
+) implements GuiElementRenderState {
     @Override
-    public void buildVertices(VertexConsumer consumer)
-    {
+    public void buildVertices(VertexConsumer consumer) {
         consumer.addVertexWith2DPose(pose(), x0(), y0()).setColor(col1());
         consumer.addVertexWith2DPose(pose(), x0(), y1()).setColor(col2());
         consumer.addVertexWith2DPose(pose(), x1(), y1()).setColor(col2());
@@ -31,8 +29,7 @@ public record FloatColoredRectangleRenderState(
     }
 
     @Override
-    public TextureSetup textureSetup()
-    {
+    public TextureSetup textureSetup() {
         return TextureSetup.noTexture();
     }
 }

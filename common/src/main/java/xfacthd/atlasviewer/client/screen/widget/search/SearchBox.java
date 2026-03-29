@@ -9,8 +9,7 @@ import xfacthd.atlasviewer.client.util.IVisibilitySetter;
 
 import java.util.function.Consumer;
 
-public final class SearchBox extends AbstractWidget implements IVisibilitySetter
-{
+public final class SearchBox extends AbstractWidget implements IVisibilitySetter {
     static final int BUTTON_WIDTH = 63;
     static final int PADDING = 2;
     private static final long DEBOUNCE_DELAY_MS = 250;
@@ -22,8 +21,7 @@ public final class SearchBox extends AbstractWidget implements IVisibilitySetter
     private String lastQuery = "";
     private long lastChange = 0;
 
-    public SearchBox(int x, int y, int width, int height, @Nullable SearchBox prev, SearchHandler handler, Consumer<AbstractWidget> registrar)
-    {
+    public SearchBox(int x, int y, int width, int height, @Nullable SearchBox prev, SearchHandler handler, Consumer<AbstractWidget> registrar) {
         super(x, y, width, height, Component.empty());
         this.handler = handler;
         this.editBox = new SearchEditBox(x, y, width - BUTTON_WIDTH - PADDING, height, prev != null ? prev.editBox : null);
@@ -33,29 +31,24 @@ public final class SearchBox extends AbstractWidget implements IVisibilitySetter
         registrar.accept(button);
     }
 
-    private void onSearchChanged(String text)
-    {
+    private void onSearchChanged(String text) {
         changed = true;
         lastQuery = text;
         lastChange = System.currentTimeMillis();
-        if (lastQuery.isEmpty())
-        {
+        if (lastQuery.isEmpty()) {
             button.active = false;
         }
     }
 
-    public void tick()
-    {
-        if (changed && System.currentTimeMillis() - lastChange > DEBOUNCE_DELAY_MS)
-        {
+    public void tick() {
+        if (changed && System.currentTimeMillis() - lastChange > DEBOUNCE_DELAY_MS) {
             changed = false;
             handler.updateSearch(lastQuery);
             button.active = !lastQuery.isEmpty();
         }
     }
 
-    public void clear()
-    {
+    public void clear() {
         editBox.setValue("");
         button.active = false;
     }
@@ -67,39 +60,34 @@ public final class SearchBox extends AbstractWidget implements IVisibilitySetter
     protected void updateWidgetNarration(NarrationElementOutput out) { }
 
     @Override
-    public void setX(int x)
-    {
+    public void setX(int x) {
         super.setX(x);
         editBox.setX(x);
         button.setX(x + width - BUTTON_WIDTH);
     }
 
     @Override
-    public void setY(int y)
-    {
+    public void setY(int y) {
         super.setY(y);
         editBox.setY(y);
         button.setY(y);
     }
 
     @Override
-    public void setWidth(int width)
-    {
+    public void setWidth(int width) {
         super.setWidth(width);
         editBox.setWidth(width - BUTTON_WIDTH - PADDING);
     }
 
     @Override
-    public void setHeight(int height)
-    {
+    public void setHeight(int height) {
         super.setHeight(height);
         editBox.setHeight(height);
         button.setHeight(height);
     }
 
     @Override
-    public void atlasviewer$setVisible(boolean visible)
-    {
+    public void atlasviewer$setVisible(boolean visible) {
         this.visible = visible;
         editBox.visible = visible;
         button.visible = visible;

@@ -6,11 +6,15 @@ import xfacthd.atlasviewer.client.mixin.AccessorTextureAtlas;
 
 import java.util.Map;
 
-public interface DefaultedAccessorTextureAtlas extends AccessorTextureAtlas
-{
+@SuppressWarnings("unused") // Referenced via interface injection
+public interface DefaultedAccessorTextureAtlas extends AccessorTextureAtlas {
     @Override
-    default Map<Identifier, TextureAtlasSprite> atlasviewer$getTexturesByName() { throw new UnsupportedOperationException("Not injected"); }
+    default Map<Identifier, TextureAtlasSprite> atlasviewer$getTexturesByName() {
+        throw new UnsupportedOperationException("Not injected");
+    }
 
     @Override
-    default int atlasviewer$getMipLevel() { throw new UnsupportedOperationException("Not injected"); }
+    default int atlasviewer$getMipLevel() {
+        throw new UnsupportedOperationException("Not injected");
+    }
 }

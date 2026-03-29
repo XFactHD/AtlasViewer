@@ -6,8 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(LazyLoadedImage.class)
-public interface AccessorLazyLoadedImage
-{
+public interface AccessorLazyLoadedImage {
     @Accessor("resource")
     Resource atlasviewer$getResource();
 }

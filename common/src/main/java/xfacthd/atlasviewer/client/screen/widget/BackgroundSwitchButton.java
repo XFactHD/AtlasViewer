@@ -13,8 +13,7 @@ import xfacthd.atlasviewer.AtlasViewer;
 
 import java.util.Objects;
 
-public final class BackgroundSwitchButton extends Button.Plain
-{
+public final class BackgroundSwitchButton extends Button.Plain {
     public static final Component TITLE = Component.translatable("btn.atlasviewer.switch_background");
     private static final Identifier BG_SELECTED = AtlasViewer.rl("icon_background_selected");
     private static final Identifier BG_UNSELECTED = AtlasViewer.rl("icon_background_unselected");
@@ -24,18 +23,15 @@ public final class BackgroundSwitchButton extends Button.Plain
 
     private Type type;
 
-    public BackgroundSwitchButton(int x, int y, int width, @Nullable Type type)
-    {
-        super(x, y, width, DEFAULT_HEIGHT, TITLE, _ -> {}, DEFAULT_NARRATION);
+    public BackgroundSwitchButton(int x, int y, int width, @Nullable Type type) {
+        super(x, y, width, DEFAULT_HEIGHT, TITLE, _ -> { }, DEFAULT_NARRATION);
         this.type = Objects.requireNonNullElse(type, Type.CHECKER);
     }
 
     @Override
-    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
-    {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractContents(graphics, mouseX, mouseY, partialTick);
-        for (int i = 0; i < Type.VALUES.length; i++)
-        {
+        for (int i = 0; i < Type.VALUES.length; i++) {
             Type type = Type.VALUES[i];
             Identifier bgTex = this.type == type ? BG_SELECTED : BG_UNSELECTED;
             Identifier tex = type.sprite;
@@ -47,25 +43,21 @@ public final class BackgroundSwitchButton extends Button.Plain
     }
 
     @Override
-    protected void extractDefaultLabel(ActiveTextCollector textCollector)
-    {
+    protected void extractDefaultLabel(ActiveTextCollector textCollector) {
         int maxX = getX() + (getWidth() - 3 - ICON_TOTAL_WIDTH) - 2;
         textCollector.acceptScrollingWithDefaultCenter(getMessage(), getX() + 2, maxX, getY(), getY() + getHeight());
     }
 
     @Override
-    public void onPress(InputWithModifiers input)
-    {
+    public void onPress(InputWithModifiers input) {
         type = Minecraft.getInstance().hasShiftDown() ? type.previous() : type.next();
     }
 
-    public Type getSelectedType()
-    {
+    public Type getSelectedType() {
         return type;
     }
 
-    public enum Type
-    {
+    public enum Type {
         CHECKER(AtlasViewer.rl("checker")),
         DARK(AtlasViewer.rl("dark")),
         WHITE(AtlasViewer.rl("white")),
@@ -75,23 +67,19 @@ public final class BackgroundSwitchButton extends Button.Plain
 
         private final Identifier sprite;
 
-        Type(Identifier sprite)
-        {
+        Type(Identifier sprite) {
             this.sprite = sprite;
         }
 
-        public Identifier getSprite()
-        {
+        public Identifier getSprite() {
             return sprite;
         }
 
-        Type next()
-        {
+        Type next() {
             return VALUES[(ordinal() + 1) % VALUES.length];
         }
 
-        Type previous()
-        {
+        Type previous() {
             return VALUES[(ordinal() + VALUES.length - 1) % VALUES.length];
         }
     }

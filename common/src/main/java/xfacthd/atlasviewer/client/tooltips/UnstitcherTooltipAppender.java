@@ -4,8 +4,7 @@ import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
 import net.minecraft.network.chat.Component;
 import xfacthd.atlasviewer.client.api.SourceTooltipAppender;
 
-public final class UnstitcherTooltipAppender implements SourceTooltipAppender<Unstitcher>
-{
+public final class UnstitcherTooltipAppender implements SourceTooltipAppender<Unstitcher> {
     private static final Component LABEL_RESOURCE = Component.translatable(
             "label.atlasviewer.source_tooltip.unstitcher.resource"
     );
@@ -21,8 +20,7 @@ public final class UnstitcherTooltipAppender implements SourceTooltipAppender<Un
     );
 
     @Override
-    public void accept(Unstitcher source, LineConsumer lineConsumer)
-    {
+    public void accept(Unstitcher source, LineConsumer lineConsumer) {
         lineConsumer.accept(LABEL_RESOURCE, Component.literal(source.resource().toString()));
 
         lineConsumer.accept(LABEL_REGIONS, Component.empty());

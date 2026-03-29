@@ -9,11 +9,9 @@ import xfacthd.atlasviewer.client.AVClient;
 import xfacthd.atlasviewer.client.screen.stacking.ScreenStacker;
 
 @SuppressWarnings("unused") // Referenced from fabric.mod.json
-public final class AtlasViewerFabric implements ClientModInitializer
-{
+public final class AtlasViewerFabric implements ClientModInitializer {
     @Override
-    public void onInitializeClient()
-    {
+    public void onInitializeClient() {
         AVClient.onRegisterKeyMappings(KeyMapping.Category.SORT_ORDER::add, KeyMappingHelper::registerKeyMapping);
         ClientTickEvents.START_CLIENT_TICK.register(AVClient::onClientTickStart);
         ScreenEvents.AFTER_INIT.register((_, screen, _, _) ->

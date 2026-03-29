@@ -10,14 +10,12 @@ import xfacthd.atlasviewer.client.api.SourceAwareness;
 import xfacthd.atlasviewer.client.util.MissingTextureDummySpriteSource;
 
 @Mixin(MissingTextureAtlasSprite.class)
-public class MixinMissingTextureAtlasSprite
-{
+public class MixinMissingTextureAtlasSprite {
     @Inject(
             method = "create",
             at = @At("RETURN")
     )
-    private static void atlasviewer$setMissingSpriteSourcePack(CallbackInfoReturnable<SpriteContents> cir)
-    {
+    private static void atlasviewer$setMissingSpriteSourcePack(CallbackInfoReturnable<SpriteContents> cir) {
         SpriteContents contents = cir.getReturnValue();
         contents.atlasviewer$setSpriteSourceSourcePack(
                 "builtin (synthetic)",

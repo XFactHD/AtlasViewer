@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public final class SpriteSourceManager
-{
+public final class SpriteSourceManager {
     private static final Component LABEL_FULL_TYPE = Component.translatable("label.atlasviewer.source_tooltip.full_type");
     private static final Component LABEL_REG_NAME = Component.translatable("label.atlasviewer.source_tooltip.reg_name");
     private static final Component VALUE_UNREGISTERED = Component.translatable("value.atlasviewer.source_tooltip.unregistered").withStyle(s -> s.withColor(0xD00000));
@@ -35,11 +34,9 @@ public final class SpriteSourceManager
     @SuppressWarnings("unchecked")
     public static <T extends SpriteSource.DiscardableLoader> void registerPrimaryResourceGetter(
             Class<T> supplierType, Function<T, Resource> resourceGetter
-    )
-    {
+    ) {
         Preconditions.checkState(!locked, "Registration is locked");
-        if (PRIMARY_RESOURCE_GETTERS.put(supplierType, (Function<SpriteSource.DiscardableLoader, Resource>) resourceGetter) != null)
-        {
+        if (PRIMARY_RESOURCE_GETTERS.put(supplierType, (Function<SpriteSource.DiscardableLoader, Resource>) resourceGetter) != null) {
             throw new IllegalStateException("Supplier type '%s' had a previous mapping".formatted(supplierType));
         }
     }
@@ -47,19 +44,16 @@ public final class SpriteSourceManager
     @SuppressWarnings("unchecked")
     public static <T extends SpriteSource> void registerSourceStringifier(
             Class<T> sourceType, Function<T, String> stringifier
-    )
-    {
+    ) {
         Preconditions.checkState(!locked, "Registration is locked");
-        if (SOURCE_STRINGIFIERS.put(sourceType, (Function<SpriteSource, String>) stringifier) != null)
-        {
+        if (SOURCE_STRINGIFIERS.put(sourceType, (Function<SpriteSource, String>) stringifier) != null) {
             throw new IllegalStateException("Source type '%s' had a previous mapping".formatted(sourceType));
         }
     }
 
     public static <T extends SpriteSource> void registerSimpleSourceStringifier(
             Class<T> sourceType, Function<T, String> stringifier
-    )
-    {
+    ) {
         registerSourceStringifier(sourceType, src ->
                 "'%s' ('%s')".formatted(src.getClass().getSimpleName(), stringifier.apply(src))
         );
@@ -67,11 +61,9 @@ public final class SpriteSourceManager
 
     public static <T extends SpriteSource> void registerSpecialSourceDescription(
             Class<T> sourceType, String description
-    )
-    {
+    ) {
         Preconditions.checkState(!locked, "Registration is locked");
-        if (SPECIAL_SOURCE_DESCRIPTIONS.put(sourceType, description) != null)
-        {
+        if (SPECIAL_SOURCE_DESCRIPTIONS.put(sourceType, description) != null) {
             throw new IllegalStateException("Source type '%s' had a previous mapping".formatted(sourceType));
         }
     }
@@ -79,52 +71,43 @@ public final class SpriteSourceManager
     @SuppressWarnings("unchecked")
     public static <T extends SpriteSource> void registerSourceTooltipAppender(
             Class<T> sourceType, SourceTooltipAppender<T> appender
-    )
-    {
+    ) {
         Preconditions.checkState(!locked, "Registration is locked");
-        if (SOURCE_TOOLTIP_APPENDERS.put(sourceType, (SourceTooltipAppender<SpriteSource>) appender) != null)
-        {
+        if (SOURCE_TOOLTIP_APPENDERS.put(sourceType, (SourceTooltipAppender<SpriteSource>) appender) != null) {
             throw new IllegalStateException("Source type '%s' had a previous mapping".formatted(sourceType));
         }
     }
 
-    public static void copySpriteSupplierMetaToSpriteContents(SpriteSource.Loader function, @Nullable SpriteContents contents)
-    {
+    public static void copySpriteSupplierMetaToSpriteContents(SpriteSource.Loader function, @Nullable SpriteContents contents) {
         // SpriteSource.SpriteSupplier#apply() may return null if the processing fails
-        if (contents == null) return;
+        if (contents == null) {
+            return;
+        }
 
-        if (!(function instanceof SpriteSource.DiscardableLoader supplier))
-        {
+        if (!(function instanceof SpriteSource.DiscardableLoader supplier)) {
             contents.atlasviewer$setSpriteSourceSourcePack(null, null, SourceAwareness.SPRITESUPPLIER_UNSUPPORTED, null, null);
             return;
         }
 
         SpriteSource.DiscardableLoader unwrappedSupplier = WrappedDiscardableLoader.resolve(supplier);
         Function<SpriteSource.DiscardableLoader, Resource> resourceGetter = PRIMARY_RESOURCE_GETTERS.get(unwrappedSupplier.getClass());
-        if (resourceGetter != null)
-        {
+        if (resourceGetter != null) {
             contents.atlasviewer$captureMetaFromSpriteSupplier(supplier, resourceGetter.apply(unwrappedSupplier));
-        }
-        else if (!(unwrappedSupplier instanceof ISpriteSourcePackAwareLoader))
-        {
+        } else if (!(unwrappedSupplier instanceof ISpriteSourcePackAwareLoader)) {
             contents.atlasviewer$setSpriteSourceSourcePack(null, null, SourceAwareness.SPRITESUPPLIER_UNSUPPORTED, null, null);
         }
     }
 
-    public static String stringifySpriteSource(SpriteSource source)
-    {
+    public static String stringifySpriteSource(SpriteSource source) {
         source = WrappedSpriteSource.resolve(source);
         return SOURCE_STRINGIFIERS.getOrDefault(source.getClass(), SpriteSource::toString).apply(source);
     }
 
-    @Nullable
-    public static String getSpecialDescription(Class<?> sourceType)
-    {
+    public static @Nullable String getSpecialDescription(Class<?> sourceType) {
         return SPECIAL_SOURCE_DESCRIPTIONS.get(sourceType);
     }
 
-    public static List<Tuple<Component, Component>> buildSourceTooltip(SpriteSource source, String typeName)
-    {
+    public static List<Tuple<Component, Component>> buildSourceTooltip(SpriteSource source, String typeName) {
         List<Tuple<Component, Component>> lines = new ArrayList<>();
         source = WrappedSpriteSource.resolve(source);
 
@@ -133,8 +116,7 @@ public final class SpriteSourceManager
         lines.add(new Tuple<>(LABEL_REG_NAME, regName));
 
         SourceTooltipAppender<SpriteSource> appender = SOURCE_TOOLTIP_APPENDERS.get(source.getClass());
-        if (appender != null)
-        {
+        if (appender != null) {
             appender.accept(source, (title, content) -> lines.add(new Tuple<>(title, content)));
         }
 
@@ -143,8 +125,7 @@ public final class SpriteSourceManager
         return lines;
     }
 
-    public static void registerDetails()
-    {
+    public static void registerDetails() {
         locked = false;
         AVClient.registerBuiltInSpriteSourceDetails();
         Services.PLATFORM.registerPlatformSpecificBuiltInSpriteSourceDetails();

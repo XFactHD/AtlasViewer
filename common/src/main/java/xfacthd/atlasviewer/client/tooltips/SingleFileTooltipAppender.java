@@ -5,8 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import xfacthd.atlasviewer.client.api.SourceTooltipAppender;
 
-public final class SingleFileTooltipAppender implements SourceTooltipAppender<SingleFile>
-{
+public final class SingleFileTooltipAppender implements SourceTooltipAppender<SingleFile> {
     private static final Component LABEL_RESOURCE_ID = Component.translatable(
             "label.atlasviewer.source_tooltip.single_file.resource"
     );
@@ -15,8 +14,7 @@ public final class SingleFileTooltipAppender implements SourceTooltipAppender<Si
     );
 
     @Override
-    public void accept(SingleFile source, LineConsumer lineConsumer)
-    {
+    public void accept(SingleFile source, LineConsumer lineConsumer) {
         Identifier resourceId = source.resourceId();
         Identifier spriteId = source.spriteId().orElse(resourceId);
 

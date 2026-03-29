@@ -16,9 +16,10 @@ import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 
 @Mixin(Minecraft.class)
 @SuppressWarnings({ "MethodMayBeStatic", "DataFlowIssue" })
-public final class MinecraftMixin
-{
-    @Shadow @Final private Window window;
+public final class MinecraftMixin {
+    @Shadow
+    @Final
+    private Window window;
 
     @Inject(
             method = "resizeGui",
@@ -28,8 +29,7 @@ public final class MinecraftMixin
                     shift = At.Shift.AFTER
             )
     )
-    private void atlasviewer$onScreenResized(CallbackInfo ci)
-    {
+    private void atlasviewer$onScreenResized(CallbackInfo ci) {
         ScreenStacker.onScreenResize(window.getGuiScaledWidth(), window.getGuiScaledHeight());
     }
 
@@ -43,17 +43,15 @@ public final class MinecraftMixin
                     ordinal = 0
             )
     )
-    private void atlasviewer$onSetScreen(Screen guiScreen, CallbackInfo ci)
-    {
-        ScreenStacker.clearScreenStack((Minecraft)(Object) this);
+    private void atlasviewer$onSetScreen(Screen guiScreen, CallbackInfo ci) {
+        ScreenStacker.clearScreenStack((Minecraft) (Object) this);
     }
 
     @Inject(
             method = "<init>",
             at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateVsync(Z)V")
     )
-    private void atlasviewer$handlePreResourceLoadInit(GameConfig gameConfig, CallbackInfo ci)
-    {
+    private void atlasviewer$handlePreResourceLoadInit(GameConfig gameConfig, CallbackInfo ci) {
         SpriteSourceManager.registerDetails();
     }
 }

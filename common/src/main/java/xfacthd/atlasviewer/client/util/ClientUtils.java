@@ -31,60 +31,49 @@ import java.nio.ByteBuffer;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-public final class ClientUtils
-{
+public final class ClientUtils {
     public static final int MAX_MIP_LEVEL = 4;
 
     @Nullable
     private static Boolean arbClearTextureSupported = null;
 
-    public static boolean isArbClearTextureSupported()
-    {
-        if (arbClearTextureSupported == null)
-        {
+    public static boolean isArbClearTextureSupported() {
+        if (arbClearTextureSupported == null) {
             // Certain Intel iGPUs appear to have issues with GL_ARB_clear_texture
             String renderer = RenderSystem.getDevice().getRenderer().toLowerCase(Locale.ROOT);
-            if (!renderer.contains("intel"))
-            {
+            if (!renderer.contains("intel")) {
                 GLCapabilities capabilities = GL.getCapabilities();
                 arbClearTextureSupported = capabilities.GL_ARB_clear_texture;
-            }
-            else
-            {
+            } else {
                 arbClearTextureSupported = false;
             }
         }
         return arbClearTextureSupported;
     }
 
-    public static int getWrappedHeight(Font font, FormattedText text, int width)
-    {
+    public static int getWrappedHeight(Font font, FormattedText text, int width) {
         return font.split(text, width).size() * font.lineHeight;
     }
 
-    public static void drawColoredBox(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int color)
-    {
+    public static void drawColoredBox(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int color) {
         graphics.fill(RenderPipelines.GUI, x,         y,         x + 1, y + h, color);
         graphics.fill(RenderPipelines.GUI, x + w - 1, y,         x + w, y + h, color);
         graphics.fill(RenderPipelines.GUI, x,         y,         x + w, y + 1, color);
         graphics.fill(RenderPipelines.GUI, x,         y + h - 1, x + w, y + h, color);
     }
 
-    public static void drawColoredBox(GuiGraphicsExtractor graphics, float x, float y, float w, float h, int color)
-    {
+    public static void drawColoredBox(GuiGraphicsExtractor graphics, float x, float y, float w, float h, int color) {
         fill(graphics, RenderPipelines.GUI, x,          y,          x + 1F, y + h,  color);
         fill(graphics, RenderPipelines.GUI, x + w - 1F, y,          x + w,  y + h,  color);
         fill(graphics, RenderPipelines.GUI, x,          y,          x + w,  y + 1F, color);
         fill(graphics, RenderPipelines.GUI, x,          y + h - 1F, x + w,  y + h,  color);
     }
 
-    public static void fill(GuiGraphicsExtractor graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int color)
-    {
+    public static void fill(GuiGraphicsExtractor graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int color) {
         fill(graphics, pipeline, minX, minY, maxX, maxY, color, color);
     }
 
-    public static void fill(GuiGraphicsExtractor graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int colorOne, int colorTwo)
-    {
+    public static void fill(GuiGraphicsExtractor graphics, RenderPipeline pipeline, float minX, float minY, float maxX, float maxY, int colorOne, int colorTwo) {
         Matrix3x2f pose = new Matrix3x2f(graphics.pose());
         ScreenRectangle scissorRect = Services.PLATFORM.peekScissorState(graphics);
         ScreenRectangle bounds = getBounds(minX, minY, maxX, maxY, pose, scissorRect);
@@ -106,8 +95,7 @@ public final class ClientUtils
             float minV,
             float maxV,
             int color
-    )
-    {
+    ) {
         Matrix3x2f pose = new Matrix3x2f(graphics.pose());
         ScreenRectangle scissorRect = Services.PLATFORM.peekScissorState(graphics);
         ScreenRectangle bounds = getBounds(minX, minY, maxX, maxY, pose, scissorRect);
@@ -116,9 +104,7 @@ public final class ClientUtils
         ));
     }
 
-    @Nullable
-    public static ScreenRectangle getBounds(float x0, float y0, float x1, float y1, Matrix3x2f pose, @Nullable ScreenRectangle scissorRect)
-    {
+    public static @Nullable ScreenRectangle getBounds(float x0, float y0, float x1, float y1, Matrix3x2f pose, @Nullable ScreenRectangle scissorRect) {
         int x0i = Mth.floor(x0);
         int y0i = Mth.floor(y0);
         int x1i = Mth.ceil(x1);
@@ -127,8 +113,7 @@ public final class ClientUtils
         return scissorRect != null ? scissorRect.intersection(rect) : rect;
     }
 
-    public static void downloadTexture(GpuTexture srcTexture, int mipLevel, Consumer<NativeImage> imageConsumer)
-    {
+    public static void downloadTexture(GpuTexture srcTexture, int mipLevel, Consumer<NativeImage> imageConsumer) {
         GpuDevice device = RenderSystem.getDevice();
         CommandEncoder cmdEncoder = device.createCommandEncoder();
 
@@ -138,15 +123,11 @@ public final class ClientUtils
         int bufSize = width * height * pixSize;
         GpuBuffer buffer = device.createBuffer(() -> "Texture output buffer", GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_MAP_READ, bufSize);
         fixMipLevelTexParams(srcTexture);
-        cmdEncoder.copyTextureToBuffer(srcTexture, buffer, 0, () ->
-        {
-            try (GpuBuffer.MappedView bufView = cmdEncoder.mapBuffer(buffer, true, false); NativeImage destImage = new NativeImage(width, height, false))
-            {
+        cmdEncoder.copyTextureToBuffer(srcTexture, buffer, 0, () -> {
+            try (GpuBuffer.MappedView bufView = cmdEncoder.mapBuffer(buffer, true, false); NativeImage destImage = new NativeImage(width, height, false)) {
                 ByteBuffer data = bufView.data();
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
                         int pixel = data.getInt((x + y * width) * pixSize);
                         destImage.setPixelABGR(x, y, pixel);
                     }
@@ -157,13 +138,9 @@ public final class ClientUtils
         }, mipLevel);
     }
 
-    /**
-     * Resets the texture's mip level parameters to the default values to ensure texture dumping works properly
-     */
-    private static void fixMipLevelTexParams(GpuTexture srcTexture)
-    {
-        if (srcTexture instanceof GlTexture glTex)
-        {
+    /// Resets the texture's mip level parameters to the default values to ensure texture dumping works properly
+    private static void fixMipLevelTexParams(GpuTexture srcTexture) {
+        if (srcTexture instanceof GlTexture glTex) {
             GlStateManager._bindTexture(glTex.glId());
             GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_BASE_LEVEL, 0);
             GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, srcTexture.getMipLevels() - 1);
@@ -171,8 +148,7 @@ public final class ClientUtils
         }
     }
 
-    public static int getMaxMipLevel(SpriteContents contents)
-    {
+    public static int getMaxMipLevel(SpriteContents contents) {
         int lowestOneWidth = Integer.lowestOneBit(contents.width());
         int lowestOneHeight = Integer.lowestOneBit(contents.height());
         int lowestOne = Math.min(lowestOneWidth, lowestOneHeight);

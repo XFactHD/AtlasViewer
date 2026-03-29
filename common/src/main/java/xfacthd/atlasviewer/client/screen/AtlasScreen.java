@@ -55,8 +55,7 @@ import java.util.WeakHashMap;
 import java.util.function.Predicate;
 
 @SuppressWarnings("deprecation")
-public final class AtlasScreen extends AtlasViewerScreen implements SearchHandler
-{
+public final class AtlasScreen extends AtlasViewerScreen implements SearchHandler {
     public static final Identifier BACKGROUND_LOC = AtlasViewer.rl("background");
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final Component TITLE_HIGHLIGHT_ANIM = Component.translatable("btn.atlasviewer.highlight_animated");
@@ -132,14 +131,12 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     private int currentMipLevel = 0;
     private int focusedSearchResultIdx = -1;
 
-    public AtlasScreen()
-    {
+    public AtlasScreen() {
         super(TITLE);
     }
 
     @Override
-    protected void init()
-    {
+    protected void init() {
         atlasTop = (PADDING * 4) + SELECT_HEIGHT;
         atlasLeft = PADDING * 3;
         maxAtlasWidth = width - (PADDING * 6);
@@ -212,8 +209,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         atlases.clear();
         atlases.putAll(minecraft().getAtlasManager().atlasviewer$getAtlasesByTexture());
 
-        for (Identifier loc : atlases.keySet())
-        {
+        for (Identifier loc : atlases.keySet()) {
             atlasSelection.addEntry(new AtlasEntry(loc));
         }
 
@@ -228,18 +224,17 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
-    {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         extractBlurredBackground(graphics);
 
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_LOC, PADDING, PADDING, width - (PADDING * 2), height - (PADDING * 2));
 
         graphics.text(font, title, PADDING * 3, PADDING * 3, 0xFF404040, false);
 
-        float scale = (float)(atlasScale * scrollScale);
+        float scale = (float) (atlasScale * scrollScale);
 
-        int bgWidth = (int)Math.min(maxAtlasWidth, atlasSize.width * scale);
-        int bgHeight = (int)Math.min(maxAtlasHeight, atlasSize.height * scale);
+        int bgWidth = (int) Math.min(maxAtlasWidth, atlasSize.width * scale);
+        int bgHeight = (int) Math.min(maxAtlasHeight, atlasSize.height * scale);
         Identifier bgSprite = bgSwitchButton.getSelectedType().getSprite();
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, bgSprite, atlasLeft, atlasTop, bgWidth, bgHeight);
 
@@ -267,45 +262,35 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         boolean highlightBrokenMip = btnHighlightBrokenMip.isChecked();
         boolean hasSearchResults = !searchResultLocations.isEmpty();
 
-        if (highlightAnimated && !animatedLocations.isEmpty())
-        {
-            for (Rect2i rect : animatedLocations)
-            {
+        if (highlightAnimated && !animatedLocations.isEmpty()) {
+            for (Rect2i rect : animatedLocations) {
                 drawColoredBox(graphics, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0xFF00FF00);
             }
         }
 
-        if (highlightBrokenMip && !brokenMipLocations.isEmpty())
-        {
-            for (Rect2i rect : brokenMipLocations)
-            {
+        if (highlightBrokenMip && !brokenMipLocations.isEmpty()) {
+            for (Rect2i rect : brokenMipLocations) {
                 drawColoredBox(graphics, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0xFF57FFE1);
             }
         }
 
-        if (hasSearchResults)
-        {
-            for (Rect2i rect : searchResultLocations)
-            {
+        if (hasSearchResults) {
+            for (Rect2i rect : searchResultLocations) {
                 boolean focused = ((System.currentTimeMillis() / 200L) % 2L == 0L) && focusedSearchResultIdx == searchResultLocations.indexOf(rect);
                 drawColoredBox(graphics, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, focused ? 0xFFCC00FF : 0xFFFFBB00);
             }
         }
 
-        if (cursorOnAtlas)
-        {
-            int mx = (int)((mouseX - atlasLeft - offsetX) * (1F / atlasScale) / scrollScale);
-            int my = (int)((mouseY - atlasTop - offsetY) * (1F / atlasScale) / scrollScale);
+        if (cursorOnAtlas) {
+            int mx = (int) ((mouseX - atlasLeft - offsetX) * (1F / atlasScale) / scrollScale);
+            int my = (int) ((mouseY - atlasTop - offsetY) * (1F / atlasScale) / scrollScale);
             TextureAtlasSprite sprite = Objects.requireNonNull(spriteTree).find(mx, my);
             hoveredSprite = sprite;
-            if (sprite != null)
-            {
+            if (sprite != null) {
                 Rect2i rect = getSpriteSize(sprite);
                 drawColoredBox(graphics, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, true, 0xFFFF0000);
             }
-        }
-        else
-        {
+        } else {
             hoveredSprite = null;
         }
 
@@ -313,29 +298,26 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
         menu.render(graphics);
 
-        if (btnHighlightBrokenMip.active && btnHighlightBrokenMip.isHovered())
-        {
+        if (btnHighlightBrokenMip.active && btnHighlightBrokenMip.isHovered()) {
             setTooltipForNextFrame(graphics, MSG_HIGHLIGHT_BROKEN_MIP_DETAILS, mouseX, mouseY);
-        }
-        else if (btnExport.isHovered())
-        {
+        } else if (btnExport.isHovered()) {
             setTooltipForNextFrame(graphics, MSG_EXPORT_DETAILS, mouseX, mouseY);
-        }
-        else if (btnExportMipped.active && btnExportMipped.isHovered())
-        {
+        } else if (btnExportMipped.active && btnExportMipped.isHovered()) {
             setTooltipForNextFrame(graphics, Component.translatable(MSG_EXPORT_MIPPED_DETAILS, currentMipLevel), mouseX, mouseY);
         }
     }
 
-    private boolean isMouseOverAtlas(int mouseX, int mouseY)
-    {
-        if (mouseX < atlasLeft || mouseX > (atlasLeft + maxAtlasWidth)) return false;
-        if (mouseY < atlasTop || mouseY > (atlasTop + maxAtlasHeight)) return false;
+    private boolean isMouseOverAtlas(int mouseX, int mouseY) {
+        if (mouseX < atlasLeft || mouseX > (atlasLeft + maxAtlasWidth)) {
+            return false;
+        }
+        if (mouseY < atlasTop || mouseY > (atlasTop + maxAtlasHeight)) {
+            return false;
+        }
         return !menu.isOpen() || !menu.isMouseOver(mouseX, mouseY);
     }
 
-    private void drawColoredBox(GuiGraphicsExtractor graphics, int x, int y, int width, int height, float scale, boolean expand, int color)
-    {
+    private void drawColoredBox(GuiGraphicsExtractor graphics, int x, int y, int width, int height, float scale, boolean expand, int color) {
         float sx = x * scale + atlasLeft + offsetX;
         float sy = y * scale + atlasTop + offsetY;
         float sw = width * scale;
@@ -348,8 +330,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         sx = nsx;
         sy = nsy;
 
-        if (expand)
-        {
+        if (expand) {
             sx--;
             sy--;
 
@@ -361,26 +342,22 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public void tick()
-    {
+    public void tick() {
         searchBar.tick();
     }
 
     @Override
-    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY)
-    {
-        if (super.mouseDragged(event, dragX, dragY))
-        {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (super.mouseDragged(event, dragX, dragY)) {
             return true;
         }
 
-        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && event.x() >= atlasLeft && event.x() <= (atlasLeft + maxAtlasWidth) && event.y() >= atlasTop && event.y() <= (atlasTop + maxAtlasHeight))
-        {
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && event.x() >= atlasLeft && event.x() <= (atlasLeft + maxAtlasWidth) && event.y() >= atlasTop && event.y() <= (atlasTop + maxAtlasHeight)) {
             Window window = Minecraft.getInstance().getWindow();
-            float scaleX = window.getGuiScaledWidth() / (float)window.getScreenWidth();
-            float scaleY = window.getGuiScaledHeight() / (float)window.getScreenHeight();
-            clampOffsetX(offsetX + (float)(dragX * scaleX * window.getGuiScale()));
-            clampOffsetY(offsetY + (float)(dragY * scaleY * window.getGuiScale()));
+            float scaleX = window.getGuiScaledWidth() / (float) window.getScreenWidth();
+            float scaleY = window.getGuiScaledHeight() / (float) window.getScreenHeight();
+            clampOffsetX(offsetX + (float) (dragX * scaleX * window.getGuiScale()));
+            clampOffsetY(offsetY + (float) (dragY * scaleY * window.getGuiScale()));
             return true;
         }
 
@@ -388,17 +365,14 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY)
-    {
-        if (super.mouseScrolled(mouseX, mouseY, deltaX, deltaY))
-        {
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+        if (super.mouseScrolled(mouseX, mouseY, deltaX, deltaY)) {
             return true;
         }
 
-        if (mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight))
-        {
+        if (mouseX >= atlasLeft && mouseX <= (atlasLeft + maxAtlasWidth) && mouseY >= atlasTop && mouseY <= (atlasTop + maxAtlasHeight)) {
             double prevScale = scrollScale;
-            scrollScale = Math.max(scrollScale + (float)(deltaY * .1), 1F);
+            scrollScale = Math.max(scrollScale + (float) (deltaY * .1), 1F);
 
             double mOffX = mouseX - atlasLeft;
             double mOffY = mouseY - atlasTop;
@@ -415,18 +389,14 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
-    {
-        if (menu.isOpen() && !menu.isMouseOver(event.x(), event.y()))
-        {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (menu.isOpen() && !menu.isMouseOver(event.x(), event.y())) {
             menu.setOpen(false);
         }
-        if (atlasSelection.isExtended() && !atlasSelection.isMouseOver(event.x(), event.y()))
-        {
+        if (atlasSelection.isExtended() && !atlasSelection.isMouseOver(event.x(), event.y())) {
             atlasSelection.setExtended(false);
         }
-        if (!super.mouseClicked(event, doubleClick))
-        {
+        if (!super.mouseClicked(event, doubleClick)) {
             setFocused(null);
             return false;
         }
@@ -434,15 +404,12 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public boolean mouseReleased(MouseButtonEvent event)
-    {
-        if (super.mouseReleased(event))
-        {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (super.mouseReleased(event)) {
             return true;
         }
 
-        if (hoveredSprite != null && event.button() == InputConstants.MOUSE_BUTTON_RIGHT && (!menu.isOpen() || !menu.isMouseOver(event.x(), event.y())))
-        {
+        if (hoveredSprite != null && event.button() == InputConstants.MOUSE_BUTTON_RIGHT && (!menu.isOpen() || !menu.isMouseOver(event.x(), event.y()))) {
             Services.PLATFORM.pushScreenLayer(new SpriteInfoScreen(Objects.requireNonNull(currentAtlas), hoveredSprite, currentMipLevel, bgSwitchButton.getSelectedType()));
             return true;
         }
@@ -450,14 +417,12 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         return false;
     }
 
-    private void selectAtlas(AtlasEntry entry)
-    {
+    private void selectAtlas(AtlasEntry entry) {
         currentAtlas = atlases.get(entry.atlas);
 
         atlasSize = ATLAS_SIZES.get(currentAtlas.atlas());
         atlasScale = (float) maxAtlasWidth / atlasSize.width;
-        if (atlasSize.height * atlasScale > maxAtlasHeight)
-        {
+        if (atlasSize.height * atlasScale > maxAtlasHeight) {
             atlasScale = (float) maxAtlasHeight / atlasSize.height;
         }
 
@@ -487,8 +452,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         mipLevelSlider.active = hasMip;
         btnExportMipped.active = false;
         btnHighlightBrokenMip.active = hasMip;
-        if (mipLevels == 0)
-        {
+        if (mipLevels == 0) {
             btnHighlightBrokenMip.setChecked(false);
         }
 
@@ -501,45 +465,36 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         cachedInfo = null;
 
         animatedLocations.clear();
-        if (btnHighlightAnim.isChecked())
-        {
+        if (btnHighlightAnim.isChecked()) {
             gatherAnimatedLocations();
         }
         brokenMipLocations.clear();
-        if (btnHighlightBrokenMip.isChecked())
-        {
+        if (btnHighlightBrokenMip.isChecked()) {
             gatherBrokenMipLocations();
         }
     }
 
-    private void highlightAnimated(Button btn)
-    {
-        if (btnHighlightAnim.isChecked())
-        {
+    private void highlightAnimated(Button btn) {
+        if (btnHighlightAnim.isChecked()) {
             gatherAnimatedLocations();
         }
     }
 
-    private void highlightBrokenMip(Button btn)
-    {
-        if (btnHighlightBrokenMip.isChecked())
-        {
+    private void highlightBrokenMip(Button btn) {
+        if (btnHighlightBrokenMip.isChecked()) {
             gatherBrokenMipLocations();
         }
     }
 
-    private void gatherAnimatedLocations()
-    {
+    private void gatherAnimatedLocations() {
         gatherFilteredLocations(animatedLocations, sprite -> sprite.contents().atlasviewer$getAnimatedTexture() != null);
     }
 
-    private void gatherBrokenMipLocations()
-    {
+    private void gatherBrokenMipLocations() {
         gatherFilteredLocations(brokenMipLocations, sprite -> ClientUtils.getMaxMipLevel(sprite.contents()) < ClientUtils.MAX_MIP_LEVEL);
     }
 
-    private void gatherFilteredLocations(List<Rect2i> locList, Predicate<TextureAtlasSprite> predicate)
-    {
+    private void gatherFilteredLocations(List<Rect2i> locList, Predicate<TextureAtlasSprite> predicate) {
         locList.clear();
         Objects.requireNonNull(sprites)
                 .stream()
@@ -547,31 +502,23 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
                 .forEach(sprite -> locList.add(getSpriteSize(sprite)));
     }
 
-    private void exportAtlas(Button btn)
-    {
+    private void exportAtlas(Button btn) {
         exportAtlas(0);
     }
 
-    private void exportAtlasMipped(Button btn)
-    {
+    private void exportAtlasMipped(Button btn) {
         exportAtlas(currentMipLevel);
     }
 
-    private void exportAtlas(int mipLevel)
-    {
-        ClientUtils.downloadTexture(Objects.requireNonNull(currentAtlas).atlas().getTexture(), mipLevel, image ->
-        {
-            try
-            {
+    private void exportAtlas(int mipLevel) {
+        ClientUtils.downloadTexture(Objects.requireNonNull(currentAtlas).atlas().getTexture(), mipLevel, image -> {
+            try {
                 Path imgPath = exportNativeImage(image, currentAtlas.config().textureId(), "atlas", mipLevel, true, MSG_EXPORT_SUCCESS);
-                if (mipLevel == 0)
-                {
+                if (mipLevel == 0) {
                     Map<Identifier, TextureAtlasSprite> sprites = currentAtlas.atlas().atlasviewer$getTexturesByName();
                     TextureAtlas.dumpSpriteNames(imgPath.getParent(), imgPath.getFileName().toString(), sprites);
                 }
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 AtlasViewer.LOGGER.error("Encountered an error while exporting selected texture atlas", e);
                 Services.PLATFORM.pushScreenLayer(MessageScreen.error(List.of(
                         MSG_EXPORT_ERROR,
@@ -581,26 +528,26 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         });
     }
 
-    private void clampOffsetX(float offsetX) { this.offsetX = clampOffset(atlasSize.width, maxAtlasWidth, offsetX); }
+    private void clampOffsetX(float offsetX) {
+        this.offsetX = clampOffset(atlasSize.width, maxAtlasWidth, offsetX);
+    }
 
-    private void clampOffsetY(float offsetY) { this.offsetY = clampOffset(atlasSize.height, maxAtlasHeight, offsetY); }
+    private void clampOffsetY(float offsetY) {
+        this.offsetY = clampOffset(atlasSize.height, maxAtlasHeight, offsetY);
+    }
 
-    private float clampOffset(float atlasDim, float viewDim, float offset)
-    {
-        float minOffset = (atlasDim * (float)(atlasScale * scrollScale)) - viewDim;
+    private float clampOffset(float atlasDim, float viewDim, float offset) {
+        float minOffset = (atlasDim * (float) (atlasScale * scrollScale)) - viewDim;
         minOffset = Math.max(minOffset, 0);
         return Mth.clamp(offset, -minOffset, 0);
     }
 
-    private void toggleMenu(Button btn)
-    {
+    private void toggleMenu(Button btn) {
         menu.toggleOpen();
     }
 
-    private void openAtlasDetails(Button btn)
-    {
-        if (cachedInfo == null)
-        {
+    private void openAtlasDetails(Button btn) {
+        if (cachedInfo == null) {
             Stopwatch stopwatch = Stopwatch.createStarted();
             cachedInfo = AtlasInfoScreen.computeInfo(Objects.requireNonNull(currentAtlas), Objects.requireNonNull(sprites));
             stopwatch.stop();
@@ -609,36 +556,30 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         Services.PLATFORM.pushScreenLayer(new AtlasInfoScreen(cachedInfo));
     }
 
-    private void selectMipLevel(int level)
-    {
+    private void selectMipLevel(int level) {
         currentMipLevel = level;
         btnExportMipped.active = level > 0;
     }
 
     @Override
-    public int getResultCount()
-    {
+    public int getResultCount() {
         return searchResultLocations.size();
     }
 
     @Override
-    public void updateSearch(String text)
-    {
+    public void updateSearch(String text) {
         searchResultLocations.clear();
         focusedSearchResultIdx = -1;
 
-        if (!text.isEmpty())
-        {
+        if (!text.isEmpty()) {
             gatherFilteredLocations(searchResultLocations, sprite -> sprite.contents().name().toString().contains(text));
             searchResultLocations.sort(Comparator.comparingInt(Rect2i::getY).thenComparing(Rect2i::getX));
         }
     }
 
     @Override
-    public void jumpToNextResult()
-    {
-        if (!searchResultLocations.isEmpty())
-        {
+    public void jumpToNextResult() {
+        if (!searchResultLocations.isEmpty()) {
             focusedSearchResultIdx = (focusedSearchResultIdx + 1) % searchResultLocations.size();
             Rect2i result = searchResultLocations.get(focusedSearchResultIdx);
             scrollScale = Math.max(1F / atlasScale, 1F);
@@ -652,44 +593,36 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     @Override
-    public int getFocusedResultIndex()
-    {
+    public int getFocusedResultIndex() {
         return focusedSearchResultIdx;
     }
 
-    private static Rect2i getSpriteSize(TextureAtlasSprite sprite)
-    {
+    private static Rect2i getSpriteSize(TextureAtlasSprite sprite) {
         SpriteContents contents = sprite.contents();
         int padding = sprite.atlasviewer$getPadding() * 2;
         return new Rect2i(sprite.getX(), sprite.getY(), contents.width() + padding, contents.height() + padding);
     }
 
-    public static void storeAtlasSize(TextureAtlas atlas, int width, int height)
-    {
+    public static void storeAtlasSize(TextureAtlas atlas, int width, int height) {
         ATLAS_SIZES.put(atlas, new Size(width, height));
     }
 
-    /**
-     * Exports a {@link NativeImage} to a file according to the given {@link Identifier}
-     * @param image The image to export
-     * @param name The original name of the resource to export
-     * @param prefix The type prefix of the image (i.e. "atlas" for a texture atlas or "sprite" for a single sprite)
-     * @param shortenPath If true, only the part of the name after the last slash will be used as part of the file name
-     * @return The file path of the exported atlas image
-     */
-    public static Path exportNativeImage(NativeImage image, Identifier name, String prefix, int mipLevel, boolean shortenPath, Component msgSuccess) throws IOException
-    {
+    /// Exports a [NativeImage] to a file according to the given [Identifier]
+    ///
+    /// @param image       The image to export
+    /// @param name        The original name of the resource to export
+    /// @param prefix      The type prefix of the image (i.e. "atlas" for a texture atlas or "sprite" for a single sprite)
+    /// @param shortenPath If true, only the part of the name after the last slash will be used as part of the file name
+    /// @return The file path of the exported atlas image
+    public static Path exportNativeImage(NativeImage image, Identifier name, String prefix, int mipLevel, boolean shortenPath, Component msgSuccess) throws IOException {
         Path folderPath = Services.PLATFORM.getGameDir().resolve("atlasviewer");
         Files.createDirectories(folderPath);
 
         String texPath = name.getPath();
-        if (shortenPath)
-        {
+        if (shortenPath) {
             int idx = texPath.lastIndexOf('/');
             texPath = texPath.substring(idx == -1 ? 0 : (idx + 1));
-        }
-        else
-        {
+        } else {
             texPath = texPath.replace('/', '-');
         }
         String fileName = prefix + "_" + name.getNamespace() + "_" + texPath;
@@ -697,15 +630,13 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         {
             fileName = fileName.substring(0, fileName.length() - 4);
         }
-        if (mipLevel > 0)
-        {
+        if (mipLevel > 0) {
             fileName += "_" + mipLevel;
         }
         fileName += ".png";
 
         Path filePath = folderPath.resolve(fileName);
-        if (Files.notExists(filePath, LinkOption.NOFOLLOW_LINKS))
-        {
+        if (Files.notExists(filePath, LinkOption.NOFOLLOW_LINKS)) {
             Files.createFile(filePath);
         }
         image.writeToFile(filePath);
@@ -718,8 +649,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         return filePath;
     }
 
-    private static Component buildPathComponent(Path path)
-    {
+    private static Component buildPathComponent(Path path) {
         path = path.getParent().toAbsolutePath().normalize();
         return Component.literal(path.toString())
                 .setStyle(Style.EMPTY
@@ -731,12 +661,10 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
     public record Size(int width, int height) { }
 
-    private static class AtlasEntry extends SelectionWidget.SelectionEntry<AtlasEntry>
-    {
+    private static class AtlasEntry extends SelectionWidget.SelectionEntry<AtlasEntry> {
         private final Identifier atlas;
 
-        public AtlasEntry(Identifier atlas)
-        {
+        public AtlasEntry(Identifier atlas) {
             super(Component.literal(atlas.toString()));
             this.atlas = atlas;
         }

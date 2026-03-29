@@ -4,8 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.textures.NamespacedDirectoryLister;
 import xfacthd.atlasviewer.client.api.SourceTooltipAppender;
 
-public final class NamespacedDirectoryListerTooltipAppender implements SourceTooltipAppender<NamespacedDirectoryLister>
-{
+public final class NamespacedDirectoryListerTooltipAppender implements SourceTooltipAppender<NamespacedDirectoryLister> {
     private static final Component LABEL_SOURCE_PATH = Component.translatable(
             "label.atlasviewer.source_tooltip.dir_lister.path"
     );
@@ -17,8 +16,7 @@ public final class NamespacedDirectoryListerTooltipAppender implements SourceToo
     );
 
     @Override
-    public void accept(NamespacedDirectoryLister source, LineConsumer lineConsumer)
-    {
+    public void accept(NamespacedDirectoryLister source, LineConsumer lineConsumer) {
         lineConsumer.accept(LABEL_SOURCE_PATH, Component.literal(source.sourcePath()));
         lineConsumer.accept(LABEL_ID_PREFIX, Component.literal(source.idPrefix()));
         lineConsumer.accept(LABEL_NAMESPACE, Component.literal(source.namespace()));

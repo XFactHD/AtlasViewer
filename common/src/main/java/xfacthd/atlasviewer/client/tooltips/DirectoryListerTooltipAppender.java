@@ -4,8 +4,7 @@ import net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister;
 import net.minecraft.network.chat.Component;
 import xfacthd.atlasviewer.client.api.SourceTooltipAppender;
 
-public final class DirectoryListerTooltipAppender implements SourceTooltipAppender<DirectoryLister>
-{
+public final class DirectoryListerTooltipAppender implements SourceTooltipAppender<DirectoryLister> {
     private static final Component LABEL_SOURCE_PATH = Component.translatable(
             "label.atlasviewer.source_tooltip.dir_lister.path"
     );
@@ -14,8 +13,7 @@ public final class DirectoryListerTooltipAppender implements SourceTooltipAppend
     );
 
     @Override
-    public void accept(DirectoryLister source, LineConsumer lineConsumer)
-    {
+    public void accept(DirectoryLister source, LineConsumer lineConsumer) {
         lineConsumer.accept(LABEL_SOURCE_PATH, Component.literal(source.sourcePath()));
         lineConsumer.accept(LABEL_ID_PREFIX, Component.literal(source.idPrefix()));
     }

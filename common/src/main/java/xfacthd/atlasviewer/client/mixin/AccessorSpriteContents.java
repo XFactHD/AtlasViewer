@@ -8,8 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(SpriteContents.class)
-public interface AccessorSpriteContents
-{
+public interface AccessorSpriteContents {
     @Invoker("getFrameCount")
     int atlasviewer$callGetFrameCount();
 

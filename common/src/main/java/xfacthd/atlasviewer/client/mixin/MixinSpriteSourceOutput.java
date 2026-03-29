@@ -11,8 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(SpriteSource.Output.class)
-public interface MixinSpriteSourceOutput
-{
+public interface MixinSpriteSourceOutput {
     @ModifyReturnValue(
             method = "*",
             at = @At(
@@ -20,11 +19,8 @@ public interface MixinSpriteSourceOutput
                     target = "Lnet/minecraft/client/renderer/texture/atlas/SpriteResourceLoader;loadSprite(Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/resources/Resource;)Lnet/minecraft/client/renderer/texture/SpriteContents;"
             )
     )
-    @Nullable
-    private static SpriteContents atlasviewer$handleAddResource(@Nullable SpriteContents contents, Identifier name, Resource resource, SpriteResourceLoader loader)
-    {
-        if (contents != null)
-        {
+    private static @Nullable SpriteContents atlasviewer$handleAddResource(@Nullable SpriteContents contents, Identifier name, Resource resource, SpriteResourceLoader loader) {
+        if (contents != null) {
             contents.atlasviewer$captureMetaFromResource(resource);
         }
         return contents;

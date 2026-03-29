@@ -8,30 +8,24 @@ import xfacthd.atlasviewer.platform.Services;
 
 import java.util.Objects;
 
-public abstract class AtlasViewerScreen extends Screen
-{
-    protected AtlasViewerScreen(Component title)
-    {
+public abstract class AtlasViewerScreen extends Screen {
+    protected AtlasViewerScreen(Component title) {
         super(title);
     }
 
     @Override
-    protected void extractBlurredBackground(GuiGraphicsExtractor graphics)
-    {
-        if (this == minecraft().screen)
-        {
+    protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
+        if (this == minecraft().screen) {
             // Only render blur for the top-most screen
             super.extractBlurredBackground(graphics);
         }
     }
 
-    protected void setTooltipForNextFrame(GuiGraphicsExtractor graphics, Component component, int mouseX, int mouseY)
-    {
+    protected void setTooltipForNextFrame(GuiGraphicsExtractor graphics, Component component, int mouseX, int mouseY) {
         Services.PLATFORM.setTooltip(font, graphics, component, mouseX, mouseY);
     }
 
-    protected final Minecraft minecraft()
-    {
+    protected final Minecraft minecraft() {
         return Objects.requireNonNull(minecraft);
     }
 }

@@ -10,26 +10,22 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.AtlasViewer;
 
-public final class IndicatorButton extends Button.Plain
-{
+public final class IndicatorButton extends Button.Plain {
     private static final Identifier INDICATOR_TEXTURE = AtlasViewer.rl("indicator");
     private static final Identifier INDICATOR_CHECKED_TEXTURE = AtlasViewer.rl("indicator_checked");
     private static final int INDICATOR_SIZE = 13;
 
     private boolean checked = false;
 
-    public IndicatorButton(int x, int y, int w, int h, Component text, @Nullable IndicatorButton prev, OnPress onPress)
-    {
+    public IndicatorButton(int x, int y, int w, int h, Component text, @Nullable IndicatorButton prev, OnPress onPress) {
         super(x, y, w, h, text, onPress, Button.DEFAULT_NARRATION);
-        if (prev != null)
-        {
+        if (prev != null) {
             this.checked = prev.checked;
         }
     }
 
     @Override
-    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
-    {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractContents(graphics, mouseX, mouseY, partialTick);
         int x = getX() + width - INDICATOR_SIZE - 3;
         int y = getY() + 3;
@@ -38,27 +34,23 @@ public final class IndicatorButton extends Button.Plain
     }
 
     @Override
-    protected void extractDefaultLabel(ActiveTextCollector textCollector)
-    {
+    protected void extractDefaultLabel(ActiveTextCollector textCollector) {
         int minX = getX() + 2;
         int maxX = getX() + getWidth() - INDICATOR_SIZE - 6;
         textCollector.acceptScrollingWithDefaultCenter(getMessage(), minX, maxX, getY(), getY() + getHeight());
     }
 
     @Override
-    public void onPress(InputWithModifiers input)
-    {
+    public void onPress(InputWithModifiers input) {
         checked = !checked;
         super.onPress(input);
     }
 
-    public boolean isChecked()
-    {
+    public boolean isChecked() {
         return checked;
     }
 
-    public void setChecked(boolean checked)
-    {
+    public void setChecked(boolean checked) {
         this.checked = checked;
     }
 }

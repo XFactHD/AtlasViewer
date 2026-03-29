@@ -1,7 +1,6 @@
 package xfacthd.atlasviewer.client.screen.widget.search;
 
-public interface SearchHandler
-{
+public interface SearchHandler {
     int getResultCount();
 
     void updateSearch(String text);

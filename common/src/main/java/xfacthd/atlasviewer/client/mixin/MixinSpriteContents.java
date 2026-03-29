@@ -11,8 +11,7 @@ import xfacthd.atlasviewer.client.api.*;
 import xfacthd.atlasviewer.client.util.WrappedSpriteSource;
 
 @Mixin(SpriteContents.class)
-public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
-{
+public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents {
     @Unique
     private boolean atlasviewer$metaReceived = false;
     @Unique
@@ -37,10 +36,11 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
             SourceAwareness awareness,
             @Nullable String texSrcPackId,
             @Nullable Identifier path
-    )
-    {
+    ) {
         // Prevent overwriting metadata already set for these contents
-        if (atlasviewer$metaReceived) return;
+        if (atlasviewer$metaReceived) {
+            return;
+        }
 
         atlasviewer$metaReceived = true;
         atlasviewer$spriteSourceSourcePack = packId;
@@ -51,8 +51,7 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     }
 
     @Override
-    public void atlasviewer$captureMetaFromResource(Resource resource)
-    {
+    public void atlasviewer$captureMetaFromResource(Resource resource) {
         atlasviewer$setSpriteSourceSourcePack(
                 resource.atlasviewer$getSpriteSourceSourcePack(),
                 resource.atlasviewer$getSpriteSource(),
@@ -63,8 +62,7 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     }
 
     @Override
-    public void atlasviewer$captureMetaFromSpriteSupplier(SpriteSource.DiscardableLoader supplier, Resource sourceImage)
-    {
+    public void atlasviewer$captureMetaFromSpriteSupplier(SpriteSource.DiscardableLoader supplier, Resource sourceImage) {
         SpriteSupplierMeta meta = ((ISpriteSourcePackAwareLoader) supplier).atlasviewer$getMeta();
         atlasviewer$setSpriteSourceSourcePack(
                 meta.getSpriteSourceSourcePack(),
@@ -76,36 +74,27 @@ public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents
     }
 
     @Override
-    @Nullable
-    public String atlasviewer$getSpriteSourceSourcePack()
-    {
+    public @Nullable String atlasviewer$getSpriteSourceSourcePack() {
         return atlasviewer$spriteSourceSourcePack;
     }
 
     @Override
-    @Nullable
-    public SpriteSource atlasviewer$getSpriteSource()
-    {
+    public @Nullable SpriteSource atlasviewer$getSpriteSource() {
         return atlasviewer$spriteSource;
     }
 
     @Override
-    public SourceAwareness atlasviewer$getSourceAwareness()
-    {
+    public SourceAwareness atlasviewer$getSourceAwareness() {
         return atlasviewer$sourceAwareness;
     }
 
     @Override
-    @Nullable
-    public String atlasviewer$getTextureSourcePack()
-    {
+    public @Nullable String atlasviewer$getTextureSourcePack() {
         return atlasviewer$textureSourcePack;
     }
 
     @Override
-    @Nullable
-    public Identifier atlasviewer$getOriginalPath()
-    {
+    public @Nullable Identifier atlasviewer$getOriginalPath() {
         return atlasviewer$originalPath;
     }
 }

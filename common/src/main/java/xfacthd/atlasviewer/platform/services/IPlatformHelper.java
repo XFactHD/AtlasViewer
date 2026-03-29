@@ -12,8 +12,7 @@ import xfacthd.atlasviewer.client.util.WrappedSpriteSource;
 
 import java.nio.file.Path;
 
-public interface IPlatformHelper
-{
+public interface IPlatformHelper {
     boolean isDevelopmentEnvironment();
 
     Path getGameDir();
@@ -24,15 +23,13 @@ public interface IPlatformHelper
 
     void popScreenLayer();
 
-    @Nullable
-    ScreenRectangle peekScissorState(GuiGraphicsExtractor graphics);
+    @Nullable ScreenRectangle peekScissorState(GuiGraphicsExtractor graphics);
 
     void submitCustomGuiRenderState(GuiGraphicsExtractor graphics, GuiElementRenderState renderState);
 
     void registerPlatformSpecificBuiltInSpriteSourceDetails();
 
-    default SpriteSource wrapSpriteSource(SpriteSource original)
-    {
+    default SpriteSource wrapSpriteSource(SpriteSource original) {
         return new WrappedSpriteSource(original);
     }
 

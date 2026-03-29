@@ -6,8 +6,10 @@ import xfacthd.atlasviewer.client.mixin.AccessorAtlasManager;
 
 import java.util.Map;
 
-public interface DefaultedAccessorAtlasManager extends AccessorAtlasManager
-{
+@SuppressWarnings("unused") // Referenced via interface injection
+public interface DefaultedAccessorAtlasManager extends AccessorAtlasManager {
     @Override
-    default Map<Identifier, AtlasManager.AtlasEntry> atlasviewer$getAtlasesByTexture() { throw new UnsupportedOperationException("Not injected"); }
+    default Map<Identifier, AtlasManager.AtlasEntry> atlasviewer$getAtlasesByTexture() {
+        throw new UnsupportedOperationException("Not injected");
+    }
 }

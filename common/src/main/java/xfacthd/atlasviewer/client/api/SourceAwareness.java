@@ -11,53 +11,34 @@ import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.util.Locale;
 
-/**
- * Indicates to which degree the different stages of texture loading are aware of the source pack where the
- * sprite source loading a given texture came from
- */
-public enum SourceAwareness
-{
-    /**
-     * The source is known to all stages of the relevant loading path
-     */
+/// Indicates to which degree the different stages of texture loading are aware of the source pack where the
+/// sprite source loading a given texture came from
+public enum SourceAwareness {
+    /// The source is known to all stages of the relevant loading path
     SOURCE_KNOWN,
-    /**
-     * The {@link SpriteContents} did not receive any data.
-     * This usually means that a custom {@link SpriteSource.DiscardableLoader} or {@link SpriteSource} which does
-     * not implement the necessary APIs created these {@link SpriteContents}
-     */
+    /// The [SpriteContents] did not receive any data.
+    /// This usually means that a custom [SpriteSource.DiscardableLoader] or [SpriteSource] which does
+    /// not implement the necessary APIs created these [SpriteContents]
     SPRITECONTENTS_UNAWARE,
-    /**
-     * The {@link SpriteSource.DiscardableLoader} did not receive any data.
-     * This usually means that a custom {@link SpriteSource} which does not implement the necessary
-     * APIs created this {@link SpriteSource.DiscardableLoader}
-     */
+    /// The [SpriteSource.DiscardableLoader] did not receive any data.
+    /// This usually means that a custom [SpriteSource] which does not implement the necessary
+    /// APIs created this [SpriteSource.DiscardableLoader]
     SPRITESUPPLIER_UNAWARE,
-    /**
-     * The {@link SpriteSource.DiscardableLoader} does not implement the necessary APIs and also does not provide a getter
-     * for the primary {@link Resource} it uses and therefore cannot keep track of its source pack
-     */
+    /// The [SpriteSource.DiscardableLoader] does not implement the necessary APIs and also does not provide a getter
+    /// for the primary [Resource] it uses and therefore cannot keep track of its source pack
     SPRITESUPPLIER_UNSUPPORTED,
-    /**
-     * The {@link Resource} did not receive any data.
-     * This usually means that a custom {@link SpriteSource.DiscardableLoader} which does not implement the
-     * necessary APIs touched this {@link Resource}
-     */
+    /// The [Resource] did not receive any data.
+    /// This usually means that a custom [SpriteSource.DiscardableLoader] which does not implement the
+    /// necessary APIs touched this [Resource]
     RESOURCE_UNAWARE,
-    /**
-     * The {@link SpriteSource} was forcefully inserted into the loading process (i.e. via mixin into
-     * {@link SpriteSourceList#load(ResourceManager, Identifier)}) and therefore does not have a source pack
-     */
+    /// The [SpriteSource] was forcefully inserted into the loading process (i.e. via mixin into
+    /// [SpriteSourceList#load(ResourceManager, Identifier)]) and therefore does not have a source pack
     SPRITESOURCE_FORCED,
-    /**
-     * The {@link SpriteSource} did not receive any data.
-     * This may indicate that the {@link SpriteSource} was forcefully injected into the loading process
-     * (i.e. via mixin into {@link SpriteSourceList#list(ResourceManager)} and therefore does not have a source pack
-     */
+    /// The [SpriteSource] did not receive any data.
+    /// This may indicate that the [SpriteSource] was forcefully injected into the loading process
+    /// (i.e. via mixin into [SpriteSourceList#list(ResourceManager)] and therefore does not have a source pack
     SPRITESOURCE_UNAWARE,
-    /**
-     * The {@link SpriteSource} does not implement the necessary APIs and therefore cannot keep track of its source pack
-     */
+    /// The [SpriteSource] does not implement the necessary APIs and therefore cannot keep track of its source pack
     SPRITESOURCE_UNSUPPORTED;
 
     private final Component description = Component.translatable(
@@ -68,13 +49,11 @@ public enum SourceAwareness
             "tooltip.atlasviewer.source_awareness." + toString().toLowerCase(Locale.ROOT)
     ).setStyle(ordinal() == 0 ? Style.EMPTY : Style.EMPTY.withColor(0xD00000));
 
-    public Component getDescription()
-    {
+    public Component getDescription() {
         return description;
     }
 
-    public Component getTooltip()
-    {
+    public Component getTooltip() {
         return tooltip;
     }
 }

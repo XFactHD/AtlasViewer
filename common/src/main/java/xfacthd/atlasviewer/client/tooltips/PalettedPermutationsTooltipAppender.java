@@ -5,8 +5,7 @@ import net.minecraft.client.renderer.texture.atlas.sources.PalettedPermutations;
 import net.minecraft.network.chat.Component;
 import xfacthd.atlasviewer.client.api.SourceTooltipAppender;
 
-public final class PalettedPermutationsTooltipAppender implements SourceTooltipAppender<PalettedPermutations>
-{
+public final class PalettedPermutationsTooltipAppender implements SourceTooltipAppender<PalettedPermutations> {
     private static final Component LABEL_TEXTURES = Component.translatable(
             "label.atlasviewer.source_tooltip.palette.textures"
     );
@@ -18,8 +17,7 @@ public final class PalettedPermutationsTooltipAppender implements SourceTooltipA
     );
 
     @Override
-    public void accept(PalettedPermutations source, LineConsumer lineConsumer)
-    {
+    public void accept(PalettedPermutations source, LineConsumer lineConsumer) {
         lineConsumer.accept(LABEL_TEXTURES, Component.empty());
         source.textures().forEach(tex -> lineConsumer.accept(
                 null, Component.literal("  - ").append(Component.literal(tex.toString()))

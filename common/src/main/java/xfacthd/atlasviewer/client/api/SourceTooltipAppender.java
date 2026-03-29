@@ -7,14 +7,12 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.BiConsumer;
 
 @FunctionalInterface
-public interface SourceTooltipAppender<T extends SpriteSource> extends BiConsumer<T, SourceTooltipAppender.LineConsumer>
-{
+public interface SourceTooltipAppender<T extends SpriteSource> extends BiConsumer<T, SourceTooltipAppender.LineConsumer> {
     @Override
     void accept(T source, LineConsumer lineConsumer);
 
     @FunctionalInterface
-    interface LineConsumer extends BiConsumer<Component, Component>
-    {
+    interface LineConsumer extends BiConsumer<Component, Component> {
         @Override
         void accept(@Nullable Component title, Component content);
     }

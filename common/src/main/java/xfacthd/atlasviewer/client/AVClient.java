@@ -20,21 +20,18 @@ import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public final class AVClient
-{
+public final class AVClient {
     private static final KeyMapping.Category CATEGORY = new KeyMapping.Category(AtlasViewer.rl("main"));
     private static final Supplier<KeyMapping> KEY_MAPPING_OPEN_VIEWER = Suppliers.memoize(() ->
             new KeyMapping("key.atlasviewer.open_viewer", GLFW.GLFW_KEY_V, CATEGORY)
     );
 
-    public static void onRegisterKeyMappings(Consumer<KeyMapping.Category> categoryRegistrar, Consumer<KeyMapping> registrar)
-    {
+    public static void onRegisterKeyMappings(Consumer<KeyMapping.Category> categoryRegistrar, Consumer<KeyMapping> registrar) {
         categoryRegistrar.accept(CATEGORY);
         registrar.accept(KEY_MAPPING_OPEN_VIEWER.get());
     }
 
-    public static void registerBuiltInSpriteSourceDetails()
-    {
+    public static void registerBuiltInSpriteSourceDetails() {
         SpriteSourceManager.registerPrimaryResourceGetter(
                 Unstitcher.RegionInstance.class,
                 region -> region.atlasviewer$getImage().atlasviewer$getResource()
@@ -84,15 +81,12 @@ public final class AVClient
         );
     }
 
-    public static void onClientTickStart(Minecraft mc)
-    {
-        if (mc.level == null || mc.player == null || mc.screen != null)
-        {
+    public static void onClientTickStart(Minecraft mc) {
+        if (mc.level == null || mc.player == null || mc.screen != null) {
             return;
         }
 
-        if (KEY_MAPPING_OPEN_VIEWER.get().consumeClick())
-        {
+        if (KEY_MAPPING_OPEN_VIEWER.get().consumeClick()) {
             Minecraft.getInstance().setScreen(new AtlasScreen());
         }
     }

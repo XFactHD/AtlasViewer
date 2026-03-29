@@ -36,8 +36,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class AtlasInfoScreen extends AtlasViewerScreen implements IStackedScreen
-{
+public final class AtlasInfoScreen extends AtlasViewerScreen implements IStackedScreen {
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasinfo");
     private static final Component MSG_HW_DEPEND = Component.translatable("msg.atlasviewer.atlas_hw_dependent");
     private static final Component MSG_SPRITES_BY_MAX_MIP = Component.translatable("msg.atlasviewer.atlas_sprites_by_max_mip");
@@ -100,8 +99,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     private int valueX;
     private int tableTitleY;
 
-    public AtlasInfoScreen(AtlasInfo atlasInfo)
-    {
+    public AtlasInfoScreen(AtlasInfo atlasInfo) {
         super(TITLE);
         this.atlasInfo = atlasInfo;
         this.atlasSizeText = Component.translatable("value.atlasviewer.size", atlasInfo.width, atlasInfo.height);
@@ -119,26 +117,23 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         ) : null;
         this.percentFilledText = Component.literal("%.1f %%".formatted(atlasInfo.percentFilled * 100F));
         int nsCount = atlasInfo.fillStats.size();
-        if (nsCount == 1)
-        {
+        if (nsCount == 1) {
             this.tableHeader = Component.translatable("label.atlasviewer.atlas_percent_filled_by_ns_single", CHAR_ARROW);
-        }
-        else
-        {
+        } else {
             this.tableHeader = Component.translatable("label.atlasviewer.atlas_percent_filled_by_ns", CHAR_ARROW, nsCount);
         }
     }
 
     @Override
-    protected void init()
-    {
+    protected void init() {
         int labelLen = 0;
         int labelHeight = 0;
         //noinspection ForLoopReplaceableByForEach Using for-each breaks IDEA's static analysis
-        for (int i = 0; i < LABELS.length; i++)
-        {
+        for (int i = 0; i < LABELS.length; i++) {
             Label label = LABELS[i];
-            if (!label.active.test(this)) continue;
+            if (!label.active.test(this)) {
+                continue;
+            }
             labelLen = Math.max(labelLen, font.width(label.text));
             labelHeight += LINE_HEIGHT;
         }
@@ -155,8 +150,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
-    {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         extractBlurredBackground(graphics);
 
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
@@ -168,19 +162,16 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         y = drawLine(graphics, LABEL_SIZE, atlasSizeText, y);
         int maxSizeY = y;
         y = drawLine(graphics, LABEL_MAX_SIZE, atlasMaxSizeText, y);
-        if (atlasInfo.mipped)
-        {
+        if (atlasInfo.mipped) {
             y = drawLine(graphics, LABEL_MIP_LEVELS, atlasMipLevelText, y);
             y = drawLine(graphics, LABEL_FILTER_MODE, filterModeText, y);
-            if (atlasInfo.isUsingAF())
-            {
+            if (atlasInfo.isUsingAF()) {
                 y = drawLine(graphics, LABEL_ANISO_LEVELS, Objects.requireNonNull(anisoLevelsText), y);
             }
         }
         y = drawLine(graphics, LABEL_SPRITES, spriteCountText, y);
         int countByMipY = 0;
-        if (atlasInfo.mipped)
-        {
+        if (atlasInfo.mipped) {
             countByMipY = y;
             y = drawLine(graphics, LABEL_SPRITES_BY_MAX_MIP, Objects.requireNonNull(countsByMip), y);
         }
@@ -189,32 +180,26 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         graphics.text(font, tableHeader, xLeft + TEXT_X, tableTitleY, 0xFF404040, false);
 
         int len = font.width(LABEL_MAX_SIZE);
-        if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= maxSizeY && mouseY <= maxSizeY + font.lineHeight)
-        {
+        if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= maxSizeY && mouseY <= maxSizeY + font.lineHeight) {
             setTooltipForNextFrame(graphics, MSG_HW_DEPEND, mouseX, mouseY);
         }
-        if (atlasInfo.mipped)
-        {
+        if (atlasInfo.mipped) {
             len = font.width(LABEL_SPRITES_BY_MAX_MIP);
-            if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= countByMipY && mouseY <= countByMipY + font.lineHeight)
-            {
+            if (mouseX >= xLeft + TEXT_X && mouseX < xLeft + TEXT_X + len && mouseY >= countByMipY && mouseY <= countByMipY + font.lineHeight) {
                 setTooltipForNextFrame(graphics, MSG_SPRITES_BY_MAX_MIP, mouseX, mouseY);
             }
         }
     }
 
-    private int drawLine(GuiGraphicsExtractor graphics, Component label, Component value, int y)
-    {
+    private int drawLine(GuiGraphicsExtractor graphics, Component label, Component value, int y) {
         graphics.text(font, label, xLeft + TEXT_X, y, 0xFF404040, false);
         graphics.text(font, value, xLeft + valueX, y, 0xFF404040, false);
         return y + LINE_HEIGHT;
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
-    {
-        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && (event.x() < xLeft || event.y() < yTop || event.x() > (xLeft + WIDTH) || event.y() > (yTop + imageHeight)))
-        {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && (event.x() < xLeft || event.y() < yTop || event.x() > (xLeft + WIDTH) || event.y() > (yTop + imageHeight))) {
             onClose();
             return true;
         }
@@ -222,13 +207,11 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
     }
 
     @Override
-    public void onClose()
-    {
+    public void onClose() {
         Services.PLATFORM.popScreenLayer();
     }
 
-    public static AtlasInfo computeInfo(AtlasManager.AtlasEntry atlasEntry, Collection<TextureAtlasSprite> sprites)
-    {
+    public static AtlasInfo computeInfo(AtlasManager.AtlasEntry atlasEntry, Collection<TextureAtlasSprite> sprites) {
         Map<String, Integer> areaByNamespace = sprites.stream()
                 .map(TextureAtlasSprite::contents)
                 .map(c -> ObjectIntPair.of(c.name().getNamespace(), c.width() * c.height()))
@@ -242,8 +225,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
                 .forEach(s -> countByNamespace.computeInt(s, (_, count) -> (count != null ? count : 0) + 1));
 
         int[] spritesByMaxMip = new int[5];
-        sprites.forEach(sprite ->
-        {
+        sprites.forEach(sprite -> {
             SpriteContents contents = sprite.contents();
             int lowestOne = Math.min(Integer.lowestOneBit(contents.width()), Integer.lowestOneBit(contents.height()));
             int maxLevel = Math.min(Mth.log2(lowestOne), 4);
@@ -258,8 +240,7 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
         float filled = (float) areaFilled / (float) area;
 
         List<FillStat> fillStats = new ArrayList<>();
-        areaByNamespace.forEach((namespace, value) ->
-        {
+        areaByNamespace.forEach((namespace, value) -> {
             float namespaceArea = value;
             float percentOfTotal = namespaceArea / (float) area;
             float percentOfFilled = namespaceArea / (float) areaFilled;
@@ -302,20 +283,16 @@ public final class AtlasInfoScreen extends AtlasViewerScreen implements IStacked
             int[] spriteCountByMaxMipLevel,
             float percentFilled,
             List<FillStat> fillStats
-    )
-    {
-        public boolean isUsingAF()
-        {
+    ) {
+        public boolean isUsingAF() {
             return filterMode == TextureFilteringMethod.ANISOTROPIC;
         }
     }
 
     public record FillStat(String namespace, int count, float percentOfTotal, float percentOfFilled) { }
 
-    private record Label(Component text, Predicate<AtlasInfoScreen> active)
-    {
-        public Label(Component text)
-        {
+    private record Label(Component text, Predicate<AtlasInfoScreen> active) {
+        public Label(Component text) {
             this(text, _ -> true);
         }
     }

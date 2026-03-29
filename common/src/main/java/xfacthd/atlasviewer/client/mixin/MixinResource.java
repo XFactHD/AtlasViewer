@@ -9,8 +9,7 @@ import org.spongepowered.asm.mixin.Unique;
 import xfacthd.atlasviewer.client.api.*;
 
 @Mixin(Resource.class)
-public class MixinResource implements ISpriteSourcePackAwareResource
-{
+public class MixinResource implements ISpriteSourcePackAwareResource {
     @Unique
     @Nullable
     private String atlasviewer$spriteSourceSourcePack = null;
@@ -26,8 +25,7 @@ public class MixinResource implements ISpriteSourcePackAwareResource
     @Override
     public void atlasviewer$captureMetaFromSpriteSource(
             SpriteSourceMeta srcMeta, SpriteSource spriteSource, Identifier originalPath
-    )
-    {
+    ) {
         atlasviewer$spriteSourceSourcePack = srcMeta.getSourcePack();
         atlasviewer$spriteSource = spriteSource;
         atlasviewer$sourceAwarenes = srcMeta.getSourceAwareness();
@@ -35,29 +33,22 @@ public class MixinResource implements ISpriteSourcePackAwareResource
     }
 
     @Override
-    @Nullable
-    public String atlasviewer$getSpriteSourceSourcePack()
-    {
+    public @Nullable String atlasviewer$getSpriteSourceSourcePack() {
         return atlasviewer$spriteSourceSourcePack;
     }
 
     @Override
-    @Nullable
-    public SpriteSource atlasviewer$getSpriteSource()
-    {
+    public @Nullable SpriteSource atlasviewer$getSpriteSource() {
         return atlasviewer$spriteSource;
     }
 
     @Override
-    public SourceAwareness atlasviewer$getSourceAwareness()
-    {
+    public SourceAwareness atlasviewer$getSourceAwareness() {
         return atlasviewer$sourceAwarenes;
     }
 
     @Override
-    @Nullable
-    public Identifier atlasviewer$getOriginalPath()
-    {
+    public @Nullable Identifier atlasviewer$getOriginalPath() {
         return atlasviewer$originalPath;
     }
 }

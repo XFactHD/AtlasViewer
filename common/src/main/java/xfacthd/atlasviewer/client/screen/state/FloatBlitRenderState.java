@@ -23,11 +23,9 @@ public record FloatBlitRenderState(
         int color,
         @Nullable ScreenRectangle scissorArea,
         @Nullable ScreenRectangle bounds
-) implements GuiElementRenderState
-{
+) implements GuiElementRenderState {
     @Override
-    public void buildVertices(VertexConsumer consumer)
-    {
+    public void buildVertices(VertexConsumer consumer) {
         consumer.addVertexWith2DPose(pose(), x0(), y0()).setUv(u0(), v0()).setColor(color());
         consumer.addVertexWith2DPose(pose(), x0(), y1()).setUv(u0(), v1()).setColor(color());
         consumer.addVertexWith2DPose(pose(), x1(), y1()).setUv(u1(), v1()).setColor(color());

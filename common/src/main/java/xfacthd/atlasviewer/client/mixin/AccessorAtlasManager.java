@@ -8,8 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.Map;
 
 @Mixin(AtlasManager.class)
-public interface AccessorAtlasManager
-{
+public interface AccessorAtlasManager {
     @Accessor("atlasByTexture")
     Map<Identifier, AtlasManager.AtlasEntry> atlasviewer$getAtlasesByTexture();
 }

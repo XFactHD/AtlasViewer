@@ -22,23 +22,19 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-public final class NeoForgePlatformHelper implements IPlatformHelper
-{
+public final class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
-    public boolean isDevelopmentEnvironment()
-    {
+    public boolean isDevelopmentEnvironment() {
         return !FMLLoader.getCurrent().isProduction();
     }
 
     @Override
-    public Path getGameDir()
-    {
+    public Path getGameDir() {
         return FMLPaths.GAMEDIR.get();
     }
 
     @Override
-    public void fireSpriteSourceDetailsEvent()
-    {
+    public void fireSpriteSourceDetailsEvent() {
         ModLoader.postEvent(new RegisterSpriteSourceDetailsEvent(
                 SpriteSourceManager::registerPrimaryResourceGetter,
                 SpriteSourceManager::registerSourceStringifier,
@@ -49,45 +45,37 @@ public final class NeoForgePlatformHelper implements IPlatformHelper
     }
 
     @Override
-    public void pushScreenLayer(Screen screen)
-    {
+    public void pushScreenLayer(Screen screen) {
         Minecraft.getInstance().pushGuiLayer(screen);
     }
 
     @Override
-    public void popScreenLayer()
-    {
+    public void popScreenLayer() {
         Minecraft.getInstance().popGuiLayer();
     }
 
     @Override
-    @Nullable
-    public ScreenRectangle peekScissorState(GuiGraphicsExtractor graphics)
-    {
+    public @Nullable ScreenRectangle peekScissorState(GuiGraphicsExtractor graphics) {
         return graphics.peekScissorStack();
     }
 
     @Override
-    public void submitCustomGuiRenderState(GuiGraphicsExtractor graphics, GuiElementRenderState renderState)
-    {
+    public void submitCustomGuiRenderState(GuiGraphicsExtractor graphics, GuiElementRenderState renderState) {
         graphics.submitGuiElementRenderState(renderState);
     }
 
     @Override
-    public void registerPlatformSpecificBuiltInSpriteSourceDetails()
-    {
+    public void registerPlatformSpecificBuiltInSpriteSourceDetails() {
         AVClientNeoForge.registerBuiltInSpriteSourceDetails();
     }
 
     @Override
-    public SpriteSource wrapSpriteSource(SpriteSource original)
-    {
+    public SpriteSource wrapSpriteSource(SpriteSource original) {
         return new WrappedSpriteSourceNeoForge(original);
     }
 
     @Override
-    public void setTooltip(Font font, GuiGraphicsExtractor graphics, Component component, int mouseX, int mouseY)
-    {
+    public void setTooltip(Font font, GuiGraphicsExtractor graphics, Component component, int mouseX, int mouseY) {
         graphics.setTooltipForNextFrame(font, List.of(component), Optional.empty(), mouseX, mouseY);
     }
 }

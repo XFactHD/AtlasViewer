@@ -13,23 +13,24 @@ import xfacthd.atlasviewer.client.util.ClientUtils;
 import java.nio.ByteBuffer;
 
 @Mixin(targets = "com.mojang.blaze3d.opengl.GlDevice")
-public class MixinGlDevice
-{
+public class MixinGlDevice {
     @ModifyReturnValue(
             method = "createTexture(Ljava/lang/String;ILcom/mojang/blaze3d/textures/TextureFormat;IIII)Lcom/mojang/blaze3d/textures/GpuTexture;",
             at = @At("RETURN")
     )
-    private static GpuTexture atlasviewer$clearImage(GpuTexture texture)
-    {
+    private static GpuTexture atlasviewer$clearImage(GpuTexture texture) {
         TextureFormat format = texture.getFormat();
-        if (!ClientUtils.isArbClearTextureSupported() || !format.hasColorAspect()) return texture;
-        if ((texture.usage() & GpuTexture.USAGE_CUBEMAP_COMPATIBLE) != 0) return texture;
+        if (!ClientUtils.isArbClearTextureSupported() || !format.hasColorAspect()) {
+            return texture;
+        }
+        if ((texture.usage() & GpuTexture.USAGE_CUBEMAP_COMPATIBLE) != 0) {
+            return texture;
+        }
 
         int texId = ((GlTexture) texture).glId();
         int extFormat = GlConst.toGlExternalId(format);
         int type = GlConst.toGlType(format);
-        for (int level = 0; level < texture.getMipLevels(); level++)
-        {
+        for (int level = 0; level < texture.getMipLevels(); level++) {
             ARBClearTexture.glClearTexImage(texId, level, extFormat, type, (ByteBuffer) null);
         }
 

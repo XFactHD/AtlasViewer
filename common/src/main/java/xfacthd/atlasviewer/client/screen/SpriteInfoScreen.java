@@ -55,8 +55,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class SpriteInfoScreen extends AtlasViewerScreen implements IStackedScreen
-{
+public final class SpriteInfoScreen extends AtlasViewerScreen implements IStackedScreen {
     private static final Component TITLE = Component.translatable("title.atlasviewer.spriteinfo");
     private static final Component CHAR_INFO = Component.literal("i").withStyle(ChatFormatting.BLUE);
     private static final Component LABEL_NAME = Component.translatable("label.atlasviewer.spriteinfo.name");
@@ -199,8 +198,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     private int lyReaderType;
     private int lyMip;
 
-    public SpriteInfoScreen(AtlasManager.AtlasEntry atlas, TextureAtlasSprite sprite, int currentMipLevel, BackgroundSwitchButton.Type background)
-    {
+    public SpriteInfoScreen(AtlasManager.AtlasEntry atlas, TextureAtlasSprite sprite, int currentMipLevel, BackgroundSwitchButton.Type background) {
         super(TITLE);
         this.atlas = atlas;
         this.sprite = sprite;
@@ -219,13 +217,13 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     }
 
     @Override
-    protected void init()
-    {
+    protected void init() {
         int labelLen = 0;
         int labelHeight = 0;
-        for (Label label : LABELS)
-        {
-            if (!label.active.test(this)) continue;
+        for (Label label : LABELS) {
+            if (!label.active.test(this)) {
+                continue;
+            }
             labelLen = Math.max(labelLen, font.width(label.text));
             labelHeight += LINE_HEIGHT;
         }
@@ -263,54 +261,39 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
 
         spriteName = TextLine.of(contents.name().toString(), font, maxValueLen);
         spritePosText = Component.translatable("value.atlasviewer.position", sprite.getX(), sprite.getY());
-        if (padding > 0)
-        {
+        if (padding > 0) {
             spritePaddingText = Component.literal(Integer.toString(padding));
         }
         spriteSizeText = Component.translatable("value.atlasviewer.size", contents.width(), contents.height());
         primarySourceName = primarySource != null && !primarySource.isEmpty() ? TextLine.of(primarySource, font, maxValueLen) : new TextLine(VALUE_UNKNOWN_PACK);
         sourceNameTooltip = makeTooltipList();
         sourceInfo = makeSourceInfo();
-        if (mipped)
-        {
+        if (mipped) {
             maxMipLevel = calculateMaxMipLevel();
         }
-        if (animated)
-        {
+        if (animated) {
             animatedText = VALUE_TRUE;
             framesText = Component.literal(String.valueOf(contents.atlasviewer$callGetFrameCount()));
             boolean interp = Objects.requireNonNull(animation).atlasviewer$getInterpolateFrames();
             interpText = interp ? VALUE_TRUE : VALUE_FALSE;
-            if (animFrameTime == -1)
-            {
+            if (animFrameTime == -1) {
                 frameTimeText = VALUE_FRAMETIME_MIXED;
-            }
-            else
-            {
+            } else {
                 frameTimeText = Component.literal(animFrameTime + (animFrameTime == 1 ? " tick" : " ticks"));
             }
-        }
-        else
-        {
+        } else {
             animatedText = VALUE_FALSE;
         }
-        if (guiSprite)
-        {
+        if (guiSprite) {
             guiSpriteTypeText = Component.translatable("value.atlasviewer.spriteinfo.gui_sprite_type." + Objects.requireNonNull(guiScaling).type().getSerializedName());
-            switch (guiScaling)
-            {
-                case GuiSpriteScaling.Tile tile ->
-                        guiSpriteSizeText = Component.translatable("value.atlasviewer.size", tile.width(), tile.height());
-                case GuiSpriteScaling.NineSlice nineSlice ->
-                {
+            switch (guiScaling) {
+                case GuiSpriteScaling.Tile tile -> guiSpriteSizeText = Component.translatable("value.atlasviewer.size", tile.width(), tile.height());
+                case GuiSpriteScaling.NineSlice nineSlice -> {
                     guiSpriteSizeText = Component.translatable("value.atlasviewer.size", nineSlice.width(), nineSlice.height());
                     GuiSpriteScaling.NineSlice.Border border = nineSlice.border();
-                    if (border.top() == border.bottom() && border.top() == border.left() && border.top() == border.right())
-                    {
+                    if (border.top() == border.bottom() && border.top() == border.left() && border.top() == border.right()) {
                         guiSpriteNinesliceBorderText = Component.literal(border.top() + "px");
-                    }
-                    else
-                    {
+                    } else {
                         guiSpriteNinesliceBorderText = Component.translatable(
                                 "value.atlasviewer.spriteinfo.gui_nineslice_border",
                                 border.top(), border.bottom(), border.left(), border.right()
@@ -323,8 +306,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
-    {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         extractBlurredBackground(graphics);
 
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, AtlasScreen.BACKGROUND_LOC, xLeft, yTop, WIDTH, imageHeight);
@@ -336,8 +318,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         y = drawLine(graphics, LABEL_NAME, spriteName.text(), y);
         y = drawLine(graphics, LABEL_POSITION, spritePosText, y);
         y = drawLine(graphics, LABEL_SIZE, spriteSizeText, y);
-        if (padding > 0)
-        {
+        if (padding > 0) {
             lyPadding = y;
             y = drawLine(graphics, LABEL_PADDING, spritePaddingText, y);
         }
@@ -347,27 +328,22 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         y = drawLine(graphics, LABEL_READERPACK, sourceInfo.sourcePack, y);
         lyReaderType = y;
         y = drawLine(graphics, LABEL_READERTYPE, sourceInfo.sourceType, y);
-        if (mipped)
-        {
+        if (mipped) {
             lyMip = y;
             y = drawLine(graphics, LABEL_MAX_MIP_LEVEL, maxMipLevel, y);
         }
         y = drawLine(graphics, LABEL_ANIMATED, animatedText, y);
-        if (animated)
-        {
+        if (animated) {
             y = drawLine(graphics, LABEL_FRAMECOUNT, framesText, y);
             y = drawLine(graphics, LABEL_INTERPOLATED, interpText, y);
             y = drawLine(graphics, LABEL_FRAMETIME, frameTimeText, y);
         }
-        if (guiSprite)
-        {
+        if (guiSprite) {
             y = drawLine(graphics, LABEL_GUI_SPRITE_TYPE, guiSpriteTypeText, y);
-            if (guiSpriteSizeText != null)
-            {
+            if (guiSpriteSizeText != null) {
                 y = drawLine(graphics, LABEL_GUI_SPRITE_SIZE, guiSpriteSizeText, y);
             }
-            if (guiSpriteNinesliceBorderText != null)
-            {
+            if (guiSpriteNinesliceBorderText != null) {
                 y = drawLine(graphics, LABEL_GUI_SPRITE_NINESLICE_BORDER, guiSpriteNinesliceBorderText, y);
             }
         }
@@ -379,8 +355,8 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 background.getSprite(),
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
-                (int)(contents.width() * scale),
-                (int)(contents.height() * scale)
+                (int) (contents.width() * scale),
+                (int) (contents.height() * scale)
         );
 
         GpuTextureView atlasTexView = atlas.atlas().atlasview$getMippedTextureView(currentMipLevel);
@@ -391,8 +367,8 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 TextureSetup.singleTexture(atlasTexView, sampler),
                 xLeft + (PADDING * 2),
                 yTop + SPRITE_Y,
-                xLeft + (PADDING * 2) + (int)(contents.width() * scale),
-                yTop + SPRITE_Y + (int)(contents.height() * scale),
+                xLeft + (PADDING * 2) + (int) (contents.width() * scale),
+                yTop + SPRITE_Y + (int) (contents.height() * scale),
                 sprite.getU0(),
                 sprite.getU1(),
                 sprite.getV0(),
@@ -400,96 +376,68 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 0xFFFFFFFF
         );
 
-        if (btnExport.isHovered())
-        {
+        if (btnExport.isHovered()) {
             setTooltipForNextFrame(graphics, MSG_EXPORT_DETAILS, mouseX, mouseY);
-        }
-        else if (btnExportMipped.active && btnExportMipped.isHovered())
-        {
+        } else if (btnExportMipped.active && btnExportMipped.isHovered()) {
             setTooltipForNextFrame(graphics, Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel), mouseX, mouseY);
         }
     }
 
-    private int drawLine(GuiGraphicsExtractor graphics, Component label, Component value, int y)
-    {
+    private int drawLine(GuiGraphicsExtractor graphics, Component label, Component value, int y) {
         graphics.text(font, label, xLeft + LABEL_X, y, 0xFF404040, false);
         graphics.text(font, value, xLeft + valueX, y, 0xFF404040, false);
         return y + LINE_HEIGHT;
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
-    {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
         int lx = xLeft + LABEL_X;
-        if (padding > 0 && mouseX >= lx && mouseX < lx + font.width(LABEL_PADDING) && mouseY >= lyPadding && mouseY < lyPadding + font.lineHeight)
-        {
+        if (padding > 0 && mouseX >= lx && mouseX < lx + font.width(LABEL_PADDING) && mouseY >= lyPadding && mouseY < lyPadding + font.lineHeight) {
             setTooltipForNextFrame(graphics, TOOLTIP_PADDING, mouseX, mouseY);
-        }
-        else if (mouseX >= lx && mouseX < lx + font.width(LABEL_READERPACK) && mouseY >= lyReaderPack && mouseY < lyReaderPack + font.lineHeight)
-        {
+        } else if (mouseX >= lx && mouseX < lx + font.width(LABEL_READERPACK) && mouseY >= lyReaderPack && mouseY < lyReaderPack + font.lineHeight) {
             setTooltipForNextFrame(graphics, TOOLTIP_READERPACK, mouseX, mouseY);
-        }
-        else if (mipped && mouseX >= lx && mouseX < lx + font.width(LABEL_MAX_MIP_LEVEL) && mouseY >= lyMip && mouseY < lyMip + font.lineHeight)
-        {
+        } else if (mipped && mouseX >= lx && mouseX < lx + font.width(LABEL_MAX_MIP_LEVEL) && mouseY >= lyMip && mouseY < lyMip + font.lineHeight) {
             setTooltipForNextFrame(graphics, TOOLTIP_MAX_MIP_LEVEL, mouseX, mouseY);
-        }
-        else if (spriteName.capped() && isHoveringLine(mouseX, mouseY, lyName, spriteName.text()))
-        {
+        } else if (spriteName.capped() && isHoveringLine(mouseX, mouseY, lyName, spriteName.text())) {
             setTooltipForNextFrame(graphics, spriteName.fullText(), mouseX, mouseY);
-        }
-        else if (sourceInfo.sourcePackTooltip != null && isHoveringLine(mouseX, mouseY, lyReaderPack, sourceInfo.sourcePack))
-        {
-            if (sourceInfo.hasSourcePack)
-            {
+        } else if (sourceInfo.sourcePackTooltip != null && isHoveringLine(mouseX, mouseY, lyReaderPack, sourceInfo.sourcePack)) {
+            if (sourceInfo.hasSourcePack) {
                 setFixedTooltipForNextFrame(graphics, lyReaderPack, sourceInfo.sourcePackTooltip);
-            }
-            else
-            {
+            } else {
                 setTooltipForNextFrame(graphics, sourceInfo.sourcePackTooltip, mouseX, mouseY);
             }
-        }
-        else if (sourceInfo.sourceTypeTooltip != null && isHoveringLine(mouseX, mouseY, lyReaderType, sourceInfo.sourceType))
-        {
+        } else if (sourceInfo.sourceTypeTooltip != null && isHoveringLine(mouseX, mouseY, lyReaderType, sourceInfo.sourceType)) {
             List<FormattedCharSequence> lines = sourceInfo.sourceTypeTooltip;
-            if (sourceInfo.hasConcreteSourceType && !minecraft().hasShiftDown())
-            {
+            if (sourceInfo.hasConcreteSourceType && !minecraft().hasShiftDown()) {
                 lines = Objects.requireNonNull(sourceInfo.sourceTypeTooltipNoFullType);
             }
             graphics.setTooltipForNextFrame(font, lines, mouseX, mouseY);
-        }
-        else if ((sourceNames.size() > 1 || primarySourceName.capped()) && isHoveringLine(mouseX, mouseY, lySourcePack, primarySourceName.text()))
-        {
+        } else if ((sourceNames.size() > 1 || primarySourceName.capped()) && isHoveringLine(mouseX, mouseY, lySourcePack, primarySourceName.text())) {
             setFixedTooltipForNextFrame(graphics, lySourcePack, sourceNameTooltip.entries, sourceNameTooltip.maxLen);
-        }
-        else if (mipped && isHoveringLine(mouseX, mouseY, lyMip, maxMipLevel))
-        {
+        } else if (mipped && isHoveringLine(mouseX, mouseY, lyMip, maxMipLevel)) {
             setTooltipForNextFrame(graphics, maxMipLevelTooltip, mouseX, mouseY);
         }
     }
 
-    private boolean isHoveringLine(int mouseX, int mouseY, int lineY, Component text)
-    {
+    private boolean isHoveringLine(int mouseX, int mouseY, int lineY, Component text) {
         int xTextRight = xLeft + valueX + font.width(text);
         return mouseX >= xLeft + valueX && mouseX <= xTextRight && mouseY >= lineY && mouseY <= lineY + font.lineHeight;
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void setFixedTooltipForNextFrame(GuiGraphicsExtractor graphics, int lineY, Component text)
-    {
+    private void setFixedTooltipForNextFrame(GuiGraphicsExtractor graphics, int lineY, Component text) {
         var tooltip = List.of(ClientTooltipComponent.create(text.getVisualOrderText()));
         setFixedTooltipForNextFrame(graphics, lineY, tooltip, font.width(text));
     }
 
-    private void setFixedTooltipForNextFrame(GuiGraphicsExtractor graphics, int lineY, List<ClientTooltipComponent> components, int maxLen)
-    {
+    private void setFixedTooltipForNextFrame(GuiGraphicsExtractor graphics, int lineY, List<ClientTooltipComponent> components, int maxLen) {
         int x = Math.min(xLeft + valueX, width - maxLen - PADDING);
         graphics.setTooltipForNextFrameInternal(font, components, x, lineY, PACK_LIST_POSITIONER, null, true);
     }
 
-    private List<String> collectSourcePackNames()
-    {
+    private List<String> collectSourcePackNames() {
         Identifier name = contents.name();
         Identifier loc = Objects.requireNonNullElseGet(
                 contents.atlasviewer$getOriginalPath(),
@@ -500,11 +448,9 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 .map(Resource::source)
                 .map(PackResources::packId)
                 .collect(Collectors.toCollection(ArrayList::new));
-        if (sources.isEmpty())
-        {
+        if (sources.isEmpty()) {
             String capturedPackId = contents.atlasviewer$getTextureSourcePack();
-            if (capturedPackId != null)
-            {
+            if (capturedPackId != null) {
                 sources.add(capturedPackId);
             }
         }
@@ -512,15 +458,12 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         return sources;
     }
 
-    private static GuiSpriteScaling getGuiScaling(TextureAtlasSprite sprite)
-    {
+    private static GuiSpriteScaling getGuiScaling(TextureAtlasSprite sprite) {
         return sprite.contents().getAdditionalMetadata(GuiMetadataSection.TYPE).orElse(GuiMetadataSection.DEFAULT).scaling();
     }
 
-    private SourcePackList makeTooltipList()
-    {
-        if (sourceNames.isEmpty())
-        {
+    private SourcePackList makeTooltipList() {
+        if (sourceNames.isEmpty()) {
             return new SourcePackList(List.of(), 0);
         }
 
@@ -534,19 +477,15 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
 
         MutableBoolean first = new MutableBoolean(true);
         List<ClientTooltipComponent> components = lines.stream()
-                .flatMap(line ->
-                {
+                .flatMap(line -> {
                     List<ClientTooltipComponent> lineComponents = font.split(line, maxWidth)
                             .stream()
                             .map(ClientTooltipComponent::create)
                             .collect(Collectors.toCollection(ArrayList::new));
 
-                    if (first.booleanValue() && lineComponents.size() == 1)
-                    {
+                    if (first.booleanValue() && lineComponents.size() == 1) {
                         lineComponents.add(new TooltipSeparator(maxWidth, 0xFFFFFFFF, true));
-                    }
-                    else
-                    {
+                    } else {
                         lineComponents.add(seperator);
                     }
                     first.setFalse();
@@ -557,32 +496,25 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         return new SourcePackList(components, maxWidth);
     }
 
-    private SpriteSourceInfo makeSourceInfo()
-    {
+    private SpriteSourceInfo makeSourceInfo() {
         int maxValueLen = WIDTH - (PADDING * 2) - valueX;
 
         Component sourcePack;
         Component sourcePackTooltip;
         boolean hasSourcePack = false;
         SourceAwareness awareness = contents.atlasviewer$getSourceAwareness();
-        if (awareness == SourceAwareness.SOURCE_KNOWN)
-        {
+        if (awareness == SourceAwareness.SOURCE_KNOWN) {
             String packId = contents.atlasviewer$getSpriteSourceSourcePack();
-            if (packId != null && !packId.isEmpty())
-            {
+            if (packId != null && !packId.isEmpty()) {
                 TextLine packIdPair = TextLine.of(packId, font, maxValueLen);
                 sourcePack = packIdPair.text();
                 sourcePackTooltip = !sourcePack.equals(packIdPair.fullText()) ? packIdPair.fullText() : null;
                 hasSourcePack = true;
-            }
-            else
-            {
+            } else {
                 sourcePack = VALUE_UNKNOWN_PACK;
                 sourcePackTooltip = null;
             }
-        }
-        else
-        {
+        } else {
             sourcePack = awareness.getDescription();
             sourcePackTooltip = awareness.getTooltip();
         }
@@ -592,25 +524,18 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         List<FormattedCharSequence> sourceTypeTooltipNoFullType = null;
         boolean hasConcreteSourceType = false;
         SpriteSource source = contents.atlasviewer$getSpriteSource();
-        if (source != null)
-        {
+        if (source != null) {
             Class<?> sourceTypeClazz = source.getClass();
             String typeDesc = SpriteSourceManager.getSpecialDescription(sourceTypeClazz);
-            if (typeDesc != null)
-            {
+            if (typeDesc != null) {
                 TextLine typeNamePair = TextLine.of(typeDesc, font, maxValueLen);
                 sourceType = typeNamePair.text();
-                if (!sourceType.equals(typeNamePair.fullText()))
-                {
+                if (!sourceType.equals(typeNamePair.fullText())) {
                     sourceTypeTooltip = List.of(typeNamePair.fullText().getVisualOrderText());
-                }
-                else
-                {
+                } else {
                     sourceTypeTooltip = null;
                 }
-            }
-            else
-            {
+            } else {
                 String typeName = source.getClass().getName();
                 String shortTypeName = typeName.substring(typeName.lastIndexOf('.') + 1);
                 sourceType = TextLine.of(shortTypeName, font, maxValueLen).text();
@@ -622,9 +547,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 tooltipLines.getLast().setB(FULL_TYPE_PLACEHOLDER);
                 sourceTypeTooltipNoFullType = formatTooltip(tooltipLines);
             }
-        }
-        else
-        {
+        } else {
             sourceType = awareness.getDescription();
             sourceTypeTooltip = List.of(awareness.getTooltip().getVisualOrderText());
         }
@@ -640,23 +563,18 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         );
     }
 
-    private static List<FormattedCharSequence> formatTooltip(List<Tuple<Component, Component>> tooltipLines)
-    {
+    private static List<FormattedCharSequence> formatTooltip(List<Tuple<Component, Component>> tooltipLines) {
         return tooltipLines.stream()
-                .peek(pair ->
-                {
+                .peek(pair -> {
                     //noinspection ConstantConditions
-                    if (pair.getA() != null)
-                    {
+                    if (pair.getA() != null) {
                         pair.setA(pair.getA().copy().withStyle(ChatFormatting.ITALIC));
                     }
                 })
-                .map(pair ->
-                {
+                .map(pair -> {
                     MutableComponent line = Component.empty();
                     //noinspection ConstantConditions
-                    if (pair.getA() != null)
-                    {
+                    if (pair.getA() != null) {
                         line = line.append(pair.getA()).append(": ");
                     }
                     return line.append(pair.getB());
@@ -665,43 +583,34 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 .toList();
     }
 
-    private Component calculateMaxMipLevel()
-    {
+    private Component calculateMaxMipLevel() {
         int maxLevel = ClientUtils.getMaxMipLevel(contents);
-        return switch (maxLevel)
-        {
-            case 0 ->
-            {
+        return switch (maxLevel) {
+            case 0 -> {
                 maxMipLevelTooltip = TOOLTIP_MIPMAP_DISABLED;
                 yield Component.literal("0").withStyle(s -> s.withColor(0xD00000));
             }
-            case 4 ->
-            {
+            case 4 -> {
                 maxMipLevelTooltip = TOOLTIP_MIPMAP_FULL;
                 yield Component.literal("4").withStyle(s -> s.withColor(0x00D000));
             }
-            default ->
-            {
+            default -> {
                 maxMipLevelTooltip = Component.translatable("tooltip.atlasviewer.sprite.mipmap_limited", maxLevel);
                 yield Component.literal(String.valueOf(maxLevel)).withStyle(s -> s.withColor(0xCC6600));
             }
         };
     }
 
-    private int getAnimationFrameTime()
-    {
-        if (animation == null)
-        {
+    private int getAnimationFrameTime() {
+        if (animation == null) {
             return 0;
         }
 
         List<SpriteContents.FrameInfo> frames = animation.atlasviewer$getFrames();
 
         int first = frames.getFirst().time();
-        for (SpriteContents.FrameInfo frame : frames)
-        {
-            if (frame.time() != first)
-            {
+        for (SpriteContents.FrameInfo frame : frames) {
+            if (frame.time() != first) {
                 // No point in displaying a frame time when it's different for some frames
                 return -1;
             }
@@ -710,31 +619,24 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         return first;
     }
 
-    private void selectMipLevel(int level)
-    {
+    private void selectMipLevel(int level) {
         currentMipLevel = level;
         btnExportMipped.active = level > 0;
     }
 
-    private void exportSprite(@SuppressWarnings("unused") Button btn)
-    {
+    private void exportSprite(@SuppressWarnings("unused") Button btn) {
         exportSprite(0);
     }
 
-    private void exportSpriteMipped(@SuppressWarnings("unused") Button btn)
-    {
+    private void exportSpriteMipped(@SuppressWarnings("unused") Button btn) {
         exportSprite(currentMipLevel);
     }
 
-    private void exportSprite(int mipLevel)
-    {
-        try
-        {
+    private void exportSprite(int mipLevel) {
+        try {
             NativeImage image = contents.atlasviewer$getByMipLevel()[mipLevel];
             AtlasScreen.exportNativeImage(image, contents.name(), "sprite", mipLevel, false, MSG_EXPORT_SUCCESS);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             AtlasViewer.LOGGER.error("Encountered an error while exporting sprite", e);
             Services.PLATFORM.pushScreenLayer(MessageScreen.error(List.of(
                     MSG_EXPORT_ERROR,
@@ -744,10 +646,8 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
-    {
-        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && (event.x() < xLeft || event.y() < yTop || event.x() > (xLeft + WIDTH) || event.y() > (yTop + imageHeight)))
-        {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && (event.x() < xLeft || event.y() < yTop || event.x() > (xLeft + WIDTH) || event.y() > (yTop + imageHeight))) {
             onClose();
             return true;
         }
@@ -755,15 +655,12 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
     }
 
     @Override
-    public void onClose()
-    {
+    public void onClose() {
         Services.PLATFORM.popScreenLayer();
     }
 
-    private record Label(Component text, Predicate<SpriteInfoScreen> active)
-    {
-        public Label(Component text)
-        {
+    private record Label(Component text, Predicate<SpriteInfoScreen> active) {
+        public Label(Component text) {
             this(text, _ -> true);
         }
     }

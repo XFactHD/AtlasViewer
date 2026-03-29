@@ -11,8 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 
 @Mixin(SpriteLoader.class)
-public class MixinSpriteLoader
-{
+public class MixinSpriteLoader {
     @WrapOperation(
             method = "*",
             at = @At(
@@ -22,8 +21,7 @@ public class MixinSpriteLoader
     )
     private static SpriteContents atlasviewer$wrapSpriteSupplierExecution(
             SpriteSource.Loader supplier, SpriteResourceLoader loader, Operation<SpriteContents> operation
-    )
-    {
+    ) {
         SpriteContents contents = operation.call(supplier, loader);
         SpriteSourceManager.copySpriteSupplierMetaToSpriteContents(supplier, contents);
         return contents;

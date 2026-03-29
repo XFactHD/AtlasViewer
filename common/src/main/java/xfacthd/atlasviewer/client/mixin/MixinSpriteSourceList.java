@@ -23,8 +23,7 @@ import java.util.Set;
 
 // Use higher priority to make reasonably sure that we are injected after weirdos who forcefully inject sprite sources
 @Mixin(value = SpriteSourceList.class, priority = 2000)
-public class MixinSpriteSourceList
-{
+public class MixinSpriteSourceList {
     @WrapOperation(
             method = "*",
             at = @At(
@@ -35,8 +34,7 @@ public class MixinSpriteSourceList
     @Group(name = "SpriteSourceList#list() - source execute lambda", min = 1, max = 1)
     private static void atlasviewer$makeOutputSourceAware(
             SpriteSource source, ResourceManager resMgr, SpriteSource.Output output, Operation<Void> operation
-    )
-    {
+    ) {
         operation.call(source, resMgr, new SpriteSourceAwareSpriteOutput(source, output));
     }
 
@@ -50,8 +48,7 @@ public class MixinSpriteSourceList
     @Group(name = "SpriteSourceList#list() - source execute lambda", min = 1, max = 1)
     private static void atlasviewer$makeOutputSourceAwareNeoForge(
             SpriteSource source, ResourceManager resMgr, SpriteSource.Output output, Set<MetadataSectionType<?>> additionalMetadata, Operation<Void> operation
-    )
-    {
+    ) {
         operation.call(source, resMgr, new SpriteSourceAwareSpriteOutput(source, output), additionalMetadata);
     }
 
@@ -64,12 +61,10 @@ public class MixinSpriteSourceList
     )
     private static boolean atlasviewer$spriteSourceAttachSourcePack(
             List<SpriteSource> sources, Collection<SpriteSource> sourcesToAdd, Operation<Boolean> operation, @Local Resource resource
-    )
-    {
+    ) {
         String packId = resource.sourcePackId();
         sourcesToAdd = sourcesToAdd.stream()
-                .map(src ->
-                {
+                .map(src -> {
                     src = WrappedSpriteSource.of(src);
                     src.atlasviewer$getMeta().setSourcePack(packId);
                     return src;
@@ -89,20 +84,17 @@ public class MixinSpriteSourceList
             CallbackInfoReturnable<SpriteResourceLoader> cir,
             Identifier path,
             List<SpriteSource> sources
-    )
-    {
+    ) {
         long count = sources.stream()
                 .filter(src -> src.atlasviewer$getMeta().isSourceUnaware())
-                .peek(src ->
-                {
+                .peek(src -> {
                     AtlasViewer.LOGGER.error(
                             "SpriteSource {} did not receive its source pack, the source is most likely injected through non-standard means",
                             SpriteSourceManager.stringifySpriteSource(src)
                     );
                     src.atlasviewer$getMeta().setForceInjected();
                 }).count();
-        if (count > 0L)
-        {
+        if (count > 0L) {
             AtlasViewer.LOGGER.error(
                     "=== {} SpriteSources for atlas '{}' did not receive their source packs ===",
                     count,

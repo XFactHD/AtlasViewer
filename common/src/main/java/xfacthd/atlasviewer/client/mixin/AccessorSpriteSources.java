@@ -9,11 +9,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(SpriteSources.class)
-public interface AccessorSpriteSources
-{
+public interface AccessorSpriteSources {
     @Accessor("ID_MAPPER")
-    static ExtraCodecs.LateBoundIdMapper<Identifier, MapCodec<? extends SpriteSource>> atlasviewer$getTypes()
-    {
+    static ExtraCodecs.LateBoundIdMapper<Identifier, MapCodec<? extends SpriteSource>> atlasviewer$getTypes() {
         throw new AssertionError();
     }
 }

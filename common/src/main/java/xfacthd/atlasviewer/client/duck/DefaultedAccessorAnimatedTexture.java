@@ -5,11 +5,15 @@ import xfacthd.atlasviewer.client.mixin.AccessorAnimatedTexture;
 
 import java.util.List;
 
-public interface DefaultedAccessorAnimatedTexture extends AccessorAnimatedTexture
-{
+@SuppressWarnings("unused") // Referenced via interface injection
+public interface DefaultedAccessorAnimatedTexture extends AccessorAnimatedTexture {
     @Override
-    default boolean atlasviewer$getInterpolateFrames() { throw new UnsupportedOperationException("Not injected"); }
+    default boolean atlasviewer$getInterpolateFrames() {
+        throw new UnsupportedOperationException("Not injected");
+    }
 
     @Override
-    default List<SpriteContents.FrameInfo> atlasviewer$getFrames() { throw new UnsupportedOperationException("Not injected"); }
+    default List<SpriteContents.FrameInfo> atlasviewer$getFrames() {
+        throw new UnsupportedOperationException("Not injected");
+    }
 }

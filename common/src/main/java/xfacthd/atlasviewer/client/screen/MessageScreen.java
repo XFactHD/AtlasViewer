@@ -16,8 +16,7 @@ import xfacthd.atlasviewer.platform.Services;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class MessageScreen extends AtlasViewerScreen implements IStackedScreen
-{
+public final class MessageScreen extends AtlasViewerScreen implements IStackedScreen {
     private static final Component INFO_TITLE = Component.translatable("atlasviewer.message.info.title");
     private static final Component ERROR_TITLE = Component.translatable("atlasviewer.message.error.title");
     private static final Component TITLE_BTN_OK = Component.translatable("atlasviewer.message.btn.ok");
@@ -33,24 +32,25 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
     private int topPos;
     private int imageHeight;
 
-    public static MessageScreen info(List<Component> message) { return new MessageScreen(INFO_TITLE, message); }
+    public static MessageScreen info(List<Component> message) {
+        return new MessageScreen(INFO_TITLE, message);
+    }
 
-    public static MessageScreen error(List<Component> message) { return new MessageScreen(ERROR_TITLE, message); }
+    public static MessageScreen error(List<Component> message) {
+        return new MessageScreen(ERROR_TITLE, message);
+    }
 
-    public MessageScreen(Component title, List<Component> messages)
-    {
+    public MessageScreen(Component title, List<Component> messages) {
         super(title);
         this.messages = messages;
     }
 
     @Override
-    protected void init()
-    {
+    protected void init() {
         textBlocks.clear();
 
         imageHeight = BASE_HEIGHT;
-        for (Component msg : messages)
-        {
+        for (Component msg : messages) {
             imageHeight += ClientUtils.getWrappedHeight(font, msg, TEXT_WIDTH);
             imageHeight += font.lineHeight;
 
@@ -69,8 +69,7 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
-    {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         extractBlurredBackground(graphics);
 
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, AtlasScreen.BACKGROUND_LOC, leftPos, topPos, WIDTH, imageHeight);
@@ -78,10 +77,8 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
         graphics.text(font, title, leftPos + TITLE_X, topPos + TITLE_Y, 0xFF404040, false);
 
         int y = topPos + TITLE_Y + font.lineHeight * 2;
-        for (List<FormattedCharSequence> block : textBlocks)
-        {
-            for (FormattedCharSequence line : block)
-            {
+        for (List<FormattedCharSequence> block : textBlocks) {
+            for (FormattedCharSequence line : block) {
                 graphics.text(font, line, leftPos + TITLE_X, y, 0xFF000000, false);
                 y += font.lineHeight;
             }
@@ -90,41 +87,35 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
-    {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
         Style style = findTextLine(mouseX, mouseY);
-        if (style != null)
-        {
+        if (style != null) {
             graphics.componentHoverEffect(font, style, mouseX, mouseY);
         }
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
-    {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         Style style = findTextLine((int) event.x(), (int) event.y());
-        if (style != null && style.getClickEvent() != null)
-        {
+        if (style != null && style.getClickEvent() != null) {
             defaultHandleClickEvent(style.getClickEvent(), minecraft, this);
             return true;
         }
         return super.mouseClicked(event, doubleClick);
     }
 
-    @Nullable
-    private Style findTextLine(int mouseX, int mouseY)
-    {
+    private @Nullable Style findTextLine(int mouseX, int mouseY) {
         int x = leftPos + TITLE_X;
-        if (mouseX < x) return null;
+        if (mouseX < x) {
+            return null;
+        }
 
         ActiveTextCollector.ClickableStyleFinder styleFinder = new ActiveTextCollector.ClickableStyleFinder(font, mouseX, mouseY);
         int y = topPos + TITLE_Y + font.lineHeight * 2;
-        for (List<FormattedCharSequence> block : textBlocks)
-        {
-            for (FormattedCharSequence line : block)
-            {
+        for (List<FormattedCharSequence> block : textBlocks) {
+            for (FormattedCharSequence line : block) {
                 styleFinder.accept(x, y, line);
                 y += font.lineHeight;
             }
@@ -134,14 +125,12 @@ public final class MessageScreen extends AtlasViewerScreen implements IStackedSc
     }
 
     @Override
-    public boolean isPauseScreen()
-    {
+    public boolean isPauseScreen() {
         return false;
     }
 
     @Override
-    public void onClose()
-    {
+    public void onClose() {
         Services.PLATFORM.popScreenLayer();
     }
 }

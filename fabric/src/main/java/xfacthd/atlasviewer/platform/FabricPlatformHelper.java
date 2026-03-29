@@ -19,23 +19,19 @@ import xfacthd.atlasviewer.platform.services.IPlatformHelper;
 import java.nio.file.Path;
 import java.util.List;
 
-public final class FabricPlatformHelper implements IPlatformHelper
-{
+public final class FabricPlatformHelper implements IPlatformHelper {
     @Override
-    public boolean isDevelopmentEnvironment()
-    {
+    public boolean isDevelopmentEnvironment() {
         return FabricLoader.getInstance().isDevelopmentEnvironment();
     }
 
     @Override
-    public Path getGameDir()
-    {
+    public Path getGameDir() {
         return FabricLoader.getInstance().getGameDir();
     }
 
     @Override
-    public void fireSpriteSourceDetailsEvent()
-    {
+    public void fireSpriteSourceDetailsEvent() {
         RegisterSpriteSourceDetailsEvent.EVENT.invoker().accept(
                 SpriteSourceManager::registerPrimaryResourceGetter,
                 SpriteSourceManager::registerSourceStringifier,
@@ -46,27 +42,22 @@ public final class FabricPlatformHelper implements IPlatformHelper
     }
 
     @Override
-    public void pushScreenLayer(Screen screen)
-    {
+    public void pushScreenLayer(Screen screen) {
         ScreenStacker.pushScreenLayer(screen);
     }
 
     @Override
-    public void popScreenLayer()
-    {
+    public void popScreenLayer() {
         ScreenStacker.popScreenLayer();
     }
 
     @Override
-    @Nullable
-    public ScreenRectangle peekScissorState(GuiGraphicsExtractor graphics)
-    {
+    public @Nullable ScreenRectangle peekScissorState(GuiGraphicsExtractor graphics) {
         return graphics.scissorStack.peek();
     }
 
     @Override
-    public void submitCustomGuiRenderState(GuiGraphicsExtractor graphics, GuiElementRenderState renderState)
-    {
+    public void submitCustomGuiRenderState(GuiGraphicsExtractor graphics, GuiElementRenderState renderState) {
         graphics.guiRenderState.addGuiElement(renderState);
     }
 
@@ -74,8 +65,7 @@ public final class FabricPlatformHelper implements IPlatformHelper
     public void registerPlatformSpecificBuiltInSpriteSourceDetails() { }
 
     @Override
-    public void setTooltip(Font font, GuiGraphicsExtractor graphics, Component component, int mouseX, int mouseY)
-    {
+    public void setTooltip(Font font, GuiGraphicsExtractor graphics, Component component, int mouseX, int mouseY) {
         Tooltip tooltip = Tooltip.create(component);
         List<FormattedCharSequence> lines = tooltip.toCharSequence(Minecraft.getInstance());
         graphics.setTooltipForNextFrame(lines, mouseX, mouseY);

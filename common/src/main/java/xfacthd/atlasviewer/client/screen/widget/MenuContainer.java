@@ -7,8 +7,7 @@ import net.minecraft.client.gui.layouts.Layout;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import xfacthd.atlasviewer.client.util.ClientUtils;
 
-public final class MenuContainer extends GridLayout
-{
+public final class MenuContainer extends GridLayout {
     private static final int PADDING = 2;
 
     private final int originX;
@@ -18,8 +17,7 @@ public final class MenuContainer extends GridLayout
     private int nextRow = 1;
     private boolean open = false;
 
-    public MenuContainer(Button menuButton, boolean rightAlign)
-    {
+    public MenuContainer(Button menuButton, boolean rightAlign) {
         super(menuButton.getX(), menuButton.getY() + Button.DEFAULT_HEIGHT);
         this.originX = menuButton.getX();
         this.originWidth = menuButton.getWidth();
@@ -29,73 +27,58 @@ public final class MenuContainer extends GridLayout
     }
 
     @Override
-    public void arrangeElements()
-    {
+    public void arrangeElements() {
         super.arrangeElements();
-        if (rightAlign)
-        {
+        if (rightAlign) {
             setX(originX + originWidth - getWidth());
         }
         visitWidgets(widget -> widget.setWidth(getWidth() - (PADDING * 2)));
         setOpen(this, false);
     }
 
-    public void addMenuEntry(LayoutElement element)
-    {
+    public void addMenuEntry(LayoutElement element) {
         addChild(element, nextRow, 0);
         // Remove top padding after first entry for uniform distance
         defaultCellSetting().paddingTop(0);
         nextRow++;
     }
 
-    public void render(GuiGraphicsExtractor graphics)
-    {
-        if (open)
-        {
+    public void render(GuiGraphicsExtractor graphics) {
+        if (open) {
             graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0xFF666666);
             ClientUtils.drawColoredBox(graphics, getX(), getY(), getWidth(), getHeight(), 0xFF333333);
         }
     }
 
-    public void toggleOpen()
-    {
+    public void toggleOpen() {
         setOpen(!open);
     }
 
-    public void setOpen(boolean open)
-    {
-        if (this.open != open)
-        {
+    public void setOpen(boolean open) {
+        if (this.open != open) {
             this.open = open;
             setOpen(this, open);
         }
     }
 
-    private void setOpen(LayoutElement element, boolean open)
-    {
-        element.visitWidgets(widget ->
-        {
-            if (widget != menuButton)
-            {
+    private void setOpen(LayoutElement element, boolean open) {
+        element.visitWidgets(widget -> {
+            if (widget != menuButton) {
                 widget.atlasviewer$setVisible(open);
             }
         });
-        if (element instanceof Layout layout)
-        {
+        if (element instanceof Layout layout) {
             layout.visitChildren(childElem -> setOpen(childElem, open));
         }
     }
 
-    public boolean isOpen()
-    {
+    public boolean isOpen() {
         return open;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isMouseOver(double mouseX, double mouseY)
-    {
-        if (mouseX >= getX() && mouseY >= getY() && mouseX <= getX() + getWidth() && mouseY <= getY() + getHeight())
-        {
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        if (mouseX >= getX() && mouseY >= getY() && mouseX <= getX() + getWidth() && mouseY <= getY() + getHeight()) {
             return true;
         }
         return menuButton.isMouseOver(mouseX, mouseY);

@@ -11,27 +11,23 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @Mixin(ExtraCodecs.LateBoundIdMapper.class)
-public class MixinLateBoundIdMapper<I, V> implements ReadableLateBoundIdMapper<I, V>
-{
+public class MixinLateBoundIdMapper<I, V> implements ReadableLateBoundIdMapper<I, V> {
     @Shadow
     @Final
     private BiMap<I, V> idToValue;
 
     @Override
-    public V atlasviewer$get(I key)
-    {
+    public V atlasviewer$get(I key) {
         return idToValue.get(key);
     }
 
     @Override
-    public I atlasviewer$getKey(V value)
-    {
+    public I atlasviewer$getKey(V value) {
         return idToValue.inverse().get(value);
     }
 
     @Override
-    public Stream<Map.Entry<I, V>> atlasviewer$stream()
-    {
+    public Stream<Map.Entry<I, V>> atlasviewer$stream() {
         return idToValue.entrySet().stream();
     }
 }

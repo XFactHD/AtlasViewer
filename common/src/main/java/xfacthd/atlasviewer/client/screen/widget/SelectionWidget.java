@@ -30,8 +30,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 //TODO: add drag scrolling
-public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extends AbstractButton
-{
+public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extends AbstractButton {
     private static final Identifier ARROW_UP = Identifier.withDefaultNamespace("transferable_list/move_up");
     private static final Identifier ARROW_DOWN = Identifier.withDefaultNamespace("transferable_list/move_down");
     // The arrow sprites have whitespace around the content, coordinates need to be offset accordingly
@@ -52,8 +51,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     private boolean extended = false;
     private int scrollOffset = 0;
 
-    public SelectionWidget(Screen owner, int x, int y, int width, Component title, @Nullable Consumer<T> selectCallback)
-    {
+    public SelectionWidget(Screen owner, int x, int y, int width, Component title, @Nullable Consumer<T> selectCallback) {
         super(x, y, width, ENTRY_HEIGHT, Component.empty());
         this.owner = owner;
         this.title = title;
@@ -61,27 +59,22 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     }
 
     @Override
-    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
-    {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         extractDefaultSprite(graphics);
 
         int fgColor = active ? 0xFFFFFF : 0xA0A0A0;
 
-        if (selected != null)
-        {
+        if (selected != null) {
             boolean entryFocused = selected.isFocused();
             selected.focused = false;
             selected.render(graphics, getX(), getY(), width, false, fgColor, alpha);
             selected.focused = entryFocused;
-        }
-        else
-        {
+        } else {
             Font font = Minecraft.getInstance().font;
             graphics.text(font, title, getX() + 6, getY() + (height - 8) / 2, fgColor | Mth.ceil(alpha * 255.0F) << 24);
         }
 
-        if (extended)
-        {
+        if (extended) {
             int boxHeight = Math.max(1, ENTRY_HEIGHT * Math.min(entries.size(), 4)) + 2;
 
             graphics.fill(getX(),     getY() + ENTRY_HEIGHT - 1, getX() + width,     getY() + ENTRY_HEIGHT + boxHeight - 1, 0xFFFFFFFF);
@@ -91,11 +84,9 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
 
             T hoverEntry = getEntryAtPosition(mouseX, mouseY);
 
-            for (int i = 0; i < 4; i++)
-            {
+            for (int i = 0; i < 4; i++) {
                 int idx = i + scrollOffset;
-                if (idx < entries.size())
-                {
+                if (idx < entries.size()) {
                     int entryY = getY() + ((i + 1) * ENTRY_HEIGHT);
 
                     T entry = entries.get(idx);
@@ -103,28 +94,23 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
                 }
             }
 
-            if (entries.size() > 4)
-            {
-                float scale = 4F / (float)entries.size();
-                int scrollY = getY() + (int)(ENTRY_HEIGHT * scrollOffset * scale) + ENTRY_HEIGHT;
-                int barHeight = (int)(ENTRY_HEIGHT * 4 * scale + 1);
+            if (entries.size() > 4) {
+                float scale = 4F / (float) entries.size();
+                int scrollY = getY() + (int) (ENTRY_HEIGHT * scrollOffset * scale) + ENTRY_HEIGHT;
+                int barHeight = (int) (ENTRY_HEIGHT * 4 * scale + 1);
                 int scrollBotY = Math.min(scrollY + barHeight, getY() + ENTRY_HEIGHT + boxHeight - 2);
 
                 graphics.fill(getX() + width - 5, scrollY,     getX() + width - 1, scrollBotY,     0xFF666666);
                 graphics.fill(getX() + width - 4, scrollY + 1, getX() + width - 2, scrollBotY - 1, 0xFFAAAAAA);
             }
-        }
-        else
-        {
+        } else {
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARROW_DOWN, getX() + width - 17 - ARROW_DOWN_OFF_X, getY() + 6 - ARROW_DOWN_OFF_Y, 32, 32);
         }
     }
 
     @Override
-    public int getHeight()
-    {
-        if (extended)
-        {
+    public int getHeight() {
+        if (extended) {
             return ENTRY_HEIGHT * (Math.min(entries.size(), 4) + 1) + 1;
         }
         return ENTRY_HEIGHT;
@@ -134,19 +120,15 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     public void onPress(InputWithModifiers input) { }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
-    {
-        if (active && event.x() >= getX() && event.x() <= getX() + width && event.y() >= getY() && event.y() <= getY() + getHeight())
-        {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (active && event.x() >= getX() && event.x() <= getX() + width && event.y() >= getY() && event.y() <= getY() + getHeight()) {
             int maxX = getX() + width - (entries.size() > 4 ? 5 : 0);
             int maxY = getY() + ENTRY_HEIGHT * Math.min(entries.size() + 1, 5);
-            if (extended && event.x() < maxX && event.y() > (getY() + ENTRY_HEIGHT) && event.y() < maxY)
-            {
+            if (extended && event.x() < maxX && event.y() > (getY() + ENTRY_HEIGHT) && event.y() < maxY) {
                 setSelected(getEntryAtPosition(event.x(), event.y()), true);
             }
 
-            if ((event.y() < getY() + ENTRY_HEIGHT && event.x() < getX() + width) || event.x() < maxX)
-            {
+            if ((event.y() < getY() + ENTRY_HEIGHT && event.x() < getX() + width) || event.x() < maxX) {
                 toggleExtended();
             }
 
@@ -162,19 +144,13 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     }
 
     @Override
-    public boolean keyPressed(KeyEvent event)
-    {
+    public boolean keyPressed(KeyEvent event) {
         boolean hasFocused = extended && focused != null;
-        if (active && visible && (isFocused() || hasFocused))
-        {
-            if (event.isSelection())
-            {
-                if (isFocused())
-                {
+        if (active && visible && (isFocused() || hasFocused)) {
+            if (event.isSelection()) {
+                if (isFocused()) {
                     toggleExtended();
-                }
-                else if (hasFocused)
-                {
+                } else if (hasFocused) {
                     setSelected(focused, true);
                     toggleExtended();
                 }
@@ -185,47 +161,35 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         return false;
     }
 
-    public boolean isExtended()
-    {
+    public boolean isExtended() {
         return extended;
     }
 
-    public void setExtended(boolean extended)
-    {
-        if (this.extended != extended)
-        {
+    public void setExtended(boolean extended) {
+        if (this.extended != extended) {
             toggleExtended();
         }
     }
 
-    private void toggleExtended()
-    {
+    private void toggleExtended() {
         extended = !extended;
         scrollOffset = 0;
-        if (extended && selected != null)
-        {
+        if (extended && selected != null) {
             owner.setFocused(selected);
             scrollOffset = Math.min(entries.indexOf(selected), entries.size() - 4);
-        }
-        else if (!extended && focused != null)
-        {
+        } else if (!extended && focused != null) {
             focused = null;
             owner.setFocused(this);
         }
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY)
-    {
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
         int maxY = getY() + ENTRY_HEIGHT * Math.min(entries.size() + 1, 5);
-        if (extended && mouseX >= getX() && mouseX <= getX() + width && mouseY > getY() + ENTRY_HEIGHT && mouseY < maxY)
-        {
-            if (deltaY < 0 && scrollOffset < entries.size() - 4)
-            {
+        if (extended && mouseX >= getX() && mouseX <= getX() + width && mouseY > getY() + ENTRY_HEIGHT && mouseY < maxY) {
+            if (deltaY < 0 && scrollOffset < entries.size() - 4) {
                 scrollOffset++;
-            }
-            else if (deltaY > 0 && scrollOffset > 0)
-            {
+            } else if (deltaY > 0 && scrollOffset > 0) {
                 scrollOffset--;
             }
             return true;
@@ -234,17 +198,15 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     }
 
     @Override
-    public boolean isMouseOver(double pMouseX, double pMouseY)
-    {
-        if (!active || !visible) { return false; }
+    public boolean isMouseOver(double pMouseX, double pMouseY) {
+        if (!active || !visible) {
+            return false;
+        }
         return pMouseX >= getX() && pMouseY >= getY() && pMouseX < (getX() + width) && pMouseY < (getY() + getHeight());
     }
 
-    @Nullable
-    private T getEntryAtPosition(double mouseX, double mouseY)
-    {
-        if (mouseX < getX() || mouseX > getX() + width || mouseY < (getY() + ENTRY_HEIGHT) || mouseY > (getY() + (ENTRY_HEIGHT * 5)))
-        {
+    private @Nullable T getEntryAtPosition(double mouseX, double mouseY) {
+        if (mouseX < getX() || mouseX > getX() + width || mouseY < (getY() + ENTRY_HEIGHT) || mouseY > (getY() + (ENTRY_HEIGHT * 5))) {
             return null;
         }
 
@@ -254,101 +216,77 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         return idx < entries.size() ? entries.get(idx) : null;
     }
 
-    void focusAndScrollTo(T entry)
-    {
+    void focusAndScrollTo(T entry) {
         focused = entry;
 
         int idx = entries.indexOf(entry);
-        if (idx < 0 || idx >= entries.size())
-        {
+        if (idx < 0 || idx >= entries.size()) {
             return;
         }
 
-        if (idx < scrollOffset)
-        {
+        if (idx < scrollOffset) {
             scrollOffset = idx;
-        }
-        else if (idx > (scrollOffset + 3))
-        {
+        } else if (idx > (scrollOffset + 3)) {
             scrollOffset = idx - 3;
         }
     }
 
-    public void addEntry(T entry)
-    {
+    public void addEntry(T entry) {
         entries.add(entry);
         entry.captureOwner(this);
     }
 
-    public void setSelected(@Nullable T selected, boolean notify)
-    {
+    public void setSelected(@Nullable T selected, boolean notify) {
         this.selected = selected;
-        if (notify && selectCallback != null && selected != null)
-        {
+        if (notify && selectCallback != null && selected != null) {
             selectCallback.accept(selected);
         }
     }
 
-    @Nullable
-    public T getSelected()
-    {
+    public @Nullable T getSelected() {
         return selected;
     }
 
-    public Stream<T> stream()
-    {
+    public Stream<T> stream() {
         return entries.stream();
     }
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput output) { }
 
-    @Nullable
     @Override
-    public ComponentPath nextFocusPath(FocusNavigationEvent event)
-    {
-        if (entries.isEmpty() || !extended || !(event instanceof FocusNavigationEvent.ArrowNavigation))
-        {
+    public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
+        if (entries.isEmpty() || !extended || !(event instanceof FocusNavigationEvent.ArrowNavigation)) {
             return super.nextFocusPath(event);
         }
 
         ScreenDirection dir = ((FocusNavigationEvent.ArrowNavigation) event).direction();
-        if (dir.getAxis() == ScreenAxis.HORIZONTAL)
-        {
+        if (dir.getAxis() == ScreenAxis.HORIZONTAL) {
             return null;
         }
 
-        if (isFocused() && focused != null)
-        {
+        if (isFocused() && focused != null) {
             return ComponentPath.leaf(focused);
         }
 
-        return switch (dir)
-        {
+        return switch (dir) {
             case UP -> ComponentPath.leaf(entries.getLast());
             case DOWN -> ComponentPath.leaf(entries.getFirst());
             default -> throw new IllegalStateException("Unreachable");
         };
     }
 
-    @Nullable
-    public T getFocusNeighbour(T entry, ScreenDirection dir)
-    {
+    public @Nullable T getFocusNeighbour(T entry, ScreenDirection dir) {
         int idx = entries.indexOf(entry);
-        return switch (dir)
-        {
-            case DOWN ->
-            {
-                if (idx < entries.size() - 1)
-                {
+        return switch (dir) {
+            case DOWN -> {
+                if (idx < entries.size() - 1) {
                     yield entries.get(idx + 1);
                 }
                 yield entries.getFirst();
             }
-            case UP ->
-            {
-                if (idx > 0)
-                {
+            case UP -> {
+                if (idx > 0) {
                     yield entries.get(idx - 1);
                 }
                 yield entries.getLast();
@@ -357,19 +295,18 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         };
     }
 
-    public static class SelectionEntry<T extends SelectionEntry<T>> implements GuiEventListener
-    {
+    public static class SelectionEntry<T extends SelectionEntry<T>> implements GuiEventListener {
         private final Component message;
         @Nullable
         private SelectionWidget<T> owner = null;
         boolean focused = false;
 
-        public SelectionEntry(Component message) { this.message = message; }
+        public SelectionEntry(Component message) {
+            this.message = message;
+        }
 
-        public void render(GuiGraphicsExtractor graphics, int x, int y, int width, boolean hovered, int fgColor, float alpha)
-        {
-            if (hovered || focused)
-            {
+        public void render(GuiGraphicsExtractor graphics, int x, int y, int width, boolean hovered, int fgColor, float alpha) {
+            if (hovered || focused) {
                 graphics.fill(x, y, x + width, y + ENTRY_HEIGHT, 0xFFA0A0A0);
             }
 
@@ -379,25 +316,19 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         }
 
         @Override
-        public boolean keyPressed(KeyEvent event)
-        {
-            if (isFocused())
-            {
+        public boolean keyPressed(KeyEvent event) {
+            if (isFocused()) {
                 return Objects.requireNonNull(owner).keyPressed(event);
             }
             return false;
         }
 
-        @Nullable
         @Override
-        public ComponentPath nextFocusPath(FocusNavigationEvent event)
-        {
-            if (isFocused() && event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection dir, _))
-            {
+        public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
+            if (isFocused() && event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection dir, _)) {
                 //noinspection unchecked
                 SelectionEntry<T> entry = Objects.requireNonNull(owner).getFocusNeighbour((T) this, dir);
-                if (entry != null)
-                {
+                if (entry != null) {
                     return ComponentPath.leaf(entry);
                 }
             }
@@ -405,24 +336,20 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         }
 
         @Override
-        public final void setFocused(boolean focused)
-        {
+        public final void setFocused(boolean focused) {
             this.focused = focused;
-            if (focused)
-            {
+            if (focused) {
                 //noinspection unchecked
                 Objects.requireNonNull(owner).focusAndScrollTo((T) this);
             }
         }
 
         @Override
-        public final boolean isFocused()
-        {
+        public final boolean isFocused() {
             return focused;
         }
 
-        void captureOwner(SelectionWidget<T> owner)
-        {
+        void captureOwner(SelectionWidget<T> owner) {
             this.owner = owner;
         }
     }

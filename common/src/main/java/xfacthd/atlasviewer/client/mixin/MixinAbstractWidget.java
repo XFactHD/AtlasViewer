@@ -6,13 +6,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import xfacthd.atlasviewer.client.util.IVisibilitySetter;
 
 @Mixin(AbstractWidget.class)
-public class MixinAbstractWidget implements IVisibilitySetter
-{
-    @Shadow public boolean visible;
+public class MixinAbstractWidget implements IVisibilitySetter {
+    @Shadow
+    public boolean visible;
 
     @Override
-    public void atlasviewer$setVisible(boolean visible)
-    {
+    public void atlasviewer$setVisible(boolean visible) {
         this.visible = visible;
     }
 }

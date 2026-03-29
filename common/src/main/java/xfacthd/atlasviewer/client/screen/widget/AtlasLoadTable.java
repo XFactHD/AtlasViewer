@@ -17,8 +17,7 @@ import xfacthd.atlasviewer.client.util.ClientUtils;
 import java.util.Comparator;
 import java.util.List;
 
-public final class AtlasLoadTable extends AbstractWidget
-{
+public final class AtlasLoadTable extends AbstractWidget {
     private static final Identifier ARROW_UP = Identifier.withDefaultNamespace("transferable_list/move_up");
     private static final Identifier ARROW_DOWN = Identifier.withDefaultNamespace("transferable_list/move_down");
     // The arrow sprites have whitespace around the content, coordinates need to be offset accordingly
@@ -53,8 +52,7 @@ public final class AtlasLoadTable extends AbstractWidget
     private SortTarget sorting = SortTarget.NAMESPACE;
     private boolean reverse = false;
 
-    public AtlasLoadTable(int x, int y, int width, AtlasInfoScreen.AtlasInfo atlasInfo)
-    {
+    public AtlasLoadTable(int x, int y, int width, AtlasInfoScreen.AtlasInfo atlasInfo) {
         super(x, y, width, TABLE_HEIGHT, Component.empty());
         this.atlasInfo = atlasInfo;
         this.nsCount = atlasInfo.fillStats().size();
@@ -71,8 +69,7 @@ public final class AtlasLoadTable extends AbstractWidget
         colWidth[0] = contentWidth - (colWidth[1] + colWidth[2] + colWidth[3]) - 3;
 
         int tx = x + 3;
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             colTextX[i] = tx;
             colArrowX[i] = tx + font.width(HEADERS[i]) + 1;
             tx += colWidth[i] + 1;
@@ -82,19 +79,16 @@ public final class AtlasLoadTable extends AbstractWidget
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick)
-    {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         ClientUtils.drawColoredBox(graphics, getX(), getY(), width, height, 0xFF000000);
 
         int x = getX() + 1;
         int y = getY() + 1;
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             int w = colWidth[i];
             int color = (i % 2 == 0) ? 0xFF8A8A8A : 0xFFA0A0A0;
             graphics.fill(x, y, x + w, y + height - 2, color);
-            if (i != 3)
-            {
+            if (i != 3) {
                 graphics.verticalLine(x + w, getY(), getY() + height - 1, 0xFF000000);
             }
             x += w + 1;
@@ -111,8 +105,7 @@ public final class AtlasLoadTable extends AbstractWidget
         x = getX() + 3;
         y += entryHeight;
         int maxIdx = Mth.clamp(nsCount - scrollOffset, 0, 4);
-        for (int i = 0; i < maxIdx; i++)
-        {
+        for (int i = 0; i < maxIdx; i++) {
             int idx = i + scrollOffset;
 
             int tx = colTextX[0];
@@ -138,8 +131,7 @@ public final class AtlasLoadTable extends AbstractWidget
             y += entryHeight;
         }
 
-        if (scrollBar)
-        {
+        if (scrollBar) {
             graphics.verticalLine(getX() + 1 + contentWidth, getY(), getY() + height - 1, 0xFF000000);
 
             int by = getY() + 1 + entryHeight + Math.round(scrollFactor * scrollOffset);
@@ -159,31 +151,23 @@ public final class AtlasLoadTable extends AbstractWidget
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick)
-    {
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && event.y() >= getY() + 1 && event.y() <= getY() + font.lineHeight + 2)
-        {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && event.y() >= getY() + 1 && event.y() <= getY() + font.lineHeight + 2) {
             SortTarget newTarget = null;
             int x = getX() + 1;
-            for (int i = 0; i < 4; i++)
-            {
+            for (int i = 0; i < 4; i++) {
                 int w = colWidth[i];
-                if (event.x() >= x && event.x() <= x + w)
-                {
+                if (event.x() >= x && event.x() <= x + w) {
                     newTarget = SortTarget.VALUES[i];
                     break;
                 }
                 x += w + 1;
             }
 
-            if (newTarget != null)
-            {
-                if (newTarget == sorting)
-                {
+            if (newTarget != null) {
+                if (newTarget == sorting) {
                     reverse = !reverse;
-                }
-                else
-                {
+                } else {
                     sorting = newTarget;
                     reverse = false;
                 }
@@ -195,16 +179,11 @@ public final class AtlasLoadTable extends AbstractWidget
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY)
-    {
-        if (scrollBar && mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() && mouseY <= getY() + height)
-        {
-            if (deltaY < 0 && scrollOffset < atlasInfo.fillStats().size() - 4)
-            {
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+        if (scrollBar && mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() && mouseY <= getY() + height) {
+            if (deltaY < 0 && scrollOffset < atlasInfo.fillStats().size() - 4) {
                 scrollOffset++;
-            }
-            else if (deltaY > 0 && scrollOffset > 0)
-            {
+            } else if (deltaY > 0 && scrollOffset > 0) {
                 scrollOffset--;
             }
             return true;
@@ -215,8 +194,7 @@ public final class AtlasLoadTable extends AbstractWidget
     @Override
     protected void updateWidgetNarration(NarrationElementOutput out) { }
 
-    private enum SortTarget
-    {
+    private enum SortTarget {
         NAMESPACE(DEFAULT_STAT_COMPARATOR),
         COUNT(Comparator.comparingInt(AtlasInfoScreen.FillStat::count)),
         PERCENT_OF_TOTAL(Comparator.comparingDouble(AtlasInfoScreen.FillStat::percentOfTotal)),
@@ -226,18 +204,15 @@ public final class AtlasLoadTable extends AbstractWidget
         private final Comparator<AtlasInfoScreen.FillStat> statComparator;
         private final Comparator<AtlasInfoScreen.FillStat> statComparatorReverse;
 
-        SortTarget(Comparator<AtlasInfoScreen.FillStat> statComparator)
-        {
-            if (statComparator != DEFAULT_STAT_COMPARATOR)
-            {
+        SortTarget(Comparator<AtlasInfoScreen.FillStat> statComparator) {
+            if (statComparator != DEFAULT_STAT_COMPARATOR) {
                 statComparator = statComparator.thenComparing(DEFAULT_STAT_COMPARATOR);
             }
             this.statComparator = statComparator;
             this.statComparatorReverse = statComparator.reversed();
         }
 
-        public void sort(List<AtlasInfoScreen.FillStat> stats, boolean reverse)
-        {
+        public void sort(List<AtlasInfoScreen.FillStat> stats, boolean reverse) {
             stats.sort(reverse ? statComparatorReverse : statComparator);
         }
     }

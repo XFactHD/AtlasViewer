@@ -12,28 +12,23 @@ import xfacthd.atlasviewer.client.AVClient;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 
 @Mod(value = AtlasViewer.MOD_ID, dist = Dist.CLIENT)
-public final class AtlasViewerNeoForge
-{
-    public AtlasViewerNeoForge(IEventBus modBus)
-    {
+public final class AtlasViewerNeoForge {
+    public AtlasViewerNeoForge(IEventBus modBus) {
         modBus.addListener(AtlasViewerNeoForge::onRegisterKeyMappings);
         modBus.addListener(AtlasViewerNeoForge::onRegisterReloadListeners);
 
         NeoForge.EVENT_BUS.addListener(AtlasViewerNeoForge::onClientTick);
     }
 
-    private static void onRegisterKeyMappings(final RegisterKeyMappingsEvent event)
-    {
+    private static void onRegisterKeyMappings(final RegisterKeyMappingsEvent event) {
         AVClient.onRegisterKeyMappings(event::registerCategory, event::register);
     }
 
-    private static void onRegisterReloadListeners(final AddClientReloadListenersEvent event)
-    {
+    private static void onRegisterReloadListeners(final AddClientReloadListenersEvent event) {
         SpriteSourceManager.registerDetails();
     }
 
-    private static void onClientTick(final ClientTickEvent.Pre event)
-    {
+    private static void onClientTick(final ClientTickEvent.Pre event) {
         AVClient.onClientTickStart(Minecraft.getInstance());
     }
 }
