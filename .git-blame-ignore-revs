@@ -1,0 +1,6 @@
+#
+# Use via git config --local --add blame.ignoreRevsFile .git-blame-ignore-revs
+#
+
+# The big reformatting
+b856ddc8c098c5b42ef10a012ef6ae7582946498
