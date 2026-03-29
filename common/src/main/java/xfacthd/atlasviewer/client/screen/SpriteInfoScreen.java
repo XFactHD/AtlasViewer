@@ -30,7 +30,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.UnknownNullability;
@@ -668,8 +667,7 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
 
     private Component calculateMaxMipLevel()
     {
-        int lowestOne = Math.min(Integer.lowestOneBit(contents.width()), Integer.lowestOneBit(contents.height()));
-        int maxLevel = Math.min(Mth.log2(lowestOne), 4);
+        int maxLevel = ClientUtils.getMaxMipLevel(contents);
         return switch (maxLevel)
         {
             case 0 ->

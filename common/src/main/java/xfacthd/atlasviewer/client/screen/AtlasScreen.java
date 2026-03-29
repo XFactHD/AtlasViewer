@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
+import java.util.function.Predicate;
 
 @SuppressWarnings("deprecation")
 public final class AtlasScreen extends AtlasViewerScreen implements SearchHandler
@@ -59,17 +60,22 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     public static final Identifier BACKGROUND_LOC = AtlasViewer.rl("background");
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final Component TITLE_HIGHLIGHT_ANIM = Component.translatable("btn.atlasviewer.highlight_animated");
+    private static final Component TITLE_HIGHLIGHT_BROKEN_MIP = Component.translatable("btn.atlasviewer.highlight_broken_mip");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
     private static final Component TITLE_EXPORT_MIPPED = Component.translatable("btn.atlasviewer.export_mipped_atlas");
     private static final Component TITLE_TOOLS = Component.translatable("btn.atlasviewer.menu");
     private static final Component TITLE_DETAILS = Component.translatable("btn.atlasviewer.details");
+    private static final Component MSG_HIGHLIGHT_BROKEN_MIP_DETAILS = Component.translatable("msg.atlasviewer.highlight_broken_mip.detail");
     private static final Component MSG_EXPORT_DETAILS = Component.translatable("msg.atlasviewer.export_atlas.detail");
+    private static final String MSG_EXPORT_MIPPED_DETAILS = "msg.atlasviewer.export_mipped_atlas.detail";
     private static final Component MSG_EXPORT_SUCCESS = Component.translatable("msg.atlasviewer.export_atlas_success");
     private static final Component MSG_EXPORT_ERROR = Component.translatable("msg.atlasviewer.export_atlas_error");
     private static final Component HOVER_MSG_CLICK_TO_OPEN = Component.translatable("hover.atlasviewer.path.click");
     private static final int PADDING = 5;
     private static final int HIGHLIGHT_ANIM_WIDTH = 160;
     private static final int HIGHLIGHT_ANIM_HEIGHT = 20;
+    private static final int HIGHLIGHT_BROKEN_MIP_WIDTH = 160;
+    private static final int HIGHLIGHT_BROKEN_MIP_HEIGHT = 20;
     private static final int EXPORT_WIDTH = 100;
     private static final int EXPORT_HEIGHT = 20;
     private static final int SEARCH_BAR_WIDTH = 198;
@@ -95,6 +101,8 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     @UnknownNullability
     private IndicatorButton btnHighlightAnim;
     @UnknownNullability
+    private IndicatorButton btnHighlightBrokenMip;
+    @UnknownNullability
     private Button btnExport;
     @UnknownNullability
     private Button btnExportMipped;
@@ -117,6 +125,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     private float offsetX = 0;
     private float offsetY = 0;
     private final List<Rect2i> animatedLocations = new ArrayList<>();
+    private final List<Rect2i> brokenMipLocations = new ArrayList<>();
     private final List<Rect2i> searchResultLocations = new ArrayList<>();
     @Nullable
     private TextureAtlasSprite hoveredSprite = null;
@@ -154,6 +163,13 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
                 TITLE_HIGHLIGHT_ANIM,
                 btnHighlightAnim,
                 this::highlightAnimated
+        )));
+        menu.addMenuEntry(btnHighlightBrokenMip = addRenderableWidget(new IndicatorButton(
+                0, 0,
+                HIGHLIGHT_BROKEN_MIP_WIDTH, HIGHLIGHT_BROKEN_MIP_HEIGHT,
+                TITLE_HIGHLIGHT_BROKEN_MIP,
+                btnHighlightBrokenMip,
+                this::highlightBrokenMip
         )));
         menu.addMenuEntry(btnExport = addRenderableWidget(
                 Button.builder(TITLE_EXPORT, this::exportAtlas)
@@ -248,6 +264,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
         boolean cursorOnAtlas = isMouseOverAtlas(mouseX, mouseY);
         boolean highlightAnimated = btnHighlightAnim.isChecked();
+        boolean highlightBrokenMip = btnHighlightBrokenMip.isChecked();
         boolean hasSearchResults = !searchResultLocations.isEmpty();
 
         if (highlightAnimated && !animatedLocations.isEmpty())
@@ -255,6 +272,14 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
             for (Rect2i rect : animatedLocations)
             {
                 drawColoredBox(graphics, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0xFF00FF00);
+            }
+        }
+
+        if (highlightBrokenMip && !brokenMipLocations.isEmpty())
+        {
+            for (Rect2i rect : brokenMipLocations)
+            {
+                drawColoredBox(graphics, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), scale, false, 0xFF57FFE1);
             }
         }
 
@@ -288,13 +313,17 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
         menu.render(graphics);
 
-        if (btnExport.isHovered())
+        if (btnHighlightBrokenMip.active && btnHighlightBrokenMip.isHovered())
+        {
+            setTooltipForNextFrame(graphics, MSG_HIGHLIGHT_BROKEN_MIP_DETAILS, mouseX, mouseY);
+        }
+        else if (btnExport.isHovered())
         {
             setTooltipForNextFrame(graphics, MSG_EXPORT_DETAILS, mouseX, mouseY);
         }
         else if (btnExportMipped.active && btnExportMipped.isHovered())
         {
-            setTooltipForNextFrame(graphics, Component.translatable("msg.atlasviewer.export_mipped_atlas.detail", currentMipLevel), mouseX, mouseY);
+            setTooltipForNextFrame(graphics, Component.translatable(MSG_EXPORT_MIPPED_DETAILS, currentMipLevel), mouseX, mouseY);
         }
     }
 
@@ -452,10 +481,16 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         );
 
         int mipLevels = currentAtlas.atlas().atlasviewer$getMipLevel();
+        boolean hasMip = mipLevels > 0;
         mipLevelSlider.setStep(0, true);
         mipLevelSlider.setMaxStep(mipLevels);
-        mipLevelSlider.active = mipLevels > 0;
+        mipLevelSlider.active = hasMip;
         btnExportMipped.active = false;
+        btnHighlightBrokenMip.active = hasMip;
+        if (mipLevels == 0)
+        {
+            btnHighlightBrokenMip.setChecked(false);
+        }
 
         scrollScale = 1F;
         offsetX = 0;
@@ -465,9 +500,15 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         focusedSearchResultIdx = -1;
         cachedInfo = null;
 
+        animatedLocations.clear();
         if (btnHighlightAnim.isChecked())
         {
             gatherAnimatedLocations();
+        }
+        brokenMipLocations.clear();
+        if (btnHighlightBrokenMip.isChecked())
+        {
+            gatherBrokenMipLocations();
         }
     }
 
@@ -479,12 +520,31 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         }
     }
 
+    private void highlightBrokenMip(Button btn)
+    {
+        if (btnHighlightBrokenMip.isChecked())
+        {
+            gatherBrokenMipLocations();
+        }
+    }
+
     private void gatherAnimatedLocations()
     {
-        animatedLocations.clear();
-        Objects.requireNonNull(sprites).stream()
-                .filter(sprite -> sprite.contents().atlasviewer$getAnimatedTexture() != null)
-                .forEach(sprite -> animatedLocations.add(getSpriteSize(sprite)));
+        gatherFilteredLocations(animatedLocations, sprite -> sprite.contents().atlasviewer$getAnimatedTexture() != null);
+    }
+
+    private void gatherBrokenMipLocations()
+    {
+        gatherFilteredLocations(brokenMipLocations, sprite -> ClientUtils.getMaxMipLevel(sprite.contents()) < ClientUtils.MAX_MIP_LEVEL);
+    }
+
+    private void gatherFilteredLocations(List<Rect2i> locList, Predicate<TextureAtlasSprite> predicate)
+    {
+        locList.clear();
+        Objects.requireNonNull(sprites)
+                .stream()
+                .filter(predicate)
+                .forEach(sprite -> locList.add(getSpriteSize(sprite)));
     }
 
     private void exportAtlas(Button btn)
@@ -569,13 +629,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
         if (!text.isEmpty())
         {
-            Objects.requireNonNull(sprites).forEach(sprite ->
-            {
-                if (sprite.contents().name().toString().contains(text))
-                {
-                    searchResultLocations.add(getSpriteSize(sprite));
-                }
-            });
+            gatherFilteredLocations(searchResultLocations, sprite -> sprite.contents().name().toString().contains(text));
             searchResultLocations.sort(Comparator.comparingInt(Rect2i::getY).thenComparing(Rect2i::getX));
         }
     }

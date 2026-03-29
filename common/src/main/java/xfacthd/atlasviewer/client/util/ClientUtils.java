@@ -14,6 +14,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.Mth;
 import org.joml.Matrix3x2f;
@@ -32,6 +33,8 @@ import java.util.function.Consumer;
 
 public final class ClientUtils
 {
+    public static final int MAX_MIP_LEVEL = 4;
+
     @Nullable
     private static Boolean arbClearTextureSupported = null;
 
@@ -166,6 +169,14 @@ public final class ClientUtils
             GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, srcTexture.getMipLevels() - 1);
             GlStateManager._bindTexture(0);
         }
+    }
+
+    public static int getMaxMipLevel(SpriteContents contents)
+    {
+        int lowestOneWidth = Integer.lowestOneBit(contents.width());
+        int lowestOneHeight = Integer.lowestOneBit(contents.height());
+        int lowestOne = Math.min(lowestOneWidth, lowestOneHeight);
+        return Math.min(Mth.log2(lowestOne), MAX_MIP_LEVEL);
     }
 
     private ClientUtils() { }
