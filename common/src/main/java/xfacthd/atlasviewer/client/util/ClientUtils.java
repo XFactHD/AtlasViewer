@@ -1,8 +1,6 @@
 package xfacthd.atlasviewer.client.util;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.opengl.GlStateManager;
-import com.mojang.blaze3d.opengl.GlTexture;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.CommandEncoder;
@@ -20,8 +18,6 @@ import net.minecraft.util.Mth;
 import org.joml.Matrix3x2f;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GLCapabilities;
 import xfacthd.atlasviewer.client.screen.state.FloatBlitRenderState;
 import xfacthd.atlasviewer.client.screen.state.FloatColoredRectangleRenderState;
@@ -122,7 +118,6 @@ public final class ClientUtils {
         int pixSize = srcTexture.getFormat().pixelSize();
         int bufSize = width * height * pixSize;
         GpuBuffer buffer = device.createBuffer(() -> "Texture output buffer", GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_MAP_READ, bufSize);
-        fixMipLevelTexParams(srcTexture);
         cmdEncoder.copyTextureToBuffer(srcTexture, buffer, 0, () -> {
             try (GpuBuffer.MappedView bufView = cmdEncoder.mapBuffer(buffer, true, false); NativeImage destImage = new NativeImage(width, height, false)) {
                 ByteBuffer data = bufView.data();
@@ -136,16 +131,6 @@ public final class ClientUtils {
             }
             buffer.close();
         }, mipLevel);
-    }
-
-    /// Resets the texture's mip level parameters to the default values to ensure texture dumping works properly
-    private static void fixMipLevelTexParams(GpuTexture srcTexture) {
-        if (srcTexture instanceof GlTexture glTex) {
-            GlStateManager._bindTexture(glTex.glId());
-            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_BASE_LEVEL, 0);
-            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, srcTexture.getMipLevels() - 1);
-            GlStateManager._bindTexture(0);
-        }
     }
 
     public static int getMaxMipLevel(SpriteContents contents) {
