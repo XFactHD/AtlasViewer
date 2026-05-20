@@ -13,10 +13,17 @@ neoForge {
 }
 
 dependencies {
-    compileOnly('org.spongepowered:mixin:0.8.5')
+    compileOnly("net.fabricmc:sponge-mixin:${mixin_version}")
 
-    compileOnly('io.github.llamalad7:mixinextras-common:0.3.5')
-    annotationProcessor('io.github.llamalad7:mixinextras-common:0.3.5')
+    compileOnly("io.github.llamalad7:mixinextras-common:${mixin_extras_version}")
+    annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}")
+
+    // Required to make the mixin AP happy when hotswapping with SingleHotswap (IDEA does stupid stuff with the processorpath)
+    compileOnly("org.ow2.asm:asm:${asm_version}")
+    compileOnly("org.ow2.asm:asm-analysis:${asm_version}")
+    compileOnly("org.ow2.asm:asm-commons:${asm_version}")
+    compileOnly("org.ow2.asm:asm-tree:${asm_version}")
+    compileOnly("org.ow2.asm:asm-util:${asm_version}")
 }
 
 configurations {

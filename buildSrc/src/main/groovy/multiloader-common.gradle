@@ -4,7 +4,7 @@ plugins {
 }
 
 base {
-    archivesName = "${mod_name}-${project.name}-${mod_version}"
+    archivesName = "${project.name}-${mod_version}"
 }
 
 java {
@@ -50,17 +50,11 @@ repositories {
 ['apiElements', 'runtimeElements', 'sourcesElements'/*, 'javadocElements'*/].each { variant ->
     configurations."$variant".outgoing {
         capability("$group:${base.archivesName.get()}:$version")
-        capability("$group:$mod_id-${project.name}-${minecraft_version}:$version")
-        capability("$group:$mod_id:$version")
+        capability("$group:atlasviewer-${project.name}-${minecraft_version}:$version")
+        capability("$group:atlasviewer:$version")
     }
     publishing.publications.configureEach {
         suppressPomMetadataWarningsFor(variant)
-    }
-}
-
-sourcesJar {
-    from(rootProject.file('LICENSE')) {
-        rename { "${it}_${mod_name}" }
     }
 }
 
@@ -71,12 +65,12 @@ javadoc {
 jar {
     manifest {
         attributes([
-                'Specification-Title'   : mod_name,
-                'Specification-Vendor'  : mod_author,
+                'Specification-Title'   : 'AtlasViewer',
+                'Specification-Vendor'  : 'XFactHD',
                 'Specification-Version' : project.jar.archiveVersion,
                 'Implementation-Title'  : project.name,
                 'Implementation-Version': project.jar.archiveVersion,
-                'Implementation-Vendor' : mod_author,
+                'Implementation-Vendor' : 'XFactHD',
                 'Built-On-Minecraft'    : minecraft_version
         ])
     }
@@ -88,9 +82,6 @@ processResources {
             'minecraft_version_range'      : minecraft_version_range,
             'fabric_version'               : fabric_version,
             'fabric_loader_version'        : fabric_loader_version,
-            'mod_id'                       : mod_id,
-            'mod_name'                     : mod_name,
-            'mod_author'                   : mod_author,
             'mod_version'                  : mod_version,
             'neoforge_version'             : neoforge_version,
             'neoforge_version_range'       : neoforge_version_range
@@ -110,7 +101,6 @@ tasks.withType(JavaCompile).configureEach {
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
-            artifactId = base.archivesName.get()
             from components.java
         }
     }

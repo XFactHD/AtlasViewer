@@ -12,13 +12,13 @@ configurations {
 }
 
 dependencies {
-    compileOnly(project(':common')) {
+    compileOnly(project(':AtlasViewer-common')) {
         capabilities {
-            requireCapability "$group:$mod_id"
+            requireCapability "$group:atlasviewer"
         }
     }
-    commonJava project(path: ':common', configuration: 'commonJava')
-    commonResources project(path: ':common', configuration: 'commonResources')
+    commonJava project(path: ':AtlasViewer-common', configuration: 'commonJava')
+    commonResources project(path: ':AtlasViewer-common', configuration: 'commonResources')
 }
 
 tasks.named('compileJava', JavaCompile) {

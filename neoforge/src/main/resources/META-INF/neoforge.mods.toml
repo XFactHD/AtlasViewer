@@ -8,9 +8,7 @@ issueTrackerURL="https://github.com/XFactHD/AtlasViewer/issues"
 	displayURL="https://www.curseforge.com/minecraft/mc-mods/atlasviewer"
 	logoFile= "logo.png"
 	authors="XFactHD"
-    displayTest="IGNORE_ALL_VERSION"
-	description='''
-	'''
+	description=''''''
 
 [[mixins]]
     config="atlasviewer.mixin.json"

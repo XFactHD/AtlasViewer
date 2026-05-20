@@ -13,7 +13,6 @@ neoForge {
 
     runs {
         configureEach {
-            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
             systemProperty('terminal.ansi', 'true')
             ideName = "NeoForge ${it.name.capitalize()} (${project.path})" // Unify the run config names with fabric
             logLevel = org.slf4j.event.Level.DEBUG
@@ -32,7 +31,7 @@ neoForge {
     }
 
     mods {
-        "${mod_id}" {
+        atlasviewer {
             sourceSet sourceSets.main
         }
     }
