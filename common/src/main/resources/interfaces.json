@@ -1,37 +1,37 @@
 {
     "net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture": [
-        "xfacthd/atlasviewer/client/duck/DefaultedAccessorAnimatedTexture"
+        "io/github/xfacthd/atlasviewer/client/duck/DefaultedAccessorAnimatedTexture"
     ],
     "net/minecraft/client/renderer/texture/SpriteContents": [
-        "xfacthd/atlasviewer/client/duck/DefaultedAccessorSpriteContents",
-        "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareSpriteContents"
+        "io/github/xfacthd/atlasviewer/client/duck/DefaultedAccessorSpriteContents",
+        "io/github/xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareSpriteContents"
     ],
     "net/minecraft/client/renderer/texture/TextureAtlas": [
-        "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlas",
-        "xfacthd/atlasviewer/client/util/IMipAwareTextureAtlas"
+        "io/github/xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlas",
+        "io/github/xfacthd/atlasviewer/client/util/IMipAwareTextureAtlas"
     ],
     "net/minecraft/client/renderer/texture/TextureAtlasSprite": [
-        "xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlasSprite"
+        "io/github/xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlasSprite"
     ],
     "net/minecraft/client/resources/model/sprite/AtlasManager": [
-        "xfacthd/atlasviewer/client/duck/DefaultedAccessorAtlasManager"
+        "io/github/xfacthd/atlasviewer/client/duck/DefaultedAccessorAtlasManager"
     ],
     "net/minecraft/client/renderer/texture/atlas/SpriteSource": [
-        "xfacthd/atlasviewer/client/api/IPackAwareSpriteSource"
+        "io/github/xfacthd/atlasviewer/client/api/IPackAwareSpriteSource"
     ],
     "net/minecraft/client/renderer/texture/atlas/sources/LazyLoadedImage": [
-        "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorLazyLoadedImage"
+        "io/github/xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorLazyLoadedImage"
     ],
     "net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$RegionInstance": [
-        "xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcherRegionInstance"
+        "io/github/xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcherRegionInstance"
     ],
     "net/minecraft/client/gui/components/AbstractWidget": [
-        "xfacthd/atlasviewer/client/util/IVisibilitySetter"
+        "io/github/xfacthd/atlasviewer/client/util/IVisibilitySetter"
     ],
     "net/minecraft/server/packs/resources/Resource": [
-        "xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource"
+        "io/github/xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource"
     ],
     "net/minecraft/util/ExtraCodecs$LateBoundIdMapper": [
-        "xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<I, V>"
+        "io/github/xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<I, V>"
     ]
 }

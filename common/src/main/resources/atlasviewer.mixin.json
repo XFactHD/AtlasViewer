@@ -1,6 +1,6 @@
 {
     "required": true,
-    "package": "xfacthd.atlasviewer.client.mixin",
+    "package": "io.github.xfacthd.atlasviewer.client.mixin",
     "compatibilityLevel": "JAVA_25",
     "client": [
         "AccessorAnimatedTexture",

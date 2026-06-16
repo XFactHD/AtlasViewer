@@ -16,7 +16,7 @@
     "environment": "*",
     "entrypoints": {
         "client": [
-            "xfacthd.atlasviewer.AtlasViewerFabric"
+            "io.github.xfacthd.atlasviewer.AtlasViewerFabric"
         ]
     },
     "accessWidener" : "atlasviewer.classtweaker",
