@@ -82,12 +82,12 @@ public final class AVClient {
     }
 
     public static void onClientTickStart(Minecraft mc) {
-        if (mc.level == null || mc.player == null || mc.screen != null) {
+        if (mc.level == null || mc.player == null || mc.gui.screen() != null) {
             return;
         }
 
         if (KEY_MAPPING_OPEN_VIEWER.get().consumeClick()) {
-            Minecraft.getInstance().setScreen(new AtlasScreen());
+            Minecraft.getInstance().gui.setScreen(new AtlasScreen());
         }
     }
 

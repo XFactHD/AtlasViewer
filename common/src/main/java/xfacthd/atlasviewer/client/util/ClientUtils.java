@@ -1,6 +1,7 @@
 package xfacthd.atlasviewer.client.util;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.CommandEncoder;
@@ -36,7 +37,7 @@ public final class ClientUtils {
     public static boolean isArbClearTextureSupported() {
         if (arbClearTextureSupported == null) {
             // Certain Intel iGPUs appear to have issues with GL_ARB_clear_texture
-            String renderer = RenderSystem.getDevice().getRenderer().toLowerCase(Locale.ROOT);
+            String renderer = RenderSystem.getDevice().getDeviceInfo().name().toLowerCase(Locale.ROOT);
             if (!renderer.contains("intel")) {
                 GLCapabilities capabilities = GL.getCapabilities();
                 arbClearTextureSupported = capabilities.GL_ARB_clear_texture;
@@ -115,11 +116,11 @@ public final class ClientUtils {
 
         int width = srcTexture.getWidth(mipLevel);
         int height = srcTexture.getHeight(mipLevel);
-        int pixSize = srcTexture.getFormat().pixelSize();
+        int pixSize = srcTexture.getFormat().blockSize();
         int bufSize = width * height * pixSize;
         GpuBuffer buffer = device.createBuffer(() -> "Texture output buffer", GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_MAP_READ, bufSize);
         cmdEncoder.copyTextureToBuffer(srcTexture, buffer, 0, () -> {
-            try (GpuBuffer.MappedView bufView = cmdEncoder.mapBuffer(buffer, true, false); NativeImage destImage = new NativeImage(width, height, false)) {
+            try (GpuBufferSlice.MappedView bufView = buffer.map(true, false); NativeImage destImage = new NativeImage(width, height, false)) {
                 ByteBuffer data = bufView.data();
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {

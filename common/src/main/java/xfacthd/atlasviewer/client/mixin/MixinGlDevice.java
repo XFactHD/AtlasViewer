@@ -1,10 +1,10 @@
 package xfacthd.atlasviewer.client.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlTexture;
 import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.textures.TextureFormat;
 import org.lwjgl.opengl.ARBClearTexture;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,11 +15,11 @@ import java.nio.ByteBuffer;
 @Mixin(targets = "com.mojang.blaze3d.opengl.GlDevice")
 public class MixinGlDevice {
     @ModifyReturnValue(
-            method = "createTexture(Ljava/lang/String;ILcom/mojang/blaze3d/textures/TextureFormat;IIII)Lcom/mojang/blaze3d/textures/GpuTexture;",
+            method = "createTexture(Ljava/lang/String;ILcom/mojang/blaze3d/GpuFormat;IIII)Lcom/mojang/blaze3d/textures/GpuTexture;",
             at = @At("RETURN")
     )
     private static GpuTexture atlasviewer$clearImage(GpuTexture texture) {
-        TextureFormat format = texture.getFormat();
+        GpuFormat format = texture.getFormat();
         if (!ClientUtils.isArbClearTextureSupported() || !format.hasColorAspect()) {
             return texture;
         }

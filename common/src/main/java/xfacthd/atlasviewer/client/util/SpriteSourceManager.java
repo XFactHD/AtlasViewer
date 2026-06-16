@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.util.Tuple;
 import org.jspecify.annotations.Nullable;
 import xfacthd.atlasviewer.client.AVClient;
 import xfacthd.atlasviewer.client.api.ISpriteSourcePackAwareLoader;
@@ -107,20 +106,20 @@ public final class SpriteSourceManager {
         return SPECIAL_SOURCE_DESCRIPTIONS.get(sourceType);
     }
 
-    public static List<Tuple<Component, Component>> buildSourceTooltip(SpriteSource source, String typeName) {
-        List<Tuple<Component, Component>> lines = new ArrayList<>();
+    public static List<SourceTooltipLine> buildSourceTooltip(SpriteSource source, String typeName) {
+        List<SourceTooltipLine> lines = new ArrayList<>();
         source = WrappedSpriteSource.resolve(source);
 
         Identifier regLoc = AccessorSpriteSources.atlasviewer$getTypes().atlasviewer$getKey(source.codec());
         Component regName = regLoc != null ? Component.literal(regLoc.toString()) : VALUE_UNREGISTERED;
-        lines.add(new Tuple<>(LABEL_REG_NAME, regName));
+        lines.add(new SourceTooltipLine(LABEL_REG_NAME, regName));
 
         SourceTooltipAppender<SpriteSource> appender = SOURCE_TOOLTIP_APPENDERS.get(source.getClass());
         if (appender != null) {
-            appender.accept(source, (title, content) -> lines.add(new Tuple<>(title, content)));
+            appender.accept(source, (title, content) -> lines.add(new SourceTooltipLine(title, content)));
         }
 
-        lines.add(new Tuple<>(LABEL_FULL_TYPE, Component.literal(typeName)));
+        lines.add(new SourceTooltipLine(LABEL_FULL_TYPE, Component.literal(typeName)));
 
         return lines;
     }

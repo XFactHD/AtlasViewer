@@ -46,12 +46,12 @@ public final class NeoForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public void pushScreenLayer(Screen screen) {
-        Minecraft.getInstance().pushGuiLayer(screen);
+        Minecraft.getInstance().gui.pushScreenLayer(screen);
     }
 
     @Override
     public void popScreenLayer() {
-        Minecraft.getInstance().popGuiLayer();
+        Minecraft.getInstance().gui.popScreenLayer();
     }
 
     @Override

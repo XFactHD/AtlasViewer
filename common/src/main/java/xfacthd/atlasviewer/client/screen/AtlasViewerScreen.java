@@ -15,7 +15,7 @@ public abstract class AtlasViewerScreen extends Screen {
 
     @Override
     protected void extractBlurredBackground(GuiGraphicsExtractor graphics) {
-        if (this == minecraft().screen) {
+        if (this == minecraft().gui.screen()) {
             // Only render blur for the top-most screen
             super.extractBlurredBackground(graphics);
         }

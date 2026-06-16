@@ -2,9 +2,7 @@ package xfacthd.atlasviewer.client.mixin;
 
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.main.GameConfig;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,7 +13,7 @@ import xfacthd.atlasviewer.client.screen.stacking.ScreenStacker;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 
 @Mixin(Minecraft.class)
-@SuppressWarnings({ "MethodMayBeStatic", "DataFlowIssue" })
+@SuppressWarnings({ "MethodMayBeStatic" })
 public final class MinecraftMixin {
     @Shadow
     @Final
@@ -34,22 +32,8 @@ public final class MinecraftMixin {
     }
 
     @Inject(
-            method = "setScreen",
-            at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;",
-                    opcode = Opcodes.GETFIELD,
-                    shift = At.Shift.BEFORE,
-                    ordinal = 0
-            )
-    )
-    private void atlasviewer$onSetScreen(Screen guiScreen, CallbackInfo ci) {
-        ScreenStacker.clearScreenStack((Minecraft) (Object) this);
-    }
-
-    @Inject(
             method = "<init>",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;updateVsync(Z)V")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;resizeGui()V")
     )
     private void atlasviewer$handlePreResourceLoadInit(GameConfig gameConfig, CallbackInfo ci) {
         SpriteSourceManager.registerDetails();

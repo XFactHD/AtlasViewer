@@ -30,7 +30,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Tuple;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
@@ -45,6 +44,7 @@ import xfacthd.atlasviewer.client.util.FixedTooltipPositioner;
 import xfacthd.atlasviewer.client.util.SpriteSourceManager;
 import xfacthd.atlasviewer.client.util.TextLine;
 import xfacthd.atlasviewer.client.util.TooltipSeparator;
+import xfacthd.atlasviewer.client.util.SourceTooltipLine;
 import xfacthd.atlasviewer.platform.Services;
 
 import java.io.IOException;
@@ -541,10 +541,10 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
                 sourceType = TextLine.of(shortTypeName, font, maxValueLen).text();
                 hasConcreteSourceType = true;
 
-                List<Tuple<Component, Component>> tooltipLines = SpriteSourceManager.buildSourceTooltip(source, typeName);
+                List<SourceTooltipLine> tooltipLines = SpriteSourceManager.buildSourceTooltip(source, typeName);
 
                 sourceTypeTooltip = formatTooltip(tooltipLines);
-                tooltipLines.getLast().setB(FULL_TYPE_PLACEHOLDER);
+                tooltipLines.getLast().setContent(FULL_TYPE_PLACEHOLDER);
                 sourceTypeTooltipNoFullType = formatTooltip(tooltipLines);
             }
         } else {
@@ -563,21 +563,19 @@ public final class SpriteInfoScreen extends AtlasViewerScreen implements IStacke
         );
     }
 
-    private static List<FormattedCharSequence> formatTooltip(List<Tuple<Component, Component>> tooltipLines) {
+    private static List<FormattedCharSequence> formatTooltip(List<SourceTooltipLine> tooltipLines) {
         return tooltipLines.stream()
                 .peek(pair -> {
-                    //noinspection ConstantConditions
-                    if (pair.getA() != null) {
-                        pair.setA(pair.getA().copy().withStyle(ChatFormatting.ITALIC));
+                    if (pair.getLabel() != null) {
+                        pair.setLabel(pair.getLabel().copy().withStyle(ChatFormatting.ITALIC));
                     }
                 })
                 .map(pair -> {
                     MutableComponent line = Component.empty();
-                    //noinspection ConstantConditions
-                    if (pair.getA() != null) {
-                        line = line.append(pair.getA()).append(": ");
+                    if (pair.getLabel() != null) {
+                        line = line.append(pair.getLabel()).append(": ");
                     }
-                    return line.append(pair.getB());
+                    return line.append(pair.getContent());
                 })
                 .map(Component::getVisualOrderText)
                 .toList();
