@@ -12,7 +12,7 @@
         "sources": "https://github.com/XFactHD/AtlasViewer"
     },
     "license": "LGPL v3",
-    "icon": "logo.png",
+    "icon": "icon.png",
     "environment": "*",
     "entrypoints": {
         "client": [

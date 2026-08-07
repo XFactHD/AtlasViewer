@@ -6,7 +6,7 @@ issueTrackerURL="https://github.com/XFactHD/AtlasViewer/issues"
 	version="${mod_version}"
 	displayName="AtlasViewer"
 	displayURL="https://www.curseforge.com/minecraft/mc-mods/atlasviewer"
-	logoFile= "logo.png"
+	iconFile= "icon.png"
 	authors="XFactHD"
 	description=''''''
 
