@@ -30,7 +30,6 @@ inject-interface net/minecraft/client/resources/model/sprite/AtlasManager io/git
 inject-interface net/minecraft/client/renderer/texture/atlas/SpriteSource io/github/xfacthd/atlasviewer/client/api/IPackAwareSpriteSource
 inject-interface net/minecraft/client/renderer/texture/atlas/sources/LazyLoadedImage io/github/xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorLazyLoadedImage
 inject-interface net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$RegionInstance io/github/xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcherRegionInstance
-inject-interface net/minecraft/client/gui/components/AbstractWidget io/github/xfacthd/atlasviewer/client/util/IVisibilitySetter
 inject-interface net/minecraft/server/packs/resources/Resource io/github/xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource
 inject-interface net/minecraft/util/ExtraCodecs$LateBoundIdMapper io/github/xfacthd/atlasviewer/client/util/ReadableLateBoundIdMapper<TI;TV;>
 inject-interface net/minecraft/client/renderer/texture/TextureAtlasSprite io/github/xfacthd/atlasviewer/client/duck/DefaultedAccessorTextureAtlasSprite

@@ -3,7 +3,6 @@ package io.github.xfacthd.atlasviewer.client.screen.widget;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.GridLayout;
-import net.minecraft.client.gui.layouts.Layout;
 import net.minecraft.client.gui.layouts.LayoutElement;
 
 public final class MenuContainer extends GridLayout {
@@ -14,7 +13,7 @@ public final class MenuContainer extends GridLayout {
     private final Button menuButton;
     private final boolean rightAlign;
     private int nextRow = 1;
-    private boolean open = false;
+    private boolean open = true;
 
     public MenuContainer(Button menuButton, boolean rightAlign) {
         super(menuButton.getX(), menuButton.getY() + Button.DEFAULT_HEIGHT);
@@ -32,7 +31,7 @@ public final class MenuContainer extends GridLayout {
             setX(originX + originWidth - getWidth());
         }
         visitWidgets(widget -> widget.setWidth(getWidth() - (PADDING * 2)));
-        setOpen(this, false);
+        setOpen(false);
     }
 
     public void addMenuEntry(LayoutElement element) {
@@ -56,18 +55,11 @@ public final class MenuContainer extends GridLayout {
     public void setOpen(boolean open) {
         if (this.open != open) {
             this.open = open;
-            setOpen(this, open);
-        }
-    }
-
-    private void setOpen(LayoutElement element, boolean open) {
-        element.visitWidgets(widget -> {
-            if (widget != menuButton) {
-                widget.atlasviewer$setVisible(open);
-            }
-        });
-        if (element instanceof Layout layout) {
-            layout.visitChildren(childElem -> setOpen(childElem, open));
+            visitWidgets(widget -> {
+                if (widget != menuButton) {
+                    widget.visible = open;
+                }
+            });
         }
     }
 

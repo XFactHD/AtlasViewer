@@ -25,9 +25,6 @@
     "net/minecraft/client/renderer/texture/atlas/sources/Unstitcher$RegionInstance": [
         "io/github/xfacthd/atlasviewer/client/duck/spritesources/DefaultedAccessorUnstitcherRegionInstance"
     ],
-    "net/minecraft/client/gui/components/AbstractWidget": [
-        "io/github/xfacthd/atlasviewer/client/util/IVisibilitySetter"
-    ],
     "net/minecraft/server/packs/resources/Resource": [
         "io/github/xfacthd/atlasviewer/client/api/ISpriteSourcePackAwareResource"
     ],

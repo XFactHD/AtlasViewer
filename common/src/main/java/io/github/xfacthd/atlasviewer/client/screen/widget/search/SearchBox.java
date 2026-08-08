@@ -5,11 +5,10 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
-import io.github.xfacthd.atlasviewer.client.util.IVisibilitySetter;
 
 import java.util.function.Consumer;
 
-public final class SearchBox extends AbstractWidget implements IVisibilitySetter {
+public final class SearchBox extends AbstractWidget {
     static final int BUTTON_WIDTH = 63;
     static final int PADDING = 2;
     private static final long DEBOUNCE_DELAY_MS = 250;
@@ -77,6 +76,7 @@ public final class SearchBox extends AbstractWidget implements IVisibilitySetter
     public void setWidth(int width) {
         super.setWidth(width);
         editBox.setWidth(width - BUTTON_WIDTH - PADDING);
+        button.setWidth(BUTTON_WIDTH);
     }
 
     @Override
@@ -87,9 +87,10 @@ public final class SearchBox extends AbstractWidget implements IVisibilitySetter
     }
 
     @Override
-    public void atlasviewer$setVisible(boolean visible) {
-        this.visible = visible;
-        editBox.visible = visible;
-        button.visible = visible;
+    public void visitWidgets(Consumer<AbstractWidget> widgetVisitor) {
+        widgetVisitor.accept(editBox);
+        widgetVisitor.accept(button);
+        // Visit self last to handle width correctly
+        super.visitWidgets(widgetVisitor);
     }
 }
