@@ -1,13 +1,13 @@
 package io.github.xfacthd.atlasviewer.client;
 
 import com.google.common.base.Suppliers;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister;
 import net.minecraft.client.renderer.texture.atlas.sources.PalettedPermutations;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.client.renderer.texture.atlas.sources.Unstitcher;
-import org.lwjgl.glfw.GLFW;
 import io.github.xfacthd.atlasviewer.AtlasViewer;
 import io.github.xfacthd.atlasviewer.client.screen.AtlasScreen;
 import io.github.xfacthd.atlasviewer.client.tooltips.DirectoryListerTooltipAppender;
@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 public final class AVClient {
     private static final KeyMapping.Category CATEGORY = new KeyMapping.Category(AtlasViewer.rl("main"));
     private static final Supplier<KeyMapping> KEY_MAPPING_OPEN_VIEWER = Suppliers.memoize(() ->
-            new KeyMapping("key.atlasviewer.open_viewer", GLFW.GLFW_KEY_V, CATEGORY)
+            new KeyMapping("key.atlasviewer.open_viewer", InputConstants.KEY_V, CATEGORY)
     );
 
     public static void onRegisterKeyMappings(Consumer<KeyMapping.Category> categoryRegistrar, Consumer<KeyMapping> registrar) {

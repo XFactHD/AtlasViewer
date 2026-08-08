@@ -1,5 +1,6 @@
 package io.github.xfacthd.atlasviewer.client.screen.widget;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -10,7 +11,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import org.lwjgl.glfw.GLFW;
 import io.github.xfacthd.atlasviewer.client.screen.AtlasInfoScreen;
 
 import java.util.Comparator;
@@ -151,7 +151,7 @@ public final class AtlasLoadTable extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && event.y() >= getY() + 1 && event.y() <= getY() + font.lineHeight + 2) {
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && event.y() >= getY() + 1 && event.y() <= getY() + font.lineHeight + 2) {
             SortTarget newTarget = null;
             int x = getX() + 1;
             for (int i = 0; i < 4; i++) {
