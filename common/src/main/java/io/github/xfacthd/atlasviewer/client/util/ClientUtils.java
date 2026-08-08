@@ -54,13 +54,6 @@ public final class ClientUtils {
         return font.split(text, width).size() * font.lineHeight;
     }
 
-    public static void drawColoredBox(GuiGraphicsExtractor graphics, int x, int y, int w, int h, int color) {
-        graphics.fill(RenderPipelines.GUI, x,         y,         x + 1, y + h, color);
-        graphics.fill(RenderPipelines.GUI, x + w - 1, y,         x + w, y + h, color);
-        graphics.fill(RenderPipelines.GUI, x,         y,         x + w, y + 1, color);
-        graphics.fill(RenderPipelines.GUI, x,         y + h - 1, x + w, y + h, color);
-    }
-
     public static void drawColoredBox(GuiGraphicsExtractor graphics, float x, float y, float w, float h, int color) {
         fill(graphics, RenderPipelines.GUI, x,          y,          x + 1F, y + h,  color);
         fill(graphics, RenderPipelines.GUI, x + w - 1F, y,          x + w,  y + h,  color);

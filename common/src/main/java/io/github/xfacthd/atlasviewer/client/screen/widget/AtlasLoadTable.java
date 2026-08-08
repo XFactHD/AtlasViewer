@@ -12,7 +12,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 import io.github.xfacthd.atlasviewer.client.screen.AtlasInfoScreen;
-import io.github.xfacthd.atlasviewer.client.util.ClientUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -80,7 +79,7 @@ public final class AtlasLoadTable extends AbstractWidget {
 
     @Override
     public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        ClientUtils.drawColoredBox(graphics, getX(), getY(), width, height, 0xFF000000);
+        graphics.outline(getX(), getY(), width, height, 0xFF000000);
 
         int x = getX() + 1;
         int y = getY() + 1;
