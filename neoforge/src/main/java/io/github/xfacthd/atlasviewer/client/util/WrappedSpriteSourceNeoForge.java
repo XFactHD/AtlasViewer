@@ -1,6 +1,6 @@
 package io.github.xfacthd.atlasviewer.client.util;
 
-import io.github.xfacthd.atlasviewer.client.util.WrappedSpriteSource;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.WrappedSpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.ResourceManager;

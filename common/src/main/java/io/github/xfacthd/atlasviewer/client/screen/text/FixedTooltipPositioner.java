@@ -1,4 +1,4 @@
-package io.github.xfacthd.atlasviewer.client.util;
+package io.github.xfacthd.atlasviewer.client.screen.text;
 
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import org.joml.Vector2i;

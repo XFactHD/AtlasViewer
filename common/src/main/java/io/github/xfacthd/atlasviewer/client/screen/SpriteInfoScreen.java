@@ -40,11 +40,11 @@ import io.github.xfacthd.atlasviewer.client.screen.widget.BackgroundSwitchButton
 import io.github.xfacthd.atlasviewer.client.screen.widget.CloseButton;
 import io.github.xfacthd.atlasviewer.client.screen.widget.DiscreteSliderButton;
 import io.github.xfacthd.atlasviewer.client.util.ClientUtils;
-import io.github.xfacthd.atlasviewer.client.util.FixedTooltipPositioner;
-import io.github.xfacthd.atlasviewer.client.util.SpriteSourceManager;
-import io.github.xfacthd.atlasviewer.client.util.TextLine;
-import io.github.xfacthd.atlasviewer.client.util.TooltipSeparator;
-import io.github.xfacthd.atlasviewer.client.util.SourceTooltipLine;
+import io.github.xfacthd.atlasviewer.client.screen.text.FixedTooltipPositioner;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.SpriteSourceManager;
+import io.github.xfacthd.atlasviewer.client.screen.text.TextLine;
+import io.github.xfacthd.atlasviewer.client.screen.text.TooltipSeparator;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.SourceTooltipLine;
 import io.github.xfacthd.atlasviewer.platform.Services;
 
 import java.io.IOException;

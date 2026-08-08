@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import io.github.xfacthd.atlasviewer.client.api.SourceAwareness;
-import io.github.xfacthd.atlasviewer.client.util.MissingTextureDummySpriteSource;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.MissingTextureDummySpriteSource;
 
 @Mixin(MissingTextureAtlasSprite.class)
 public class MixinMissingTextureAtlasSprite {

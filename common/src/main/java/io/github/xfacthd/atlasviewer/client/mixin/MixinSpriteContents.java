@@ -11,7 +11,7 @@ import net.minecraft.server.packs.resources.Resource;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import io.github.xfacthd.atlasviewer.client.util.WrappedSpriteSource;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.WrappedSpriteSource;
 
 @Mixin(SpriteContents.class)
 public class MixinSpriteContents implements ISpriteSourcePackAwareSpriteContents {

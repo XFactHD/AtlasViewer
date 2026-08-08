@@ -1,4 +1,4 @@
-package io.github.xfacthd.atlasviewer.client.util;
+package io.github.xfacthd.atlasviewer.client.sourcehandling;
 
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.Identifier;

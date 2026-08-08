@@ -14,8 +14,8 @@ import io.github.xfacthd.atlasviewer.client.tooltips.DirectoryListerTooltipAppen
 import io.github.xfacthd.atlasviewer.client.tooltips.PalettedPermutationsTooltipAppender;
 import io.github.xfacthd.atlasviewer.client.tooltips.SingleFileTooltipAppender;
 import io.github.xfacthd.atlasviewer.client.tooltips.UnstitcherTooltipAppender;
-import io.github.xfacthd.atlasviewer.client.util.MissingTextureDummySpriteSource;
-import io.github.xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.MissingTextureDummySpriteSource;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.SpriteSourceManager;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
-import io.github.xfacthd.atlasviewer.client.util.WrappedSpriteSource;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.WrappedSpriteSource;
 
 import java.nio.file.Path;
 

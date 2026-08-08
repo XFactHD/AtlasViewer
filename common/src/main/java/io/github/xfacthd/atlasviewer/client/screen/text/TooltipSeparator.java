@@ -1,4 +1,4 @@
-package io.github.xfacthd.atlasviewer.client.util;
+package io.github.xfacthd.atlasviewer.client.screen.text;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;

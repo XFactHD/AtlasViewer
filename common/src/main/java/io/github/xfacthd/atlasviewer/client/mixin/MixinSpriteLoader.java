@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import io.github.xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.SpriteSourceManager;
 
 @Mixin(SpriteLoader.class)
 public class MixinSpriteLoader {

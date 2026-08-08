@@ -9,7 +9,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import io.github.xfacthd.atlasviewer.client.AVClient;
-import io.github.xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.SpriteSourceManager;
 
 @Mod(value = AtlasViewer.MOD_ID, dist = Dist.CLIENT)
 public final class AtlasViewerNeoForge {

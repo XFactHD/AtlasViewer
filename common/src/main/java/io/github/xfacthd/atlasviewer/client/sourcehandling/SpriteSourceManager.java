@@ -1,4 +1,4 @@
-package io.github.xfacthd.atlasviewer.client.util;
+package io.github.xfacthd.atlasviewer.client.sourcehandling;
 
 import com.google.common.base.Preconditions;
 import net.minecraft.client.renderer.texture.SpriteContents;

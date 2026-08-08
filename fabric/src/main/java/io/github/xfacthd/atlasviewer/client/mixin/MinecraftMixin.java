@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import io.github.xfacthd.atlasviewer.client.screen.stacking.ScreenStacker;
-import io.github.xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.SpriteSourceManager;
 
 @Mixin(Minecraft.class)
 @SuppressWarnings({ "MethodMayBeStatic" })

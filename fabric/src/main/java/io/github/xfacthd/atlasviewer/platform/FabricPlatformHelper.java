@@ -13,7 +13,7 @@ import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
 import io.github.xfacthd.atlasviewer.client.screen.stacking.ScreenStacker;
 import io.github.xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
-import io.github.xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.SpriteSourceManager;
 import io.github.xfacthd.atlasviewer.platform.services.IPlatformHelper;
 
 import java.nio.file.Path;

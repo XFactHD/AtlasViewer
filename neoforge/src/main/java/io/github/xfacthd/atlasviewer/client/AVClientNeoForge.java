@@ -2,7 +2,7 @@ package io.github.xfacthd.atlasviewer.client;
 
 import net.neoforged.neoforge.client.textures.NamespacedDirectoryLister;
 import io.github.xfacthd.atlasviewer.client.tooltips.NamespacedDirectoryListerTooltipAppender;
-import io.github.xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.SpriteSourceManager;
 
 public final class AVClientNeoForge {
     public static void registerBuiltInSpriteSourceDetails() {

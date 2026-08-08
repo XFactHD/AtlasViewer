@@ -2,7 +2,7 @@ package io.github.xfacthd.atlasviewer.client.api;
 
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import org.jspecify.annotations.Nullable;
-import io.github.xfacthd.atlasviewer.client.util.WrappedSpriteSource;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.WrappedSpriteSource;
 
 public final class SpriteSupplierMeta {
     @Nullable

@@ -14,7 +14,7 @@ import net.neoforged.fml.loading.FMLPaths;
 import org.jspecify.annotations.Nullable;
 import io.github.xfacthd.atlasviewer.client.AVClientNeoForge;
 import io.github.xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
-import io.github.xfacthd.atlasviewer.client.util.SpriteSourceManager;
+import io.github.xfacthd.atlasviewer.client.sourcehandling.SpriteSourceManager;
 import io.github.xfacthd.atlasviewer.client.util.WrappedSpriteSourceNeoForge;
 import io.github.xfacthd.atlasviewer.platform.services.IPlatformHelper;
 
