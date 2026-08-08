@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
+import io.github.xfacthd.atlasviewer.client.screen.state.MultiBlitRenderState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -60,6 +61,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     private static final Component TITLE = Component.translatable("title.atlasviewer.atlasviewer");
     private static final Component TITLE_HIGHLIGHT_ANIM = Component.translatable("btn.atlasviewer.highlight_animated");
     private static final Component TITLE_HIGHLIGHT_BROKEN_MIP = Component.translatable("btn.atlasviewer.highlight_broken_mip");
+    private static final Component TITLE_HIDE_PADDING = Component.translatable("btn.atlasviewer.hide_padding");
     private static final Component TITLE_EXPORT = Component.translatable("btn.atlasviewer.export_atlas");
     private static final Component TITLE_EXPORT_MIPPED = Component.translatable("btn.atlasviewer.export_mipped_atlas");
     private static final Component TITLE_TOOLS = Component.translatable("btn.atlasviewer.menu");
@@ -75,6 +77,8 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     private static final int HIGHLIGHT_ANIM_HEIGHT = 20;
     private static final int HIGHLIGHT_BROKEN_MIP_WIDTH = 160;
     private static final int HIGHLIGHT_BROKEN_MIP_HEIGHT = 20;
+    private static final int HIDE_PADDING_WIDTH = 160;
+    private static final int HIDE_PADDING_HEIGHT = 20;
     private static final int EXPORT_WIDTH = 100;
     private static final int EXPORT_HEIGHT = 20;
     private static final int SEARCH_BAR_WIDTH = 198;
@@ -102,6 +106,8 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     @UnknownNullability
     private IndicatorButton btnHighlightBrokenMip;
     @UnknownNullability
+    private IndicatorButton btnHidePadding;
+    @UnknownNullability
     private Button btnExport;
     @UnknownNullability
     private Button btnExportMipped;
@@ -126,6 +132,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     private final List<Rect2i> animatedLocations = new ArrayList<>();
     private final List<Rect2i> brokenMipLocations = new ArrayList<>();
     private final List<Rect2i> searchResultLocations = new ArrayList<>();
+    private boolean hidePadding = false;
     @Nullable
     private TextureAtlasSprite hoveredSprite = null;
     private int currentMipLevel = 0;
@@ -167,6 +174,13 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
                 TITLE_HIGHLIGHT_BROKEN_MIP,
                 btnHighlightBrokenMip,
                 this::highlightBrokenMip
+        )));
+        menu.addMenuEntry(btnHidePadding = addRenderableWidget(new IndicatorButton(
+                0, 0,
+                HIDE_PADDING_WIDTH, HIDE_PADDING_HEIGHT,
+                TITLE_HIDE_PADDING,
+                btnHidePadding,
+                this::hidePadding
         )));
         menu.addMenuEntry(btnExport = addRenderableWidget(
                 Button.builder(TITLE_EXPORT, this::exportAtlas)
@@ -240,19 +254,29 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
         graphics.enableScissor(atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight);
         Objects.requireNonNull(currentAtlas);
-        GpuTextureView atlasTexView = currentAtlas.atlas().atlasview$getMippedTextureView(currentMipLevel);
+        GpuTextureView atlasTexView = Objects.requireNonNull(currentAtlas).atlas().atlasview$getMippedTextureView(currentMipLevel);
         GpuSampler sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
-        ClientUtils.blitSpecial(
-                graphics,
-                RenderPipelines.GUI_TEXTURED,
-                TextureSetup.singleTexture(atlasTexView, sampler),
-                atlasLeft + offsetX,
-                atlasTop + offsetY,
-                atlasLeft + offsetX + atlasSize.width * scale,
-                atlasTop + offsetY + atlasSize.height * scale,
-                0F, 1F, 0F, 1F,
-                0xFFFFFFFF
-        );
+        TextureSetup textureSetup = TextureSetup.singleTexture(atlasTexView, sampler);
+        List<MultiBlitRenderState.Quad> atlasQuads;
+        if (hidePadding) {
+            atlasQuads = new ArrayList<>(Objects.requireNonNull(sprites).size());
+            Rect2i visibleRect = new Rect2i(
+                    Mth.floor(-offsetX / scale),
+                    Mth.floor(-offsetY / scale),
+                    Mth.ceil(Math.min(atlasSize.width, maxAtlasWidth / scale)),
+                    Mth.ceil(Math.min(atlasSize.height, maxAtlasHeight / scale))
+            );
+            Objects.requireNonNull(spriteTree).forEachIntersecting(visibleRect, (rect, sprite) -> {
+                int spriteWidth = sprite.contents().width();
+                int spriteHeight = sprite.contents().height();
+                float spriteX = atlasLeft + offsetX + ((rect.getX() + (rect.getWidth() - spriteWidth) / 2F) * scale);
+                float spriteY = atlasTop + offsetY + ((rect.getY() + (rect.getHeight() - spriteHeight) / 2F) * scale);
+                atlasQuads.add(new MultiBlitRenderState.Quad(spriteX, spriteY, spriteWidth * scale, spriteHeight * scale, sprite));
+            });
+        } else {
+            atlasQuads = List.of(new MultiBlitRenderState.Quad(atlasLeft + offsetX, atlasTop + offsetY, atlasSize.width * scale, atlasSize.height * scale));
+        }
+        ClientUtils.blitMultiQuad(graphics, RenderPipelines.GUI_TEXTURED, textureSetup, atlasLeft, atlasTop, atlasLeft + maxAtlasWidth, atlasTop + maxAtlasHeight, atlasQuads, 0xFFFFFFFF);
         graphics.disableScissor();
 
         graphics.enableScissor(atlasLeft - 1, atlasTop - 1, atlasLeft + maxAtlasWidth + 1, atlasTop + maxAtlasHeight + 1);
@@ -325,8 +349,8 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
 
         float nsx = Math.max(sx, atlasLeft);
         float nsy = Math.max(sy, atlasTop);
-        sw = Math.min(sw - (nsx - sx), Math.max(atlasLeft + maxAtlasWidth - nsx, 0));
-        sh = Math.min(sh - (nsy - sy), Math.max(atlasTop + maxAtlasHeight - nsy, 0));
+        sw = Math.clamp(atlasLeft + maxAtlasWidth - nsx, 0, sw - (nsx - sx));
+        sh = Math.clamp(atlasTop + maxAtlasHeight - nsy, 0, sh - (nsy - sy));
         sx = nsx;
         sy = nsy;
 
@@ -484,6 +508,10 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         if (btnHighlightBrokenMip.isChecked()) {
             gatherBrokenMipLocations();
         }
+    }
+
+    private void hidePadding(Button btn) {
+        hidePadding = btnHidePadding.isChecked();
     }
 
     private void gatherAnimatedLocations() {

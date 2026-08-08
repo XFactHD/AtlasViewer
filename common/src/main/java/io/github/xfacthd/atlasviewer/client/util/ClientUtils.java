@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
+import io.github.xfacthd.atlasviewer.client.screen.state.MultiBlitRenderState;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -25,6 +26,7 @@ import io.github.xfacthd.atlasviewer.client.screen.state.FloatColoredRectangleRe
 import io.github.xfacthd.atlasviewer.platform.Services;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
@@ -98,6 +100,25 @@ public final class ClientUtils {
         ScreenRectangle bounds = getBounds(minX, minY, maxX, maxY, pose, scissorRect);
         Services.PLATFORM.submitCustomGuiRenderState(graphics, new FloatBlitRenderState(
                 pipeline, textureSetup, pose, minX, minY, maxX, maxY, minU, maxU, minV, maxV, color, scissorRect, bounds
+        ));
+    }
+
+    public static void blitMultiQuad(
+            GuiGraphicsExtractor graphics,
+            RenderPipeline pipeline,
+            TextureSetup textureSetup,
+            float minX,
+            float minY,
+            float maxX,
+            float maxY,
+            List<MultiBlitRenderState.Quad> quads,
+            int color
+    ) {
+        Matrix3x2f pose = new Matrix3x2f(graphics.pose());
+        ScreenRectangle scissorRect = Services.PLATFORM.peekScissorState(graphics);
+        ScreenRectangle bounds = getBounds(minX, minY, maxX, maxY, pose, scissorRect);
+        Services.PLATFORM.submitCustomGuiRenderState(graphics, new MultiBlitRenderState(
+                pipeline, textureSetup, pose, quads, color, scissorRect, bounds
         ));
     }
 

@@ -21,6 +21,14 @@ public class Rect2i {
         return y;
     }
 
+    public final int getMaxX() {
+        return x + width;
+    }
+
+    public final int getMaxY() {
+        return y + height;
+    }
+
     public final int getWidth() {
         return width;
     }
@@ -35,5 +43,9 @@ public class Rect2i {
 
     public final boolean contains(Rect2i rect) {
         return contains(rect.x, rect.y) && contains(rect.x + rect.width, rect.y + rect.height);
+    }
+
+    public final boolean intersects(Rect2i rect) {
+        return x < rect.getMaxX() && getMaxX() > rect.x && y < rect.getMaxY() && getMaxY() > rect.y;
     }
 }

@@ -4,6 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public final class QuadTree<T> extends Rect2i {
@@ -148,6 +149,23 @@ public final class QuadTree<T> extends Rect2i {
             return minRect;
         }
         return this;
+    }
+
+    public void forEachIntersecting(Rect2i rect, BiConsumer<Rect2i, T> consumer) {
+        if (entries != null) {
+            for (Entry<T> entry : entries) {
+                if (rect.intersects(entry)) {
+                    consumer.accept(entry, entry.item);
+                }
+            }
+        }
+        if (children != null) {
+            for (QuadTree<T> child : children) {
+                if (child != null && rect.intersects(child)) {
+                    child.forEachIntersecting(rect, consumer);
+                }
+            }
+        }
     }
 
     private static final class Entry<T> extends Rect2i {

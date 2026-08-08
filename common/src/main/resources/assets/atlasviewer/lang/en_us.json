@@ -60,6 +60,7 @@
     "value.atlasviewer.atlas_sprites_by_max_mip": "0: %s, 1: %s, 2: %s, 3: %s, 4: %s",
     "btn.atlasviewer.highlight_animated": "Highlight animated sprites",
     "btn.atlasviewer.highlight_broken_mip": "Highlight broken mip",
+    "btn.atlasviewer.hide_padding": "Hide sprite padding",
     "btn.atlasviewer.export_atlas": "Export Atlas",
     "btn.atlasviewer.export_mipped_atlas": "Export Atlas (mipped)",
     "btn.atlasviewer.export_sprite": "Export Sprite",
