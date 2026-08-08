@@ -458,7 +458,9 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
                 .min()
                 .orElseThrow();
         spriteTree = new QuadTree<>(atlasSize.width, atlasSize.height, minSize);
-        sprites.forEach(s -> spriteTree.insert(s, AtlasScreen::getSpriteSize));
+        for (TextureAtlasSprite s : sprites) {
+            spriteTree.insert(s, AtlasScreen::getSpriteSize);
+        }
         spriteTree.trim();
         Rect2i minRect = spriteTree.minSize();
         AtlasViewer.LOGGER.debug(
@@ -539,11 +541,12 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     }
 
     private void exportAtlas(int mipLevel) {
-        ClientUtils.downloadTexture(Objects.requireNonNull(currentAtlas).atlas().getTexture(), mipLevel, image -> {
+        AtlasManager.AtlasEntry atlasEntry = Objects.requireNonNull(currentAtlas);
+        ClientUtils.downloadTexture(atlasEntry.atlas().getTexture(), mipLevel, image -> {
             try {
-                Path imgPath = exportNativeImage(image, currentAtlas.config().textureId(), "atlas", mipLevel, true, MSG_EXPORT_SUCCESS);
+                Path imgPath = exportNativeImage(image, atlasEntry.config().textureId(), "atlas", mipLevel, true, MSG_EXPORT_SUCCESS);
                 if (mipLevel == 0) {
-                    Map<Identifier, TextureAtlasSprite> sprites = currentAtlas.atlas().atlasviewer$getTexturesByName();
+                    Map<Identifier, TextureAtlasSprite> sprites = atlasEntry.atlas().atlasviewer$getTexturesByName();
                     TextureAtlas.dumpSpriteNames(imgPath.getParent(), imgPath.getFileName().toString(), sprites);
                 }
             } catch (IOException e) {
