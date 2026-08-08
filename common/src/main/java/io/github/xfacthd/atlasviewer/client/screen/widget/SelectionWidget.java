@@ -17,10 +17,9 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -29,16 +28,25 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-//TODO: add drag scrolling
 public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> extends AbstractButton {
     private static final Identifier ARROW_UP = Identifier.withDefaultNamespace("transferable_list/move_up");
     private static final Identifier ARROW_DOWN = Identifier.withDefaultNamespace("transferable_list/move_down");
+    private static final int MAX_VISIBLE_ENTRIES = 4;
+    private static final int AUTOSCROLL_OFFSET = (MAX_VISIBLE_ENTRIES - 1) / 2;
+    private static final int BORDER = 1;
+    private static final int CONTENT_PADDING = 6;
     // The arrow sprites have whitespace around the content, coordinates need to be offset accordingly
     private static final int ARROW_UP_OFF_X = 18;
     private static final int ARROW_UP_OFF_Y = 5;
     private static final int ARROW_DOWN_OFF_X = 18;
     private static final int ARROW_DOWN_OFF_Y = 20;
+    private static final int ARROW_SIZE = 32;
+    private static final int BASE_HEIGHT = 20;
     private static final int ENTRY_HEIGHT = 20;
+    private static final int MAX_LIST_HEIGHT = ENTRY_HEIGHT * MAX_VISIBLE_ENTRIES;
+    private static final int SCROLLER_WIDTH = 4;
+    private static final int SCROLLER_BOX_WIDTH = SCROLLER_WIDTH + BORDER * 2;
+    private static final int SCROLLER_HEIGHT = 24;
     private final Screen owner;
     private final Component title;
     @Nullable
@@ -50,9 +58,10 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     private T selected = null;
     private boolean extended = false;
     private int scrollOffset = 0;
+    private boolean dragging = false;
 
     public SelectionWidget(Screen owner, int x, int y, int width, Component title, @Nullable Consumer<T> selectCallback) {
-        super(x, y, width, ENTRY_HEIGHT, Component.empty());
+        super(x, y, width, BASE_HEIGHT, Component.empty());
         this.owner = owner;
         this.title = title;
         this.selectCallback = selectCallback;
@@ -60,60 +69,69 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
 
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-        extractDefaultSprite(graphics);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITES.get(active, isHoveredOrFocused()), getX(), getY(), getWidth(), BASE_HEIGHT, ARGB.white(alpha));
 
-        int fgColor = active ? 0xFFFFFF : 0xA0A0A0;
+        int textColor = ARGB.color(alpha, active ? 0xFFFFFF : 0xA0A0A0);
 
         if (selected != null) {
             boolean entryFocused = selected.isFocused();
             selected.focused = false;
-            selected.render(graphics, getX(), getY(), width, false, fgColor, alpha);
+            selected.render(graphics, getX(), getY(), width, false, false, textColor);
             selected.focused = entryFocused;
         } else {
             Font font = Minecraft.getInstance().font;
-            graphics.text(font, title, getX() + 6, getY() + (height - 8) / 2, fgColor | Mth.ceil(alpha * 255.0F) << 24);
+            graphics.text(font, title, getX() + CONTENT_PADDING, getY() + CONTENT_PADDING, textColor);
         }
 
         if (extended) {
-            int boxHeight = Math.max(1, ENTRY_HEIGHT * Math.min(entries.size(), 4)) + 2;
+            int listY = getListY();
+            int boxHeight = getListHeight(1) + BORDER * 2;
+            boolean scrollable = hasScrollBar();
 
-            graphics.fill(getX(),     getY() + ENTRY_HEIGHT - 1, getX() + width,     getY() + ENTRY_HEIGHT + boxHeight - 1, 0xFFFFFFFF);
-            graphics.fill(getX() + 1, getY() + ENTRY_HEIGHT,     getX() + width - 1, getY() + ENTRY_HEIGHT + boxHeight - 2, 0xFF000000);
+            int frameY = listY - BORDER;
+            graphics.fill(getX(),          frameY,          getRight(),          frameY + boxHeight,          0xFFFFFFFF);
+            graphics.fill(getX() + BORDER, frameY + BORDER, getRight() - BORDER, frameY + boxHeight - BORDER, 0xFF000000);
+            if (scrollable) {
+                graphics.verticalLine(getRight() - SCROLLER_BOX_WIDTH, frameY, frameY + boxHeight, 0xFFFFFFFF);
+            }
 
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARROW_UP, getX() + width - 17 - ARROW_UP_OFF_X, getY() + 6 - ARROW_UP_OFF_Y, 32, 32);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARROW_UP, getRight() - 17 - ARROW_UP_OFF_X, getY() + 6 - ARROW_UP_OFF_Y, 32, 32);
 
             T hoverEntry = getEntryAtPosition(mouseX, mouseY);
+            int entryWidth = width - (BORDER * 2) - (scrollable ? (SCROLLER_WIDTH + BORDER) : 0);
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < MAX_VISIBLE_ENTRIES; i++) {
                 int idx = i + scrollOffset;
-                if (idx < entries.size()) {
-                    int entryY = getY() + ((i + 1) * ENTRY_HEIGHT);
-
-                    T entry = entries.get(idx);
-                    entry.render(graphics, getX() + 1, entryY, width - 2, entry == hoverEntry, fgColor, alpha);
+                if (idx >= entries.size()) {
+                    break;
                 }
+
+                T entry = entries.get(idx);
+                int entryY = listY + (ENTRY_HEIGHT * i);
+                entry.render(graphics, getX() + BORDER, entryY, entryWidth, entry == hoverEntry, entry == selected, textColor);
             }
 
-            if (entries.size() > 4) {
-                float scale = 4F / (float) entries.size();
-                int scrollY = getY() + (int) (ENTRY_HEIGHT * scrollOffset * scale) + ENTRY_HEIGHT;
-                int barHeight = (int) (ENTRY_HEIGHT * 4 * scale + 1);
-                int scrollBotY = Math.min(scrollY + barHeight, getY() + ENTRY_HEIGHT + boxHeight - 2);
+            if (scrollable) {
+                float scrollFactor = (float) scrollOffset / (entries.size() - MAX_VISIBLE_ENTRIES);
+                int scrollMinX = getRight() - BORDER - SCROLLER_WIDTH;
+                int scrollMaxX = scrollMinX + SCROLLER_WIDTH;
+                int scrollMinY = listY + (int) (scrollFactor * (MAX_LIST_HEIGHT - SCROLLER_HEIGHT));
+                int scrollMaxY = scrollMinY + SCROLLER_HEIGHT;
 
-                graphics.fill(getX() + width - 5, scrollY,     getX() + width - 1, scrollBotY,     0xFF666666);
-                graphics.fill(getX() + width - 4, scrollY + 1, getX() + width - 2, scrollBotY - 1, 0xFFAAAAAA);
+                graphics.fill(scrollMinX,          scrollMinY,          scrollMaxX,          scrollMaxY,          0xFF666666);
+                graphics.fill(scrollMinX + BORDER, scrollMinY + BORDER, scrollMaxX - BORDER, scrollMaxY - BORDER, 0xFFAAAAAA);
             }
         } else {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARROW_DOWN, getX() + width - 17 - ARROW_DOWN_OFF_X, getY() + 6 - ARROW_DOWN_OFF_Y, 32, 32);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, ARROW_DOWN, getRight() - 17 - ARROW_DOWN_OFF_X, getY() + 6 - ARROW_DOWN_OFF_Y, ARROW_SIZE, ARROW_SIZE);
         }
     }
 
     @Override
     public int getHeight() {
         if (extended) {
-            return ENTRY_HEIGHT * (Math.min(entries.size(), 4) + 1) + 1;
+            return BASE_HEIGHT + getListHeight(1) + BORDER;
         }
-        return ENTRY_HEIGHT;
+        return BASE_HEIGHT;
     }
 
     @Override
@@ -121,26 +139,56 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (active && event.x() >= getX() && event.x() <= getX() + width && event.y() >= getY() && event.y() <= getY() + getHeight()) {
-            int maxX = getX() + width - (entries.size() > 4 ? 5 : 0);
-            int maxY = getY() + ENTRY_HEIGHT * Math.min(entries.size() + 1, 5);
-            if (extended && event.x() < maxX && event.y() > (getY() + ENTRY_HEIGHT) && event.y() < maxY) {
-                setSelected(getEntryAtPosition(event.x(), event.y()), true);
-            }
-
-            if ((event.y() < getY() + ENTRY_HEIGHT && event.x() < getX() + width) || event.x() < maxX) {
-                toggleExtended();
-            }
-
+        if (!active || !isMouseOver(event.x(), event.y())) {
+            setExtended(false);
+            return super.mouseClicked(event, doubleClick);
+        }
+        if (event.y() < getListY()) {
+            toggleExtended();
             playDownSound(Minecraft.getInstance().getSoundManager());
-
             return true;
         }
+        if (!extended) {
+            return false;
+        }
 
-        extended = false;
-        scrollOffset = 0;
+        boolean scrollable = hasScrollBar();
+        int minX = getX() + BORDER;
+        int maxX = getRight() - BORDER;
+        int maxElemX = scrollable ? (maxX - SCROLLER_WIDTH - BORDER) : maxX;
+        int maxY = getListY() + getListHeight(0);
+        if (event.x() < minX || event.x() > maxX || event.y() > maxY) {
+            return true;
+        }
+        if (scrollable && event.x() >= maxX - SCROLLER_WIDTH) {
+            dragging = true;
+            return true;
+        } else if (event.x() < maxElemX) {
+            setSelected(getEntryAtPosition(event.x(), event.y()), true);
+            playDownSound(Minecraft.getInstance().getSoundManager());
+            toggleExtended();
+        }
+        return true;
+    }
 
-        return super.mouseClicked(event, doubleClick);
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        dragging = false;
+        return super.mouseReleased(event);
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (dragging) {
+            int minY = getListY();
+            int maxY = getBottom() - BORDER;
+            int relY = (int) Math.round(Math.clamp(event.y(), minY, maxY) - minY);
+            int maxOffset = entries.size() - MAX_VISIBLE_ENTRIES;
+            float factor = (relY - (SCROLLER_HEIGHT / 2F)) / (MAX_LIST_HEIGHT - SCROLLER_HEIGHT);
+            scrollOffset = (int) Math.clamp(factor * maxOffset, 0, maxOffset);
+            return true;
+        }
+        return super.mouseDragged(event, dx, dy);
     }
 
     @Override
@@ -161,6 +209,18 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         return false;
     }
 
+    private int getListY() {
+        return getY() + BASE_HEIGHT;
+    }
+
+    private int getListHeight(int min) {
+        return ENTRY_HEIGHT * Math.clamp(entries.size(), min, MAX_VISIBLE_ENTRIES);
+    }
+
+    private boolean hasScrollBar() {
+        return entries.size() > MAX_VISIBLE_ENTRIES;
+    }
+
     public boolean isExtended() {
         return extended;
     }
@@ -176,7 +236,7 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         scrollOffset = 0;
         if (extended && selected != null) {
             owner.setFocused(selected);
-            scrollOffset = Math.min(entries.indexOf(selected), entries.size() - 4);
+            scrollTo(selected, true);
         } else if (!extended && focused != null) {
             focused = null;
             owner.setFocused(this);
@@ -185,9 +245,10 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
-        int maxY = getY() + ENTRY_HEIGHT * Math.min(entries.size() + 1, 5);
-        if (extended && mouseX >= getX() && mouseX <= getX() + width && mouseY > getY() + ENTRY_HEIGHT && mouseY < maxY) {
-            if (deltaY < 0 && scrollOffset < entries.size() - 4) {
+        int minY = getListY();
+        int maxY = minY + getListHeight(0);
+        if (extended && mouseX >= getX() && mouseX <= getRight() && mouseY > minY && mouseY < maxY) {
+            if (deltaY < 0 && scrollOffset < entries.size() - MAX_VISIBLE_ENTRIES) {
                 scrollOffset++;
             } else if (deltaY > 0 && scrollOffset > 0) {
                 scrollOffset--;
@@ -198,33 +259,40 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
     }
 
     @Override
-    public boolean isMouseOver(double pMouseX, double pMouseY) {
+    public boolean isMouseOver(double mouseX, double mouseY) {
         if (!active || !visible) {
             return false;
         }
-        return pMouseX >= getX() && pMouseY >= getY() && pMouseX < (getX() + width) && pMouseY < (getY() + getHeight());
+        return mouseX >= getX() && mouseY >= getY() && mouseX < getRight() && mouseY < getBottom();
     }
 
     private @Nullable T getEntryAtPosition(double mouseX, double mouseY) {
-        if (mouseX < getX() || mouseX > getX() + width || mouseY < (getY() + ENTRY_HEIGHT) || mouseY > (getY() + (ENTRY_HEIGHT * 5))) {
+        int maxX = getRight() - (hasScrollBar() ? SCROLLER_BOX_WIDTH : BORDER);
+        int minY = getListY();
+        int maxY = minY + getListHeight(0);
+        if (mouseX < getX() + BORDER || mouseX >= maxX || mouseY < minY || mouseY > maxY) {
             return null;
         }
 
-        double posY = mouseY - (getY() + ENTRY_HEIGHT);
+        double posY = mouseY - minY;
         int idx = (int) (posY / ENTRY_HEIGHT) + scrollOffset;
-
         return idx < entries.size() ? entries.get(idx) : null;
     }
 
-    void focusAndScrollTo(T entry) {
+    private void focusAndScrollTo(T entry) {
         focused = entry;
+        scrollTo(entry, false);
+    }
 
+    private void scrollTo(T entry, boolean initial) {
         int idx = entries.indexOf(entry);
         if (idx < 0 || idx >= entries.size()) {
             return;
         }
 
-        if (idx < scrollOffset) {
+        if (initial) {
+            scrollOffset = Math.clamp(idx - AUTOSCROLL_OFFSET, 0, entries.size() - (MAX_VISIBLE_ENTRIES));
+        } else if (idx < scrollOffset) {
             scrollOffset = idx;
         } else if (idx > (scrollOffset + 3)) {
             scrollOffset = idx - 3;
@@ -305,14 +373,16 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
             this.message = message;
         }
 
-        public void render(GuiGraphicsExtractor graphics, int x, int y, int width, boolean hovered, int fgColor, float alpha) {
+        public void render(GuiGraphicsExtractor graphics, int x, int y, int width, boolean hovered, boolean selected, int textColor) {
             if (hovered || focused) {
                 graphics.fill(x, y, x + width, y + ENTRY_HEIGHT, 0xFFA0A0A0);
+            } else if (selected) {
+                graphics.fill(x, y, x + width, y + ENTRY_HEIGHT, 0xFF505050);
             }
 
             Font font = Minecraft.getInstance().font;
-            FormattedCharSequence text = Language.getInstance().getVisualOrder(FormattedText.composite(font.substrByWidth(message, width - 12)));
-            graphics.text(font, text, x + 6, y + 6, fgColor | Mth.ceil(alpha * 255.0F) << 24);
+            FormattedCharSequence text = Language.getInstance().getVisualOrder(font.substrByWidth(message, width - (CONTENT_PADDING * 2)));
+            graphics.text(font, text, x + CONTENT_PADDING, y + CONTENT_PADDING, textColor);
         }
 
         @Override
@@ -324,9 +394,9 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
             if (isFocused() && event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection dir, _)) {
-                //noinspection unchecked
                 SelectionEntry<T> entry = Objects.requireNonNull(owner).getFocusNeighbour((T) this, dir);
                 if (entry != null) {
                     return ComponentPath.leaf(entry);
@@ -336,10 +406,10 @@ public final class SelectionWidget<T extends SelectionWidget.SelectionEntry<T>> 
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public final void setFocused(boolean focused) {
             this.focused = focused;
             if (focused) {
-                //noinspection unchecked
                 Objects.requireNonNull(owner).focusAndScrollTo((T) this);
             }
         }

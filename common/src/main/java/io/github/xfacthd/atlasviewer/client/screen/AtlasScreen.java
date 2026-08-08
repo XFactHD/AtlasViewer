@@ -9,6 +9,8 @@ import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import io.github.xfacthd.atlasviewer.client.screen.state.MultiBlitRenderState;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -20,6 +22,7 @@ import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.sprite.AtlasManager;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -92,6 +95,7 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
     private static final int BG_SWITCHER_WIDTH = 180;
     private static final int TOOL_MENU_Y = PADDING * 3;
     private static final Map<TextureAtlas, Size> ATLAS_SIZES = new WeakHashMap<>();
+    private static final Comparator<Identifier> ATLAS_COMPARATOR = buildAtlasComparator();
 
     private int atlasLeft;
     private int atlasTop;
@@ -223,9 +227,11 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
         atlases.clear();
         atlases.putAll(minecraft().getAtlasManager().atlasviewer$getAtlasesByTexture());
 
-        for (Identifier loc : atlases.keySet()) {
-            atlasSelection.addEntry(new AtlasEntry(loc));
-        }
+        atlases.keySet()
+                .stream()
+                .sorted(ATLAS_COMPARATOR)
+                .map(AtlasEntry::new)
+                .forEachOrdered(atlasSelection::addEntry);
 
         Identifier currLoc = currentAtlas != null && atlases.containsKey(currentAtlas.config().textureId())
                 ? currentAtlas.config().textureId()
@@ -688,6 +694,27 @@ public final class AtlasScreen extends AtlasViewerScreen implements SearchHandle
                         .withHoverEvent(new HoverEvent.ShowText(HOVER_MSG_CLICK_TO_OPEN))
                         .withClickEvent(new ClickEvent.OpenFile(path.toString()))
                 );
+    }
+
+    private static Comparator<Identifier> buildAtlasComparator() {
+        Object2IntMap<Identifier> atlases = new Object2IntOpenHashMap<>();
+        atlases.defaultReturnValue(AtlasManager.KNOWN_ATLASES.size());
+        int indexCounter = 2;
+        for (AtlasManager.AtlasConfig atlas : AtlasManager.KNOWN_ATLASES) {
+            int index;
+            if (atlas.definitionLocation().equals(AtlasIds.BLOCKS)) {
+                index = 0;
+            } else if (atlas.definitionLocation().equals(AtlasIds.ITEMS)) {
+                index = 1;
+            } else {
+                index = indexCounter;
+                indexCounter++;
+            }
+            atlases.put(atlas.textureId(), index);
+        }
+        return Comparator.<Identifier>comparingInt(atlases::getInt)
+                .thenComparing(Identifier::getNamespace)
+                .thenComparing(Identifier::getPath);
     }
 
     public record Size(int width, int height) { }
